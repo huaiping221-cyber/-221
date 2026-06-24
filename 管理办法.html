@@ -1,0 +1,1451 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>企业管理办法图书库（完整版）</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: system-ui, -apple-system, sans-serif;
+        }
+        :root {
+            --primary: #2563eb;
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --gray-100: #f3f4f6;
+            --gray-200: #e5e7eb;
+            --gray-400: #9ca3af;
+            --gray-600: #4b5563;
+            --gray-800: #1f2937;
+            --table-header-bg: #f9fafb;
+            --table-row-hover: #eff6ff;
+        }
+        body {
+            background: #f5f7fa;
+            padding: 20px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+            margin-bottom: 20px;
+            transition: all 0.3s;
+        }
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            user-select: none;
+        }
+        .card-header h2 {
+            margin-bottom: 0 !important;
+        }
+        .card-collapse {
+            max-height: 3000px;
+            overflow: hidden;
+            transition: max-height 0.4s ease;
+        }
+        .card.collapsed .card-collapse {
+            max-height: 0;
+        }
+        .card-toggle {
+            font-size: 20px;
+            color: var(--gray-600);
+            transition: transform 0.3s;
+        }
+        .card.collapsed .card-toggle {
+            transform: rotate(-90deg);
+        }
+        h2 {
+            margin-bottom: 16px;
+            color: #222;
+            font-size: 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .top-wrap {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-top: 16px;
+        }
+        .search-wrap {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+        }
+        .upload-form {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .upload-row {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        input, select {
+            padding: 10px 14px;
+            border: 1px solid var(--gray-200);
+            border-radius: 8px;
+            font-size: 15px;
+        }
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+        .input-flex {
+            flex: 1;
+            min-width: 160px;
+        }
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        button {
+            padding: 10px 14px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: 0.2s;
+            font-size: 14px;
+        }
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+        .btn-primary:hover {
+            background: #1d4ed8;
+        }
+        .btn-success {
+            background: var(--success);
+            color: white;
+        }
+        .btn-success:hover {
+            background: #059669;
+        }
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+        }
+        .btn-danger:hover {
+            background: #dc2626;
+        }
+        .btn-warning {
+            background: var(--warning);
+            color: white;
+        }
+        .btn-warning:hover {
+            background: #d97706;
+        }
+        .btn-outline {
+            background: white;
+            border: 1px solid var(--gray-200);
+            color: var(--gray-600);
+        }
+        .btn-outline:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+        .filter-row {
+            margin-bottom: 12px;
+        }
+        .filter-title {
+            font-size: 14px;
+            color: var(--gray-600);
+            margin-bottom: 8px;
+        }
+        .filter-bar {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .filter-tag {
+            padding: 6px 14px;
+            border: 1px solid var(--gray-200);
+            border-radius: 20px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: 0.2s;
+            user-select: none;
+        }
+        .filter-tag.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+        .filter-tag:hover:not(.active) {
+            border-color: var(--primary);
+        }
+        .skeleton-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 12px;
+            margin-top: 16px;
+        }
+        .skeleton-item {
+            height: 120px;
+            background: linear-gradient(90deg, #eee 25%, #e0e0e0 50%, #eee 75%);
+            background-size: 200% 100%;
+            animation: skeleton-loading 1.5s infinite;
+            border-radius: 10px;
+        }
+        @keyframes skeleton-loading {
+            0% {background-position: 200% 0;}
+            100% {background-position: -200% 0;}
+        }
+        /* 卡片视图样式 */
+        .file-list {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+            margin-top: 16px;
+        }
+        .file-item {
+            border: 1px solid var(--gray-200);
+            border-radius: 10px;
+            padding: 14px;
+            cursor: pointer;
+            transition: 0.2s;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            min-height: 140px;
+        }
+        .file-item:hover {
+            border-color: var(--primary);
+            background: #f0f7ff;
+        }
+        .file-icon {
+            font-size: 24px;
+            margin-bottom: 8px;
+        }
+        .file-name {
+            font-size: 14px;
+            word-break: break-all;
+            margin-bottom: 8px;
+            padding-right: 24px;
+            flex: 1;
+        }
+        .file-meta {
+            font-size: 12px;
+            color: var(--gray-400);
+            line-height: 1.5;
+        }
+        .file-tag-group {
+            display: flex;
+            gap: 4px;
+            margin-top: 6px;
+            flex-wrap: wrap;
+        }
+        .mini-tag {
+            font-size: 10px;
+            padding: 2px 6px;
+            background: #eef2ff;
+            color: var(--primary);
+            border-radius: 4px;
+        }
+        .star-btn, .rename-btn, .del-file-btn, .batch-check {
+            position: absolute;
+            width: 22px;
+            height: 22px;
+            font-size: 16px;
+            padding: 0;
+            background: transparent;
+            border: none;
+            opacity: 0;
+            pointer-events: none;
+            transition: 0.2s;
+        }
+        .batch-check {
+            top: 8px;
+            left: 8px;
+            opacity: 1;
+            pointer-events: auto;
+            z-index: 2;
+        }
+        .star-btn {
+            top: 8px;
+            right: 8px;
+            color: var(--gray-400);
+        }
+        .star-btn.star-active {
+            color: #f59e0b;
+            opacity: 1;
+        }
+        .rename-btn {
+            bottom: 32px;
+            right: 8px;
+            color: var(--primary);
+        }
+        .del-file-btn {
+            bottom: 8px;
+            right: 8px;
+            color: var(--danger);
+        }
+        .file-item:hover .star-btn,
+        .file-item:hover .rename-btn,
+        .file-item:hover .del-file-btn {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        /* ========== 全新Windows风格列表表格 ========== */
+        .file-list.table {
+            display: flex;
+            flex-direction: column;
+            margin-top:16px;
+            border: 1px solid var(--gray-200);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        /* 表头 */
+        .table-header-row {
+            display: grid;
+            grid-template-columns: 32px 1fr 0px 130px;
+            padding:10px 16px;
+            background: var(--table-header-bg);
+            font-weight:500;
+            font-size:14px;
+            color:var(--gray-600);
+            border-bottom:1px solid var(--gray-200);
+        }
+        /* 表格行 */
+        .file-list.table .file-item {
+            display: grid !important;
+            grid-template-columns: 32px 1fr 0px 130px;
+            min-height: 48px;
+            border-radius: 0;
+            border: none;
+            border-bottom: 1px solid var(--gray-200);
+            align-items: center;
+            padding: 0 16px;
+            gap: 0;
+            flex-direction: unset;
+        }
+        .file-list.table .file-item:last-child {
+            border-bottom: none;
+        }
+        .file-list.table .file-item:hover {
+            background: var(--table-row-hover);
+        }
+        /* 表格内元素重置 */
+        .file-list.table .batch-check {
+            position: static;
+            opacity:1;
+            pointer-events:auto;
+        }
+        .file-list.table .file-icon {
+            position: static;
+            font-size:20px;
+            margin:0;
+            width:28px;
+            text-align:center;
+            grid-column:2;
+        }
+        .file-list.table .file-name {
+            margin:0;
+            padding:0;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            grid-column:2;
+            margin-left:8px;
+        }
+        .file-list.table .file-meta {
+            display: none !important;
+        }
+        .file-list.table .file-tag-group {
+            margin:0;
+            justify-content:flex-start;
+            grid-column:4;
+        }
+        .file-list.table .file-ops {
+            grid-column:5;
+            display:flex;
+            gap:6px;
+            justify-content:flex-end;
+        }
+        .file-list.table .star-btn,
+        .file-list.table .rename-btn,
+        .file-list.table .del-file-btn {
+            position: static;
+            opacity:1;
+            pointer-events:auto;
+            font-size:18px;
+            width:26px;
+            height:26px;
+        }
+        /* 进度条、分页、弹窗样式不变 */
+        .progress-wrap {
+            margin-top: 12px;
+            display: none;
+        }
+        .progress-text {
+            font-size: 14px;
+            color: var(--gray-600);
+            margin-bottom: 6px;
+        }
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background: var(--gray-200);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+        .progress-inner {
+            height: 100%;
+            background: var(--success);
+            width: 0%;
+            transition: 0.3s;
+        }
+        .page-wrap {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 20px;
+            align-items: center;
+        }
+        .page-num {
+            padding: 6px 12px;
+            border: 1px solid var(--gray-200);
+            border-radius: 6px;
+            cursor: pointer;
+        }
+        .page-num.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+        .preview-modal, .confirm-modal, .addItemModal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0,0,0,0.85);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 999;
+            padding: 20px;
+        }
+        .preview-box, .confirm-box, .add-box {
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+        .preview-box {
+            width: min(92vw, 1200px);
+            height: min(90vh, 850px);
+        }
+        .confirm-box, .add-box {
+            width: min(90vw, 480px);
+            padding: 24px;
+            gap: 16px;
+        }
+        .confirm-title {
+            font-size: 18px;
+            font-weight: 500;
+            color: var(--gray-800);
+        }
+        .confirm-desc {
+            font-size: 14px;
+            color: var(--gray-600);
+            line-height: 1.6;
+        }
+        .confirm-input {
+            width: 100%;
+        }
+        .confirm-btn-group {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            flex-wrap: wrap;
+        }
+        .item-list-title {
+            font-size: 14px;
+            color: var(--gray-600);
+            font-weight: 500;
+        }
+        .item-list-wrap {
+            max-height: 220px;
+            overflow-y: auto;
+            border: 1px solid var(--gray-200);
+            border-radius: 8px;
+            padding: 10px;
+        }
+        .item-line {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 10px;
+            border-radius: 6px;
+            margin-bottom: 4px;
+            background: var(--gray-100);
+        }
+        .item-line span {
+            font-size: 14px;
+        }
+        .item-del-btn {
+            padding: 4px 10px;
+            font-size: 12px;
+        }
+        .batch-del-wrap {
+            border-top: 1px dashed var(--gray-200);
+            padding-top: 12px;
+        }
+        .pdf-toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 16px;
+            background: var(--gray-100);
+            border-bottom: 1px solid var(--gray-200);
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .pdf-title {
+            font-weight: 500;
+            font-size: 15px;
+        }
+        .pdf-ctrl-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .pdf-view-wrap {
+            flex: 1;
+            overflow: auto;
+            background: #666;
+        }
+        #pdfCanvasContainer {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            padding: 20px;
+        }
+        .preview-img-wrap {
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            background: #333;
+        }
+        .preview-img-wrap img {
+            max-width: 100%;
+            max-height: calc(90vh - 100px);
+            display: block;
+        }
+        .close-modal {
+            position: absolute;
+            top: 20px;
+            right: 30px;
+            color: white;
+            font-size: 36px;
+            cursor: pointer;
+            z-index: 1000;
+            width: 40px;
+            height: 40px;
+            text-align: center;
+            line-height: 40px;
+            border-radius: 50%;
+            background: rgba(0,0,0,0.3);
+            transition: 0.2s;
+        }
+        .close-modal:hover {
+            background: rgba(0,0,0,0.5);
+        }
+        #loading {
+            color: #666;
+            margin: 10px 0;
+            display: none;
+        }
+        .empty-tip {
+            padding: 40px 0;
+            text-align: center;
+            color: var(--gray-400);
+            font-size: 15px;
+        }
+        .toast-box {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .toast {
+            padding: 10px 16px;
+            border-radius: 8px;
+            color: white;
+            min-width: 200px;
+            animation: toastIn 0.3s ease;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.15);
+        }
+        .toast-success {background: var(--success);}
+        .toast-error {background: var(--danger);}
+        .toast-warning {background: var(--warning);}
+        @keyframes toastIn {
+            from {transform: translateX(100%); opacity: 0;}
+            to {transform: translateX(0); opacity: 1;}
+        }
+        .panel-tab-wrap {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 12px;
+            align-items: center;
+        }
+        .tab-item {
+            padding: 8px 14px;
+            border-radius: 8px;
+            border: 1px solid var(--gray-200);
+            cursor: pointer;
+        }
+        .tab-item.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+        .view-mode-group {
+            margin-left: auto;
+            display: flex;
+            gap: 4px;
+        }
+        .view-btn {
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 6px;
+            border: 1px solid var(--gray-200);
+            background: white;
+            cursor: pointer;
+        }
+        .view-btn.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+        .batch-bar {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px dashed var(--gray-200);
+        }
+        @media (max-width: 1024px) {
+            .table-header-row {
+                grid-template-columns: 32px 1fr 160px 110px;
+            }
+        }
+        @media (max-width: 768px) {
+            body {padding: 12px;}
+            .top-wrap {grid-template-columns: 1fr;}
+            .file-list {grid-template-columns: 1fr;}
+            .pdf-toolbar {flex-direction: column; align-items: flex-start;}
+            .close-modal {top: 10px; right: 10px;}
+            .table-header-row {
+                grid-template-columns: 32px 1fr 80px;
+            }
+            .file-list.table .file-item {
+                grid-template-columns: 32px 1fr 80px;
+            }
+            .file-list.table .file-meta,
+            .file-list.table .file-tag-group {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="toast-box" id="toastBox"></div>
+
+    <div class="card" id="topCard">
+        <div class="card-header" onclick="toggleCard('topCard')">
+            <h2>📚 文件检索 & 文件上传</h2>
+            <span class="card-toggle">▼</span>
+        </div>
+        <div class="card-collapse">
+            <div class="top-wrap">
+                <div class="search-container">
+                    <div class="search-wrap">
+                        <input type="text" id="searchInput" class="input-flex" placeholder="输入制度名称、部门、类型快速检索...">
+                        <button class="btn-primary" onclick="renderFileList()">搜索</button>
+                        <button class="btn-outline" onclick="resetAllFilter()">重置筛选</button>
+                    </div>
+                    <div class="filter-row">
+                        <div class="filter-title">文件格式筛选</div>
+                        <div class="filter-bar" id="typeFilterBar">
+                            <div class="filter-tag active" data-type="all">全部文件</div>
+                            <div class="filter-tag" data-type="img">图片</div>
+                            <div class="filter-tag" data-type="pdf">PDF制度</div>
+                            <div class="filter-tag" data-type="word">Word文档</div>
+                            <div class="filter-tag" data-type="excel">Excel表格</div>
+                        </div>
+                    </div>
+                    <div class="filter-row">
+                        <div class="filter-title">业务部门筛选</div>
+                        <div class="filter-bar" id="deptFilterBar"></div>
+                    </div>
+                </div>
+
+                <div class="upload-container">
+                    <div class="upload-form">
+                        <div class="upload-row">
+                            <select id="deptSelect" class="input-flex"></select>
+                            <button class="btn-outline" onclick="openAddModal('dept')">管理部门</button>
+                        </div>
+                        <div class="upload-row">
+                            <select id="cateSelect" class="input-flex"></select>
+                            <button class="btn-outline" onclick="openAddModal('cate')">管理分类</button>
+                        </div>
+                        <div class="upload-row">
+                            <input type="text" id="docNameInput" class="input-flex" placeholder="文件名称（无需部门、分类、后缀）">
+                        </div>
+                        <div class="upload-row">
+                            <input type="file" id="fileInput" multiple accept=".docx,.doc,.pdf,.jpg,.jpeg,.png,.gif,.webp,.xlsx,.xls" class="input-flex">
+                        </div>
+                        <div class="btn-group">
+                            <button class="btn-success" onclick="uploadFiles()">确认批量上传</button>
+                            <button class="btn-outline" onclick="cancelUploadTask()">取消上传</button>
+                            <button class="btn-primary" onclick="loadRemoteFileList()">刷新列表</button>
+                        </div>
+                        <div class="progress-wrap" id="uploadProgressWrap">
+                            <div class="progress-text" id="uploadProgressText">上传进度：0/0</div>
+                            <div class="progress-bar">
+                                <div class="progress-inner" id="uploadProgressBar"></div>
+                            </div>
+                        </div>
+                        <div id="loading">处理中，请稍候...</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card" id="fileCard">
+        <div class="card-header" onclick="toggleCard('fileCard')">
+            <h2>📁 文件列表</h2>
+            <span class="card-toggle">▼</span>
+        </div>
+        <div class="card-collapse">
+            <div class="panel-tab-wrap">
+                <div class="tab-item active" data-tab="all">全部制度</div>
+                <div class="tab-item" data-tab="star">我的收藏</div>
+                <div class="tab-item" data-tab="history">最近浏览</div>
+                <div class="view-mode-group">
+                    <div class="view-btn active" title="卡片视图" onclick="switchView('card')">🗂️</div>
+                    <div class="view-btn" title="列表视图" onclick="switchView('table')">📋</div>
+                </div>
+            </div>
+
+            <div class="batch-bar">
+                <button class="btn-outline btn-sm" onclick="selectAllBatch()">全选</button>
+                <button class="btn-outline btn-sm" onclick="unSelectAllBatch()">取消全选</button>
+                <button class="btn-danger" onclick="batchDeleteFiles()">✅ 批量删除选中文件</button>
+                <span id="batchCount" style="margin-left: auto;color:var(--gray-600)">已选：0 个</span>
+            </div>
+
+            <div class="skeleton-list" id="skeletonWrap">
+                <div class="skeleton-item"></div>
+                <div class="skeleton-item"></div>
+                <div class="skeleton-item"></div>
+                <div class="skeleton-item"></div>
+                <div class="skeleton-item"></div>
+                <div class="skeleton-item"></div>
+            </div>
+            <!-- 表格表头容器 -->
+            <div id="tableHeaderContainer" style="display:none;">
+                <div class="table-header-row"> 
+                    <div></div>
+                    <div>文件名</div>
+                     <div></div>
+                     <div style="text-align:right">操作</div>
+                 </div>
+            </div>
+            <div id="fileListBox" class="file-list" style="display: none;"></div>
+            <div class="page-wrap" id="pageWrap"></div>
+        </div>
+    </div>
+
+    <div class="preview-modal" id="previewModal">
+        <span class="close-modal" onclick="closePreview()">×</span>
+        <div class="preview-box" id="previewContent"></div>
+    </div>
+
+    <div class="confirm-modal" id="confirmModal">
+        <div class="confirm-box">
+            <div class="confirm-title" id="confirmTitle">文件重复提示</div>
+            <div class="confirm-desc" id="confirmDesc"></div>
+            <input type="text" class="confirm-input" id="confirmInput" placeholder="修改文件名称">
+            <div class="confirm-btn-group">
+                <button class="btn-outline" onclick="cancelConfirm()">跳过该文件</button>
+                <button class="btn-primary" onclick="submitRenameUpload()">确认改名上传</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="addItemModal" id="addItemModal">
+        <div class="add-box">
+            <div class="confirm-title" id="addModalTitle">管理项目</div>
+            <div style="display:flex;gap:8px;">
+                <input type="text" class="confirm-input" id="addItemInput" placeholder="输入名称">
+                <button class="btn-primary" onclick="submitAddItem()">新增</button>
+            </div>
+            <div class="item-list-title">已有条目（点击删除单条）</div>
+            <div class="item-list-wrap" id="itemListContainer"></div>
+            <div class="batch-del-wrap">
+                <button class="btn-danger" onclick="batchDeleteAllItem()">⚠️ 批量清空全部</button>
+            </div>
+            <div class="confirm-btn-group">
+                <button class="btn-outline" onclick="closeAddModal()">关闭</button>
+            </div>
+        </div>
+    </div>
+
+<script>
+const PAT = "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";
+const OWNER = "huaiping221-cyber";
+const REPO = "-221";
+const BRANCH = "main";
+const FOLDER_CONFIG = {
+    img: "files/images/",
+    pdf: "files/pdf/",
+    word: "files/word/",
+    excel: "files/excel/",
+    other: "files/other/"
+};
+const MAX_FILE_SIZE = 20 * 1024 * 1024;
+const PAGE_SIZE = 18;
+
+let allFileData = [];
+let currentFilter = {type:"all",dept:"all",keyword:"",tab:"all"};
+let pageNow = 1, pageTotal = 1;
+let uploadCancelFlag = false;
+let currentUploadFile = null;
+let pendingUploadFiles = [];
+let pdfScaleCache = 1.2;
+let addModalType = "";
+let currentView = "card";
+let batchSelected = [];
+
+const STORAGE_KEY_STAR = "manage_book_star";
+const STORAGE_KEY_HISTORY = "manage_book_history";
+const STORAGE_KEY_CACHE = "manage_file_cache";
+const STORAGE_DEPT = "manage_dept_list";
+const STORAGE_CATE = "manage_cate_list";
+
+let starList = JSON.parse(localStorage.getItem(STORAGE_KEY_STAR) || "[]");
+let historyList = JSON.parse(localStorage.getItem(STORAGE_KEY_HISTORY) || "[]");
+let deptList = JSON.parse(localStorage.getItem(STORAGE_DEPT) || '["通用","财务部","人事部","行政部","工程部"]');
+let cateList = JSON.parse(localStorage.getItem(STORAGE_CATE) || '["其他","报销制度","人事管理","安全生产","项目管理","采购管理"]');
+
+function toggleCard(id) {
+    const card = document.getElementById(id);
+    card.classList.toggle("collapsed");
+}
+function switchView(mode) {
+    currentView = mode;
+    document.querySelectorAll(".view-btn").forEach(b => b.classList.remove("active"));
+    document.querySelector(`.view-btn[onclick="switchView('${mode}')"]`).classList.add("active");
+    // 切换表格表头显示隐藏
+    const tableHeader = document.getElementById("tableHeaderContainer");
+    tableHeader.style.display = mode === "table" ? "block" : "none";
+    renderFileList();
+}
+function selectAllBatch() {
+    const items = document.querySelectorAll(".batch-check");
+    batchSelected = [];
+    items.forEach(cb => { cb.checked = true; batchSelected.push(cb.dataset.name); });
+    updateBatchCount();
+}
+function unSelectAllBatch() {
+    const items = document.querySelectorAll(".batch-check");
+    items.forEach(cb => cb.checked = false);
+    batchSelected = [];
+    updateBatchCount();
+}
+function updateBatchCount() {
+    document.getElementById("batchCount").innerText = `已选：${batchSelected.length} 个`;
+}
+function toggleBatchSelect(name) {
+    const idx = batchSelected.indexOf(name);
+    if(idx > -1) batchSelected.splice(idx, 1);
+    else batchSelected.push(name);
+    updateBatchCount();
+}
+async function batchDeleteFiles() {
+    if(batchSelected.length === 0) return showToast("请先选择文件","warning");
+    if(!confirm(`确定删除选中的 ${batchSelected.length} 个文件？`)) return;
+    setLoading(true);
+    let success = 0;
+    for(const name of batchSelected) {
+        const item = allFileData.find(f => f.name === name);
+        if(!item) continue;
+        try {
+            await fetch(`https://api.github.com/repos/${OWNER}/${REPO}/contents/${item.path}`,{
+                method:"DELETE",
+                headers:{Authorization:`Bearer ${PAT}`,"Content-Type":"application/json"},
+                body:JSON.stringify({message:`批量删除 ${name}`,sha:item.sha,branch:BRANCH})
+            });
+            success++;
+        }catch(e){}
+    }
+    batchSelected = [];
+    updateBatchCount();
+    showToast(`成功删除 ${success} 个文件`);
+    loadRemoteFileList();
+}
+
+function showToast(msg, type = "success") {
+    const box = document.getElementById("toastBox");
+    const toast = document.createElement("div");
+    toast.className = `toast toast-${type}`;
+    toast.innerText = msg;
+    box.appendChild(toast);
+    setTimeout(() => toast.remove(), 2500);
+}
+function setLoading(show) {
+    document.getElementById('loading').style.display = show ? 'block' : 'none';
+    document.getElementById('skeletonWrap').style.display = show ? 'grid' : 'none';
+    document.getElementById('fileListBox').style.display = show ? 'none' : 'grid';
+    document.getElementById("tableHeaderContainer").style.display = show ? "none" : (currentView === "table" ? "block" : "none");
+}
+function formatSize(bytes) {
+    if (bytes < 1024) return bytes + " B";
+    if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + " KB";
+    return (bytes / (1024 * 1024)).toFixed(1) + " MB";
+}
+function getFileType(ext) {
+    ext = ext.toLowerCase();
+    if (['jpg','jpeg','png','gif','webp'].includes(ext)) return "img";
+    if (ext === "pdf") return "pdf";
+    if (['doc','docx'].includes(ext)) return "word";
+    if (['xls','xlsx'].includes(ext)) return "excel";
+    return "other";
+}
+function getFileIcon(type) {
+    const map = {img:'🖼️',pdf:'📕',word:'📄',excel:'📊',other:'📁'};
+    return map[type] || '📄';
+}
+
+function renderDeptSelect() {
+    const sel = document.getElementById("deptSelect");
+    sel.innerHTML = "";
+    deptList.forEach(d=>{
+        const opt = document.createElement("option");
+        opt.value = d;
+        opt.innerText = d;
+        sel.appendChild(opt);
+    })
+}
+function renderCateSelect() {
+    const sel = document.getElementById("cateSelect");
+    sel.innerHTML = "";
+    cateList.forEach(c=>{
+        const opt = document.createElement("option");
+        opt.value = c;
+        opt.innerText = c;
+        sel.appendChild(opt);
+    })
+}
+
+function renderModalItemList() {
+    const container = document.getElementById("itemListContainer");
+    container.innerHTML = "";
+    let list = addModalType === "dept" ? deptList : cateList;
+    if(list.length === 0) {
+        container.innerHTML = '<div style="text-align:center;color:#999;padding:10px;">暂无数据</div>';
+        return;
+    }
+    list.forEach(name => {
+        const line = document.createElement("div");
+        line.className = "item-line";
+        line.innerHTML = `<span>${name}</span><button class="btn-danger item-del-btn">删除</button>`;
+        line.querySelector(".item-del-btn").onclick = () => singleDeleteItem(name);
+        container.appendChild(line);
+    })
+}
+
+function singleDeleteItem(name) {
+    if(!confirm(`确定删除【${name}】？`)) return;
+    if(addModalType === "dept") {
+        deptList = deptList.filter(i => i !== name);
+        localStorage.setItem(STORAGE_DEPT, JSON.stringify(deptList));
+        renderDeptSelect();
+        renderDeptFilter();
+    } else {
+        cateList = cateList.filter(i => i !== name);
+        localStorage.setItem(STORAGE_CATE, JSON.stringify(cateList));
+        renderCateSelect();
+    }
+    renderModalItemList();
+    showToast(`已删除：${name}`);
+}
+
+function batchDeleteAllItem() {
+    const typeName = addModalType === "dept" ? "部门" : "分类";
+    if(!confirm(`⚠️ 警告：确定清空所有${typeName}吗？删除后无法恢复！`)) return;
+    if(addModalType === "dept") {
+        deptList = [];
+        localStorage.setItem(STORAGE_DEPT, JSON.stringify(deptList));
+        renderDeptSelect();
+        renderDeptFilter();
+    } else {
+        cateList = [];
+        localStorage.setItem(STORAGE_CATE, JSON.stringify(cateList));
+        renderCateSelect();
+    }
+    renderModalItemList();
+    showToast(`已清空全部${typeName}`);
+}
+
+function openAddModal(type) {
+    addModalType = type;
+    const title = type === "dept" ? "管理业务部门" : "管理文件分类";
+    document.getElementById("addModalTitle").innerText = title;
+    document.getElementById("addItemInput").value = "";
+    document.getElementById("addItemModal").style.display = "flex";
+    renderModalItemList();
+}
+function closeAddModal() {
+    document.getElementById("addItemModal").style.display = "none";
+}
+function submitAddItem() {
+    const val = document.getElementById("addItemInput").value.trim();
+    if(!val) return showToast("名称不能为空","warning");
+    const list = addModalType === "dept" ? deptList : cateList;
+    if(list.includes(val)) return showToast("已存在","warning");
+    
+    list.push(val);
+    if(addModalType === "dept") {
+        localStorage.setItem(STORAGE_DEPT, JSON.stringify(deptList));
+        renderDeptSelect();
+        renderDeptFilter();
+    } else {
+        localStorage.setItem(STORAGE_CATE, JSON.stringify(cateList));
+        renderCateSelect();
+    }
+    document.getElementById("addItemInput").value = "";
+    renderModalItemList();
+    showToast("新增成功");
+}
+
+function resetAllFilter() {
+    document.getElementById("searchInput").value = "";
+    currentFilter = { type: "all", dept: "all", keyword: "", tab: "all" };
+    document.querySelectorAll("#typeFilterBar .filter-tag").forEach(t => t.classList.remove("active"));
+    document.querySelector('#typeFilterBar .filter-tag[data-type="all"]').classList.add("active");
+    document.querySelectorAll(".tab-item").forEach(t => t.classList.remove("active"));
+    document.querySelector('.tab-item[data-tab="all"]').classList.add("active");
+    pageNow = 1;
+    renderFileList();
+}
+function initFilterEvent() {
+    document.querySelectorAll('#typeFilterBar .filter-tag').forEach(tag => {
+        tag.onclick = () => {
+            document.querySelectorAll('#typeFilterBar .filter-tag').forEach(t => t.classList.remove('active'));
+            tag.classList.add('active');
+            currentFilter.type = tag.dataset.type;
+            pageNow = 1;
+            renderFileList();
+        }
+    })
+    document.querySelectorAll(".tab-item").forEach(tab => {
+        tab.onclick = () => {
+            document.querySelectorAll(".tab-item").forEach(i => i.classList.remove("active"));
+            tab.classList.add("active");
+            currentFilter.tab = tab.dataset.tab;
+            pageNow = 1;
+            renderFileList();
+        }
+    })
+}
+function renderDeptFilter() {
+    const box = document.getElementById("deptFilterBar");
+    const set = new Set(["all"]);
+    allFileData.forEach(i=>set.add(i.dept));
+    const arr = Array.from(set);
+    box.innerHTML = "";
+    arr.forEach(d=>{
+        const div = document.createElement("div");
+        div.className = "filter-tag" + (d === "all" ? " active" : "");
+        div.innerText = d === "all" ? "全部部门" : d;
+        div.dataset.dept = d;
+        div.onclick = () => {
+            document.querySelectorAll("#deptFilterBar .filter-tag").forEach(t=>t.classList.remove("active"));
+            div.classList.add("active");
+            currentFilter.dept = d;
+            pageNow = 1;
+            renderFileList();
+        }
+        box.appendChild(div);
+    })
+}
+function getFilteredData() {
+    let arr = [...allFileData];
+    if(currentFilter.tab === "star") arr = arr.filter(i=>starList.includes(i.name));
+    if(currentFilter.tab === "history") arr = arr.filter(i=>historyList.some(h=>h.name === i.name));
+    const kw = currentFilter.keyword.toLowerCase();
+    if(kw) arr = arr.filter(i=>
+        i.name.toLowerCase().includes(kw) ||
+        i.dept.toLowerCase().includes(kw) ||
+        i.cate.toLowerCase().includes(kw)
+    );
+    if(currentFilter.type !== "all") arr = arr.filter(i=>i.type === currentFilter.type);
+    if(currentFilter.dept !== "all") arr = arr.filter(i=>i.dept === currentFilter.dept);
+    return arr;
+}
+function getPageData(sourceArr) {
+    pageTotal = Math.ceil(sourceArr.length / PAGE_SIZE);
+    const start = (pageNow - 1) * PAGE_SIZE;
+    return sourceArr.slice(start, start + PAGE_SIZE);
+}
+function renderPageCtrl() {
+    const wrap = document.getElementById("pageWrap");
+    wrap.innerHTML = "";
+    if(pageTotal <= 1) return;
+    const prev = document.createElement("button");
+    prev.className = "btn-outline";
+    prev.innerText = "上一页";
+    prev.disabled = pageNow === 1;
+    prev.onclick = ()=>{pageNow--;renderFileList()};
+    wrap.appendChild(prev);
+    for(let i=1;i<=pageTotal;i++){
+        const num = document.createElement("span");
+        num.className = "page-num" + (i === pageNow ? " active" : "");
+        num.innerText = i;
+        num.onclick = ()=>{pageNow=i;renderFileList()};
+        wrap.appendChild(num);
+    }
+    const next = document.createElement("button");
+    next.className = "btn-outline";
+    next.innerText = "下一页";
+    next.disabled = pageNow === pageTotal;
+    next.onclick = ()=>{pageNow++;renderFileList()};
+    wrap.appendChild(next);
+}
+function renderFileList() {
+    currentFilter.keyword = document.getElementById("searchInput").value.trim();
+    const box = document.getElementById("fileListBox");
+    box.className = currentView === "table" ? "file-list table" : "file-list";
+    box.innerHTML = "";
+    const filterAll = getFilteredData();
+    const pageData = getPageData(filterAll);
+    renderPageCtrl();
+    if(filterAll.length === 0){
+        box.innerHTML = '<div class="empty-tip">暂无匹配文件</div>';
+        return;
+    }
+    pageData.forEach(item=>{
+        const isStar = starList.includes(item.name);
+        const icon = getFileIcon(item.type);
+        const checked = batchSelected.includes(item.name) ? "checked" : "";
+        const div = document.createElement("div");
+        div.className = "file-item";
+        // 区分卡片/列表两种HTML结构
+        if(currentView === "table"){
+            div.innerHTML = `
+                <input type="checkbox" class="batch-check" data-name="${item.name}" ${checked} onchange="toggleBatchSelect('${item.name}')">
+                <div style="display:flex;align-items:center;gap:8px;">
+                    <span class="file-icon">${icon}</span>
+                    <span class="file-name" title="${item.name}">${item.name}</span>
+                </div>
+                <div ></div>
+                <div ></div>
+                <div class="file-ops">
+                    <button class="star-btn ${isStar?'star-active':''}" title="收藏">★</button>
+                    <button class="rename-btn" title="重命名">✏️</button>
+                    <button class="del-file-btn" title="删除">−</button>
+                </div>
+            `;
+        }else{
+            div.innerHTML = `
+                <input type="checkbox" class="batch-check" data-name="${item.name}" ${checked} onchange="toggleBatchSelect('${item.name}')">
+                <div class="file-icon">${icon}</div>
+                <div class="file-name">${item.name}</div>
+                <div class="file-meta">部门：${item.dept}<br>分类：${item.cate} | ${formatSize(item.size)}</div>
+                <div class="file-tag-group"><span class="mini-tag">${item.type.toUpperCase()}</span></div>
+                <button class="star-btn ${isStar?'star-active':''}" title="收藏">★</button>
+                <button class="rename-btn" title="重命名">✏️</button>
+                <button class="del-file-btn" title="删除">−</button>
+            `;
+        }
+        div.onclick = e=>{
+            if(e.target.classList.contains("star-btn")||e.target.classList.contains("rename-btn")||e.target.classList.contains("del-file-btn")||e.target.classList.contains("batch-check")) return;
+            openFile(item);addHistory(item);
+        }
+        div.querySelector(".star-btn").onclick = e=>{e.stopPropagation();toggleStar(item.name);renderFileList();}
+        div.querySelector(".rename-btn").onclick = e=>{e.stopPropagation();openRenameModal(item);}
+        div.querySelector(".del-file-btn").onclick = e=>{e.stopPropagation();deleteFile(item);}
+        box.appendChild(div);
+    })
+}
+function toggleStar(name) {
+    const idx = starList.indexOf(name);
+    if(idx > -1){ starList.splice(idx,1); showToast("取消收藏");
+    }else{ starList.push(name); showToast("收藏成功"); }
+    localStorage.setItem(STORAGE_KEY_STAR, JSON.stringify(starList));
+}
+function addHistory(item) {
+    const idx = historyList.findIndex(h=>h.name === item.name);
+    if(idx > -1) historyList.splice(idx,1);
+    historyList.unshift(item);
+    if(historyList.length>20) historyList = historyList.slice(0,20);
+    localStorage.setItem(STORAGE_KEY_HISTORY, JSON.stringify(historyList));
+}
+async function renderPdfPreview(url, name) {
+    const content = document.getElementById("previewContent");
+    content.innerHTML = `
+        <div class="pdf-toolbar">
+            <div class="pdf-title">${name}</div>
+            <div class="pdf-ctrl-group">
+                <button class="btn-primary" id="pdfDownload">下载</button>
+                <button class="btn-outline" id="pdfZoomOut">-缩小</button>
+                <button class="btn-outline" id="pdfZoomIn">放大+</button>
+                <button class="btn-danger" onclick="closePreview()">关闭</button>
+            </div>
+        </div>
+        <div class="pdf-view-wrap"><div id="pdfCanvasContainer">加载中...</div></div>
+    `;
+    document.getElementById("pdfDownload").onclick = ()=>{ const a = document.createElement("a");a.href=url;a.download=name;a.click(); }
+    const pdfjsLib = window['pdfjs-dist/build/pdf'];
+    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js';
+    let scale = pdfScaleCache;
+    const canvasBox = document.getElementById("pdfCanvasContainer");
+    try{
+        const doc = await pdfjsLib.getDocument(url).promise;
+        const renderAll = async ()=>{
+            canvasBox.innerHTML = "";
+            for(let i=1;i<=doc.numPages;i++){
+                const page = await doc.getPage(i);
+                const vp = page.getViewport({scale});
+                const canvas = document.createElement("canvas");
+                canvas.width = vp.width;canvas.height = vp.height;
+                canvasBox.appendChild(canvas);
+                await page.render({canvasContext:canvas.getContext("2d"), viewport:vp}).promise;
+            }
+            pdfScaleCache = scale;
+        }
+        await renderAll();
+        document.getElementById("pdfZoomIn").onclick = async ()=>{scale+=0.2;await renderAll()};
+        document.getElementById("pdfZoomOut").onclick = async ()=>{if(scale>0.4){scale-=0.2;await renderAll()}};
+    }catch(err){ canvasBox.innerHTML = `<div style="color:#fff">加载失败：${err.message}</div>`; }
+}
+async function openFile(obj) {
+    const name = obj.name;
+    const ext = name.split(".").pop().toLowerCase();
+    const modal = document.getElementById("previewModal");
+    const content = document.getElementById("previewContent");
+    content.innerHTML = "";
+    if(['jpg','jpeg','png','gif','webp'].includes(ext)){
+        content.innerHTML = `
+            <div class="preview-img-wrap"><img src="${obj.download_url}"></div>
+            <div style="padding:10px;text-align:center;background:#222;">
+                <button class="btn-success" onclick="downloadFile('${obj.download_url}','${name}')">下载图片</button>
+            </div>
+        `;
+        modal.style.display = "flex";
+    }else if(ext === "pdf"){
+        modal.style.display = "flex";
+        await renderPdfPreview(obj.download_url, name);
+    }else{
+        downloadFile(obj.download_url, name);
+        showToast("开始下载");
+    }
+}
+function downloadFile(url,name) {
+    const a = document.createElement("a"); a.href=url;a.download=name;a.target="_blank";a.click();
+}
+function closePreview() {
+    document.getElementById("previewModal").style.display = "none";
+}
+async function loadRemoteFileList() {
+    setLoading(true);
+    try{
+        const res = await fetch(`https://api.github.com/repos/${OWNER}/${REPO}/contents/files?ref=${BRANCH}`,{
+            headers:{Authorization:`Bearer ${PAT}`,Accept:"application/vnd.github.v3+json"}
+        });
+        const data = await res.json();
+        let allFiles = [];
+        for(const dir of data){
+            if(dir.type === "dir"){
+                const r = await fetch(`https://api.github.com/repos/${OWNER}/${REPO}/contents/${dir.path}?ref=${BRANCH}`,{headers:{Authorization:`Bearer ${PAT}`}});
+                const d = await r.json();
+                if(Array.isArray(d)) allFiles.push(...d.filter(x=>x.type==="file"));
+            }else if(dir.type === "file") allFiles.push(dir);
+        }
+        allFileData = allFiles.filter(x=>x.type==="file").map(item=>{
+            const n = item.name;
+            const ext = n.split(".").pop().toLowerCase();
+            const type = getFileType(ext);
+            let dept = "通用", cate = "其他";
+            if(n.includes("-")){ const arr = n.split("-"); if(arr.length>=2){dept=arr[0];cate=arr[1];} }
+            return { name:n,download_url:item.download_url,size:item.size,type,dept,cate,sha:item.sha,path:item.path }
+        })
+        localStorage.setItem(STORAGE_KEY_CACHE, JSON.stringify(allFileData));
+        renderDeptFilter();renderFileList();
+        showToast("刷新完成");
+    }catch(err){
+        showToast("加载失败","error");
+        allFileData = [];
+    }finally{ setLoading(false); }
+}
+async function deleteFile(obj) {
+    if(!confirm(`确认删除【${obj.name}】？`)) return;
+    setLoading(true);
+    try{
+        await fetch(`https://api.github.com/repos/${OWNER}/${REPO}/contents/${obj.path}`,{
+            method:"DELETE",
+            headers:{Authorization:`Bearer ${PAT}`,"Content-Type":"application/json"},
+            body:JSON.stringify({message:`删除${obj.name}`,sha:obj.sha,branch:BRANCH})
+        });
+        showToast("删除成功");
+        loadRemoteFileList();
+    }catch(err){
+        showToast("删除失败","error");
+    }finally{ setLoading(false); }
+}
+function openRenameModal(obj) {
+    currentUploadFile = obj;
+    document.getElementById("confirmTitle").innerText = "文件重命名";
+    document.getElementById("confirmDesc").innerText = `当前：${obj.name}`;
+    document.getElementById("confirmInput").value = obj.name.split(".").slice(0,-1).join(".");
+    document.getElementById("confirmModal").style.display = "flex";
+}
+function openDuplicateModal(file, fullName) {
+    currentUploadFile = {file, fullName};
+    document.getElementById("confirmTitle").innerText = "文件重复";
+    document.getElementById("confirmDesc").innerText = `【${fullName}】已存在`;
+    document.getElementById("confirmInput").value = fullName.split(".").slice(0,-1).join(".");
+    document.getElementById("confirmModal").style.display = "flex";
+}
+function cancelConfirm() {
+    document.getElementById("confirmModal").style.display = "none";
+    currentUploadFile = null;
+}
+async function submitRenameUpload() {
+    const newPure = document.getElementById("confirmInput").value.trim();
+    if(!newPure) return showToast("名称不能为空","warning");
+    const old = currentUploadFile;
+    cancelConfirm();
+    if(old.path){
+        try{
+            const blob = await (await fetch(old.download_url)).blob();
+            await uploadSingleFile(blob, `${newPure}.${old.name.split(".").pop()}`);
+            await deleteFile(old);
+            showToast("重命名成功");
+        }catch(e){showToast("失败","error")}
+    }else{
+        await uploadSingleFile(old.file, `${newPure}.${old.file.name.split(".").pop()}`);
+        processPendingUpload();
+    }
+}
+function fileToBase64(file) {
+    return new Promise((res,rej)=>{ const r = new FileReader(); r.readAsDataURL(file); r.onload=()=>res(r.result); r.onerror=rej; })
+}
+async function uploadSingleFile(file, customName=null) {
+    return new Promise(async (resolve,reject)=>{
+        try{
+            if(file.size > MAX_FILE_SIZE) throw new Error("超过20MB");
+            const ext = file.name.split(".").pop();
+            const type = getFileType(ext);
+            let fullName = customName || `${document.getElementById("deptSelect").value}-${document.getElementById("cateSelect").value}-${document.getElementById("docNameInput").value.trim()}.${ext}`;
+            if(allFileData.some(x=>x.name===fullName)){ openDuplicateModal(file,fullName); return reject("dup"); }
+            const base64 = await fileToBase64(file);
+             const content = base64.split(',')[1];
+            const path = FOLDER_CONFIG[type] + fullName;
+
+            const resp = await fetch(`https://api.github.com/repos/${OWNER}/${REPO}/contents/${path}`,{
+                method:"PUT",
+                headers:{Authorization:`Bearer ${PAT}`,"Content-Type":"application/json"},
+                body:JSON.stringify({message:`上传 ${fullName}`,content,branch:BRANCH})
+            });
+
+            if(!resp.ok) throw new Error(await resp.text());
+            resolve(true);
+        }catch(e){
+            if(e.message !== "dup") showToast("上传失败："+e.message,"error");
+            reject(e);
+        }
+    })
+}
+
+async function processPendingUpload() {
+    if(uploadCancelFlag || pendingUploadFiles.length === 0) {
+        pendingUploadFiles = [];
+        document.getElementById("uploadProgressWrap").style.display = "none";
+        uploadCancelFlag = false;
+        loadRemoteFileList();
+        return;
+    }
+
+    const total = pendingUploadFiles.length;
+    const currentFile = pendingUploadFiles.shift();
+    const idx = total - pendingUploadFiles.length;
+
+    document.getElementById("uploadProgressText").innerText = `上传进度：${idx}/${total}`;
+    document.getElementById("uploadProgressBar").style.width = (idx/total)*100 + "%";
+
+    try {
+        await uploadSingleFile(currentFile);
+    } catch(e) {}
+    processPendingUpload();
+}
+
+function cancelUploadTask() {
+    if(pendingUploadFiles.length === 0) return showToast("没有正在进行的任务","warning");
+    uploadCancelFlag = true;
+    pendingUploadFiles = [];
+    showToast("已取消上传任务");
+    document.getElementById("uploadProgressWrap").style.display = "none";
+}
+
+async function uploadFiles() {
+    const dept = document.getElementById("deptSelect").value;
+    const cate = document.getElementById("cateSelect").value;
+    const docName = document.getElementById("docNameInput").value.trim();
+    const files = document.getElementById("fileInput").files;
+
+    if(!dept || !cate || !docName || files.length === 0) {
+        return showToast("请完善部门、分类、名称并选择文件","warning");
+    }
+
+    pendingUploadFiles = Array.from(files);
+    uploadCancelFlag = false;
+    document.getElementById("uploadProgressWrap").style.display = "block";
+    document.getElementById("uploadProgressBar").style.width = "0%";
+    processPendingUpload();
+}
+
+window.onload = function() {
+    renderDeptSelect();
+    renderCateSelect();
+    initFilterEvent();
+    loadRemoteFileList();
+}
+</script>
+</body>
+</html>
