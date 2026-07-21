@@ -1,0 +1,131 @@
+{
+  "app": "fuel_book_html",
+  "version": 2,
+  "exportedAt": "2026-07-21T12:51:41.355Z",
+  "project": {
+    "id": 1782348144096,
+    "name": "董家口项目部"
+  },
+  "data": {
+    "months": [
+      "2025-01",
+      "2025-02",
+      "2025-03",
+      "2025-04",
+      "2025-05",
+      "2025-06",
+      "2025-07",
+      "2025-08",
+      "2025-09",
+      "2025-10",
+      "2025-11",
+      "2025-12",
+      "2026-01",
+      "2026-02",
+      "2026-03",
+      "2026-04",
+      "2026-05",
+      "2026-06"
+    ],
+    "ships": [
+      {
+        "id": 1,
+        "name": "大地英豪"
+      }
+    ],
+    "models": [
+      {
+        "id": 1,
+        "name": "0#"
+      }
+    ],
+    "trxs": [
+      {
+        "id": 1,
+        "ym": "2026-06",
+        "shipId": 1,
+        "modelId": 1,
+        "type": "PURCHASE",
+        "qty": 144.7,
+        "unitPrice": 6787.610643,
+        "amount": 982167.26,
+        "isEstimate": true,
+        "sourceId": null,
+        "note": "暂估",
+        "supplier": "天津市海顺通燃料贸易有限公司",
+        "purchaseDate": "2026-06-08",
+        "ts": 1782885042076
+      },
+      {
+        "id": 2,
+        "ym": "2026-06",
+        "shipId": 1,
+        "modelId": 1,
+        "type": "BEGIN",
+        "qty": 36.11,
+        "unitPrice": 0,
+        "amount": 245100.62,
+        "isEstimate": true,
+        "sourceId": null,
+        "note": "期初暂估",
+        "supplier": "",
+        "purchaseDate": "",
+        "ts": 1782906362774
+      },
+      {
+        "id": 3,
+        "ym": "2026-06",
+        "shipId": 1,
+        "modelId": 1,
+        "type": "CONSUME",
+        "qty": 59.44,
+        "stopQty": 0,
+        "unitPrice": 0,
+        "amount": 0,
+        "isManualConsumeAmt": false,
+        "isEstimate": false,
+        "sourceId": null,
+        "note": "",
+        "supplier": "",
+        "purchaseDate": "",
+        "ts": 1782906594574
+      }
+    ],
+    "transfers": {},
+    "favorites": {
+      "ships": [],
+      "models": []
+    },
+    "recent": {
+      "ships": [
+        1
+      ],
+      "models": [
+        1
+      ]
+    },
+    "showZeroBeginEnd": true,
+    "watermarks": {
+      "topLeft": "",
+      "maker": "",
+      "auditor": ""
+    },
+    "watermarkStyles": {
+      "topLeft": {
+        "h": 36,
+        "dx": 0,
+        "dy": 0
+      },
+      "maker": {
+        "h": 36,
+        "dx": 0,
+        "dy": 0
+      },
+      "auditor": {
+        "h": 36,
+        "dx": 0,
+        "dy": 0
+      }
+    }
+  }
+}
