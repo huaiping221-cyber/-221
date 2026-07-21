@@ -1,1451 +1,3403 @@
-<!DOCTYPE html>
-<html lang="zh-CN">
+<!doctype html>
+<html lang="zh-CN" xmlns:v="urn:schemas-microsoft-com:vml">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>企业管理办法图书库（完整版）</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: system-ui, -apple-system, sans-serif;
-        }
-        :root {
-            --primary: #2563eb;
-            --success: #10b981;
-            --danger: #ef4444;
-            --warning: #f59e0b;
-            --gray-100: #f3f4f6;
-            --gray-200: #e5e7eb;
-            --gray-400: #9ca3af;
-            --gray-600: #4b5563;
-            --gray-800: #1f2937;
-            --table-header-bg: #f9fafb;
-            --table-row-hover: #eff6ff;
-        }
-        body {
-            background: #f5f7fa;
-            padding: 20px;
-            max-width: 1400px;
-            margin: 0 auto;
-        }
-        .card {
-            background: white;
-            border-radius: 12px;
-            padding: 20px;
-            box-shadow: 0 2px 12px rgba(0,0,0,0.08);
-            margin-bottom: 20px;
-            transition: all 0.3s;
-        }
-        .card-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            cursor: pointer;
-            user-select: none;
-        }
-        .card-header h2 {
-            margin-bottom: 0 !important;
-        }
-        .card-collapse {
-            max-height: 3000px;
-            overflow: hidden;
-            transition: max-height 0.4s ease;
-        }
-        .card.collapsed .card-collapse {
-            max-height: 0;
-        }
-        .card-toggle {
-            font-size: 20px;
-            color: var(--gray-600);
-            transition: transform 0.3s;
-        }
-        .card.collapsed .card-toggle {
-            transform: rotate(-90deg);
-        }
-        h2 {
-            margin-bottom: 16px;
-            color: #222;
-            font-size: 20px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        .top-wrap {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-            margin-top: 16px;
-        }
-        .search-wrap {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 16px;
-            flex-wrap: wrap;
-        }
-        .upload-form {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-        .upload-row {
-            display: flex;
-            gap: 8px;
-            flex-wrap: wrap;
-            align-items: center;
-        }
-        input, select {
-            padding: 10px 14px;
-            border: 1px solid var(--gray-200);
-            border-radius: 8px;
-            font-size: 15px;
-        }
-        input:focus, select:focus {
-            outline: none;
-            border-color: var(--primary);
-        }
-        .input-flex {
-            flex: 1;
-            min-width: 160px;
-        }
-        .btn-group {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-        }
-        button {
-            padding: 10px 14px;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: 500;
-            transition: 0.2s;
-            font-size: 14px;
-        }
-        .btn-primary {
-            background: var(--primary);
-            color: white;
-        }
-        .btn-primary:hover {
-            background: #1d4ed8;
-        }
-        .btn-success {
-            background: var(--success);
-            color: white;
-        }
-        .btn-success:hover {
-            background: #059669;
-        }
-        .btn-danger {
-            background: var(--danger);
-            color: white;
-        }
-        .btn-danger:hover {
-            background: #dc2626;
-        }
-        .btn-warning {
-            background: var(--warning);
-            color: white;
-        }
-        .btn-warning:hover {
-            background: #d97706;
-        }
-        .btn-outline {
-            background: white;
-            border: 1px solid var(--gray-200);
-            color: var(--gray-600);
-        }
-        .btn-outline:hover {
-            border-color: var(--primary);
-            color: var(--primary);
-        }
-        .filter-row {
-            margin-bottom: 12px;
-        }
-        .filter-title {
-            font-size: 14px;
-            color: var(--gray-600);
-            margin-bottom: 8px;
-        }
-        .filter-bar {
-            display: flex;
-            gap: 8px;
-            flex-wrap: wrap;
-        }
-        .filter-tag {
-            padding: 6px 14px;
-            border: 1px solid var(--gray-200);
-            border-radius: 20px;
-            font-size: 14px;
-            cursor: pointer;
-            transition: 0.2s;
-            user-select: none;
-        }
-        .filter-tag.active {
-            background: var(--primary);
-            color: white;
-            border-color: var(--primary);
-        }
-        .filter-tag:hover:not(.active) {
-            border-color: var(--primary);
-        }
-        .skeleton-list {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-            gap: 12px;
-            margin-top: 16px;
-        }
-        .skeleton-item {
-            height: 120px;
-            background: linear-gradient(90deg, #eee 25%, #e0e0e0 50%, #eee 75%);
-            background-size: 200% 100%;
-            animation: skeleton-loading 1.5s infinite;
-            border-radius: 10px;
-        }
-        @keyframes skeleton-loading {
-            0% {background-position: 200% 0;}
-            100% {background-position: -200% 0;}
-        }
-        /* 卡片视图样式 */
-        .file-list {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 12px;
-            margin-top: 16px;
-        }
-        .file-item {
-            border: 1px solid var(--gray-200);
-            border-radius: 10px;
-            padding: 14px;
-            cursor: pointer;
-            transition: 0.2s;
-            position: relative;
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-            min-height: 140px;
-        }
-        .file-item:hover {
-            border-color: var(--primary);
-            background: #f0f7ff;
-        }
-        .file-icon {
-            font-size: 24px;
-            margin-bottom: 8px;
-        }
-        .file-name {
-            font-size: 14px;
-            word-break: break-all;
-            margin-bottom: 8px;
-            padding-right: 24px;
-            flex: 1;
-        }
-        .file-meta {
-            font-size: 12px;
-            color: var(--gray-400);
-            line-height: 1.5;
-        }
-        .file-tag-group {
-            display: flex;
-            gap: 4px;
-            margin-top: 6px;
-            flex-wrap: wrap;
-        }
-        .mini-tag {
-            font-size: 10px;
-            padding: 2px 6px;
-            background: #eef2ff;
-            color: var(--primary);
-            border-radius: 4px;
-        }
-        .star-btn, .rename-btn, .del-file-btn, .batch-check {
-            position: absolute;
-            width: 22px;
-            height: 22px;
-            font-size: 16px;
-            padding: 0;
-            background: transparent;
-            border: none;
-            opacity: 0;
-            pointer-events: none;
-            transition: 0.2s;
-        }
-        .batch-check {
-            top: 8px;
-            left: 8px;
-            opacity: 1;
-            pointer-events: auto;
-            z-index: 2;
-        }
-        .star-btn {
-            top: 8px;
-            right: 8px;
-            color: var(--gray-400);
-        }
-        .star-btn.star-active {
-            color: #f59e0b;
-            opacity: 1;
-        }
-        .rename-btn {
-            bottom: 32px;
-            right: 8px;
-            color: var(--primary);
-        }
-        .del-file-btn {
-            bottom: 8px;
-            right: 8px;
-            color: var(--danger);
-        }
-        .file-item:hover .star-btn,
-        .file-item:hover .rename-btn,
-        .file-item:hover .del-file-btn {
-            opacity: 1;
-            pointer-events: auto;
-        }
-        /* ========== 全新Windows风格列表表格 ========== */
-        .file-list.table {
-            display: flex;
-            flex-direction: column;
-            margin-top:16px;
-            border: 1px solid var(--gray-200);
-            border-radius: 8px;
-            overflow: hidden;
-        }
-        /* 表头 */
-        .table-header-row {
-            display: grid;
-            grid-template-columns: 32px 1fr 0px 130px;
-            padding:10px 16px;
-            background: var(--table-header-bg);
-            font-weight:500;
-            font-size:14px;
-            color:var(--gray-600);
-            border-bottom:1px solid var(--gray-200);
-        }
-        /* 表格行 */
-        .file-list.table .file-item {
-            display: grid !important;
-            grid-template-columns: 32px 1fr 0px 130px;
-            min-height: 48px;
-            border-radius: 0;
-            border: none;
-            border-bottom: 1px solid var(--gray-200);
-            align-items: center;
-            padding: 0 16px;
-            gap: 0;
-            flex-direction: unset;
-        }
-        .file-list.table .file-item:last-child {
-            border-bottom: none;
-        }
-        .file-list.table .file-item:hover {
-            background: var(--table-row-hover);
-        }
-        /* 表格内元素重置 */
-        .file-list.table .batch-check {
-            position: static;
-            opacity:1;
-            pointer-events:auto;
-        }
-        .file-list.table .file-icon {
-            position: static;
-            font-size:20px;
-            margin:0;
-            width:28px;
-            text-align:center;
-            grid-column:2;
-        }
-        .file-list.table .file-name {
-            margin:0;
-            padding:0;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            grid-column:2;
-            margin-left:8px;
-        }
-        .file-list.table .file-meta {
-            display: none !important;
-        }
-        .file-list.table .file-tag-group {
-            margin:0;
-            justify-content:flex-start;
-            grid-column:4;
-        }
-        .file-list.table .file-ops {
-            grid-column:5;
-            display:flex;
-            gap:6px;
-            justify-content:flex-end;
-        }
-        .file-list.table .star-btn,
-        .file-list.table .rename-btn,
-        .file-list.table .del-file-btn {
-            position: static;
-            opacity:1;
-            pointer-events:auto;
-            font-size:18px;
-            width:26px;
-            height:26px;
-        }
-        /* 进度条、分页、弹窗样式不变 */
-        .progress-wrap {
-            margin-top: 12px;
-            display: none;
-        }
-        .progress-text {
-            font-size: 14px;
-            color: var(--gray-600);
-            margin-bottom: 6px;
-        }
-        .progress-bar {
-            width: 100%;
-            height: 6px;
-            background: var(--gray-200);
-            border-radius: 3px;
-            overflow: hidden;
-        }
-        .progress-inner {
-            height: 100%;
-            background: var(--success);
-            width: 0%;
-            transition: 0.3s;
-        }
-        .page-wrap {
-            display: flex;
-            justify-content: center;
-            gap: 8px;
-            margin-top: 20px;
-            align-items: center;
-        }
-        .page-num {
-            padding: 6px 12px;
-            border: 1px solid var(--gray-200);
-            border-radius: 6px;
-            cursor: pointer;
-        }
-        .page-num.active {
-            background: var(--primary);
-            color: white;
-            border-color: var(--primary);
-        }
-        .preview-modal, .confirm-modal, .addItemModal {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            background: rgba(0,0,0,0.85);
-            display: none;
-            align-items: center;
-            justify-content: center;
-            z-index: 999;
-            padding: 20px;
-        }
-        .preview-box, .confirm-box, .add-box {
-            background: white;
-            border-radius: 10px;
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-        }
-        .preview-box {
-            width: min(92vw, 1200px);
-            height: min(90vh, 850px);
-        }
-        .confirm-box, .add-box {
-            width: min(90vw, 480px);
-            padding: 24px;
-            gap: 16px;
-        }
-        .confirm-title {
-            font-size: 18px;
-            font-weight: 500;
-            color: var(--gray-800);
-        }
-        .confirm-desc {
-            font-size: 14px;
-            color: var(--gray-600);
-            line-height: 1.6;
-        }
-        .confirm-input {
-            width: 100%;
-        }
-        .confirm-btn-group {
-            display: flex;
-            gap: 10px;
-            justify-content: flex-end;
-            flex-wrap: wrap;
-        }
-        .item-list-title {
-            font-size: 14px;
-            color: var(--gray-600);
-            font-weight: 500;
-        }
-        .item-list-wrap {
-            max-height: 220px;
-            overflow-y: auto;
-            border: 1px solid var(--gray-200);
-            border-radius: 8px;
-            padding: 10px;
-        }
-        .item-line {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 8px 10px;
-            border-radius: 6px;
-            margin-bottom: 4px;
-            background: var(--gray-100);
-        }
-        .item-line span {
-            font-size: 14px;
-        }
-        .item-del-btn {
-            padding: 4px 10px;
-            font-size: 12px;
-        }
-        .batch-del-wrap {
-            border-top: 1px dashed var(--gray-200);
-            padding-top: 12px;
-        }
-        .pdf-toolbar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 12px 16px;
-            background: var(--gray-100);
-            border-bottom: 1px solid var(--gray-200);
-            flex-wrap: wrap;
-            gap: 10px;
-        }
-        .pdf-title {
-            font-weight: 500;
-            font-size: 15px;
-        }
-        .pdf-ctrl-group {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-        }
-        .pdf-view-wrap {
-            flex: 1;
-            overflow: auto;
-            background: #666;
-        }
-        #pdfCanvasContainer {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 10px;
-            padding: 20px;
-        }
-        .preview-img-wrap {
-            padding: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            height: 100%;
-            background: #333;
-        }
-        .preview-img-wrap img {
-            max-width: 100%;
-            max-height: calc(90vh - 100px);
-            display: block;
-        }
-        .close-modal {
-            position: absolute;
-            top: 20px;
-            right: 30px;
-            color: white;
-            font-size: 36px;
-            cursor: pointer;
-            z-index: 1000;
-            width: 40px;
-            height: 40px;
-            text-align: center;
-            line-height: 40px;
-            border-radius: 50%;
-            background: rgba(0,0,0,0.3);
-            transition: 0.2s;
-        }
-        .close-modal:hover {
-            background: rgba(0,0,0,0.5);
-        }
-        #loading {
-            color: #666;
-            margin: 10px 0;
-            display: none;
-        }
-        .empty-tip {
-            padding: 40px 0;
-            text-align: center;
-            color: var(--gray-400);
-            font-size: 15px;
-        }
-        .toast-box {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            z-index: 9999;
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-        .toast {
-            padding: 10px 16px;
-            border-radius: 8px;
-            color: white;
-            min-width: 200px;
-            animation: toastIn 0.3s ease;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.15);
-        }
-        .toast-success {background: var(--success);}
-        .toast-error {background: var(--danger);}
-        .toast-warning {background: var(--warning);}
-        @keyframes toastIn {
-            from {transform: translateX(100%); opacity: 0;}
-            to {transform: translateX(0); opacity: 1;}
-        }
-        .panel-tab-wrap {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 12px;
-            align-items: center;
-        }
-        .tab-item {
-            padding: 8px 14px;
-            border-radius: 8px;
-            border: 1px solid var(--gray-200);
-            cursor: pointer;
-        }
-        .tab-item.active {
-            background: var(--primary);
-            color: white;
-            border-color: var(--primary);
-        }
-        .view-mode-group {
-            margin-left: auto;
-            display: flex;
-            gap: 4px;
-        }
-        .view-btn {
-            width: 36px;
-            height: 36px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 6px;
-            border: 1px solid var(--gray-200);
-            background: white;
-            cursor: pointer;
-        }
-        .view-btn.active {
-            background: var(--primary);
-            color: white;
-            border-color: var(--primary);
-        }
-        .batch-bar {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-top: 12px;
-            padding-top: 12px;
-            border-top: 1px dashed var(--gray-200);
-        }
-        @media (max-width: 1024px) {
-            .table-header-row {
-                grid-template-columns: 32px 1fr 160px 110px;
-            }
-        }
-        @media (max-width: 768px) {
-            body {padding: 12px;}
-            .top-wrap {grid-template-columns: 1fr;}
-            .file-list {grid-template-columns: 1fr;}
-            .pdf-toolbar {flex-direction: column; align-items: flex-start;}
-            .close-modal {top: 10px; right: 10px;}
-            .table-header-row {
-                grid-template-columns: 32px 1fr 80px;
-            }
-            .file-list.table .file-item {
-                grid-template-columns: 32px 1fr 80px;
-            }
-            .file-list.table .file-meta,
-            .file-list.table .file-tag-group {
-                display: none;
-            }
-        }
-    </style>
+  <meta charset="utf-8" />
+  <title>燃油消耗表（调拨逻辑增强版）</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    body { font-family: Arial, sans-serif; margin:0; padding:0; }
+    header { padding:10px 16px; background:#1e88e5; color:#fff; display:flex; flex-wrap:wrap; gap:8px; align-items:center; }
+    header h1 { font-size:18px; margin:0 12px 0 0; }
+    .toolbar button, .toolbar select { margin-right:8px; }
+    section.dicts { display:none !important; }
+    section.filters, section.actions { padding:8px 16px; border-bottom:1px solid #eee; display:flex; gap:12px; align-items:center; flex-wrap:wrap; }
+    main { display:flex; flex-direction:column; gap:16px; padding:10px 16px; }
+    .pane { width:100%; }
+    table { width:100%; border-collapse: collapse; }
+    th, td { border:1px solid #ddd; padding:6px; font-size:14px; }
+    th { background:#fafafa; }
+    tr.estimate { background:#fff9c4; }
+    /* 调拨高亮样式（界面显示） */
+    tr.transfer-in { background-color: #ffff00 !important; } /* 调入：黄色 */
+    tr.transfer-out { background-color: #c8f9c8 !important; } /* 调出：浅绿色 */
+    
+    .modal { position: fixed; left:0; top:0; right:0; bottom:0; background:rgba(0,0,0,0.4); display:flex; align-items:center; justify-content:center; z-index: 1000; }
+    .modal.hidden { display:none; }
+    .modal .modal-content { background:white; padding:16px; min-width:400px; max-width:90%; max-height:80%; overflow:auto; border-radius:6px; }
+    .note { color:#666; font-size:12px; }
+    .muted { color:#777; }
+    .form-row { display:flex; gap:12px; align-items:center; margin:8px 0; flex-wrap:wrap; }
+    .form-row label { min-width:84px; text-align:right; }
+    .inline { display:inline-flex; gap:8px; align-items:center; }
+    .star { cursor:pointer; font-size:18px; user-select:none; }
+    .star.fav { color:#f6a700; }
+    .sublabel { color:#777; font-size:12px; margin-left:6px; }
+    .actions-bar { display:flex; gap:8px; justify-content:flex-end; margin-top:12px; }
+    #snapTable thead tr:first-child th { background:#f0f0f0; font-weight:bold; }
+    #snapTable thead tr:nth-child(2) th { background:#fafafa; }
+    .pill { padding:2px 6px; border-radius:10px; font-size:12px; }
+    .pill-ok { background:#e8f5e9; color:#2e7d32; border:1px solid #c8e6c9; }
+    .pill-warn { background:#fff8e1; color:#8d6e63; border:1px solid #ffe0b2; }
+    .btn-link { background:none; border:none; color:#1e88e5; cursor:pointer; padding:0; }
+    .btn-link:disabled { color:#aaa; cursor:not-allowed; }
+    .grid { display:grid; grid-template-columns: repeat(auto-fit,minmax(260px,1fr)); gap:12px; }
+    .card { border:1px solid #e5e5e5; border-radius:6px; padding:10px; }
+    .card h4 { margin:0 0 6px 0; font-size:14px; }
+    .card p { margin:0 0 8px 0; color:#666; font-size:12px; }
+    .field { display:flex; align-items:center; gap:6px; margin:6px 0; }
+    .field label { width:auto; min-width:56px; text-align:left; font-size:12px; color:#555; }
+    /* 导出时的简单样式（HTML .xls 内同名类也会定义） */
+    .title { font-weight:bold; font-size:16px; text-align:center; }
+    .center { text-align:center; }
+    .left { text-align:left; }
+    .nb td, .nb th { border:none !important; }
+    .wm-preview img { max-height:48px; margin-right:8px; border:1px dashed #ccc; padding:2px; border-radius:2px; vertical-align:middle; }
+    /* 水印设置微样式 */
+    .wm-row { display:flex; gap:8px; align-items:center; flex-wrap:wrap; margin-top:6px; }
+    .wm-row .num { width:70px; }
+    .wm-row small { color:#777; }
+    
+    /* 折叠样式 */
+    .toggle-header { cursor: pointer; user-select: none; display: flex; align-items: center; justify-content: space-between; padding-right: 8px; }
+    .toggle-header:hover { background-color: #f5f5f5; border-radius: 4px; }
+    .toggle-icon { font-size: 14px; color: #666; font-weight: normal; margin-left: 10px; }
+    .toggle-icon.closed { transform: rotate(-90deg); }
+  </style>
 </head>
 <body>
-    <div class="toast-box" id="toastBox"></div>
+  <header>
+    <h1>燃油消耗表</h1>
+    <div class="toolbar">
+      <!-- 工程名称（多工程支持） -->
+      <label class="inline" for="projectSelect">工程名称:</label>
+      <select id="projectSelect" title="选择工程"></select>
+      <button id="btnProjectAdd" title="新增工程">新增工程</button>
+      <button id="btnProjectRename" title="重命名当前工程">重命名</button>
+      <button id="btnProjectDel" title="删除当前工程">删除工程</button>
 
-    <div class="card" id="topCard">
-        <div class="card-header" onclick="toggleCard('topCard')">
-            <h2>📚 文件检索 & 文件上传</h2>
-            <span class="card-toggle">▼</span>
-        </div>
-        <div class="card-collapse">
-            <div class="top-wrap">
-                <div class="search-container">
-                    <div class="search-wrap">
-                        <input type="text" id="searchInput" class="input-flex" placeholder="输入制度名称、部门、类型快速检索...">
-                        <button class="btn-primary" onclick="renderFileList()">搜索</button>
-                        <button class="btn-outline" onclick="resetAllFilter()">重置筛选</button>
-                    </div>
-                    <div class="filter-row">
-                        <div class="filter-title">文件格式筛选</div>
-                        <div class="filter-bar" id="typeFilterBar">
-                            <div class="filter-tag active" data-type="all">全部文件</div>
-                            <div class="filter-tag" data-type="img">图片</div>
-                            <div class="filter-tag" data-type="pdf">PDF制度</div>
-                            <div class="filter-tag" data-type="word">Word文档</div>
-                            <div class="filter-tag" data-type="excel">Excel表格</div>
-                        </div>
-                    </div>
-                    <div class="filter-row">
-                        <div class="filter-title">业务部门筛选</div>
-                        <div class="filter-bar" id="deptFilterBar"></div>
-                    </div>
-                </div>
+      <select id="monthSelect"></select>
+      <button id="btnAddMonth">新增月份</button>
+      <button id="btnDelMonth">删除月份</button>
+      <button id="btnExportMonth">导出当月</button>
+      <button id="btnExportAll">导出全部</button>
+      <button id="btnDiffSummary">差异汇总</button>
+      <button id="btnZeroDiffs">差异归零</button>
+      <button id="btnEstimateStats">暂估统计</button>
+      <!-- 新增按钮 -->
+      <button id="btnRangeStats">区间统计</button>
+      <button id="btnExportData">导出数据</button>
+      <button id="btnImportData">导入数据</button>
+      <button id="btnExportEstimatePurchase">导出当月采购</button>
+      <button id="btnHelp" title="查看使用说明">帮助</button>
+      <button id="btnCloudSave" title="手动保存数据到GitHub云端">云端保存</button>
+      <button id="btnCloudSaveSingle" title="手动保存【当前单个工程】到GitHub云端">云端保存(仅当前工程)</button>
 
-                <div class="upload-container">
-                    <div class="upload-form">
-                        <div class="upload-row">
-                            <select id="deptSelect" class="input-flex"></select>
-                            <button class="btn-outline" onclick="openAddModal('dept')">管理部门</button>
-                        </div>
-                        <div class="upload-row">
-                            <select id="cateSelect" class="input-flex"></select>
-                            <button class="btn-outline" onclick="openAddModal('cate')">管理分类</button>
-                        </div>
-                        <div class="upload-row">
-                            <input type="text" id="docNameInput" class="input-flex" placeholder="文件名称（无需部门、分类、后缀）">
-                        </div>
-                        <div class="upload-row">
-                            <input type="file" id="fileInput" multiple accept=".docx,.doc,.pdf,.jpg,.jpeg,.png,.gif,.webp,.xlsx,.xls" class="input-flex">
-                        </div>
-                        <div class="btn-group">
-                            <button class="btn-success" onclick="uploadFiles()">确认批量上传</button>
-                            <button class="btn-outline" onclick="cancelUploadTask()">取消上传</button>
-                            <button class="btn-primary" onclick="loadRemoteFileList()">刷新列表</button>
-                        </div>
-                        <div class="progress-wrap" id="uploadProgressWrap">
-                            <div class="progress-text" id="uploadProgressText">上传进度：0/0</div>
-                            <div class="progress-bar">
-                                <div class="progress-inner" id="uploadProgressBar"></div>
-                            </div>
-                        </div>
-                        <div id="loading">处理中，请稍候...</div>
-                    </div>
-                </div>
-            </div>
-        </div>
+      <!-- 文件选择（隐藏） -->
+      <input id="fileImportJson" type="file" accept=".json,application/json" style="display:none" />
+      <input id="fileImportBeginXls" type="file" accept=".xls,application/vnd.ms-excel,application/vnd.microsoft.office.spreadsheetml.sheet" style="display:none" />
+      <input id="fileImportPurchaseXls" type="file" accept=".xls,application/vnd.ms-excel,application/vnd.microsoft.office.spreadsheetml.sheet" style="display:none" />
+      <input id="fileImportConsumeXls" type="file" accept=".xls,application/vnd.ms-excel,application/vnd.microsoft.office.spreadsheetml.sheet" style="display:none" />
+      <!-- 新水印：三处文件选择 -->
+      <input id="fileWm1" type="file" accept="image/png" style="display:none" />
+      <input id="fileWm2" type="file" accept="image/png" style="display:none" />
+      <input id="fileWm3" type="file" accept="image/png" style="display:none" />
+    </div>
+  </header>
+
+  <section class="filters">
+    <label>船名:
+      <select id="filterShip"></select>
+    </label>
+    <label>型号:
+      <select id="filterModel"></select>
+    </label>
+    <label>显示期初期末为均零数据:
+      <select id="filterZeroBE">
+        <option value="no">否</option>
+        <option value="yes">是</option>
+      </select>
+    </label>
+	<label>显示当期发生为零:
+	    <select id="filterZeroOccur">
+		    <option value="no">否</option>
+			<option value="yes">是</option>
+	    </select>
+	</label>
+    <button id="btnReload">刷新</button>
+  </section>
+
+  <section class="actions">
+    <button id="btnAddBegin">录入期初</button>
+    <button id="btnAddPurchase">录入当期采购</button>
+    <button id="btnAddConsume">录入当期消耗</button>
+    <button id="btnAdjust">暂估改正</button>
+    <span class="muted">勾选明细表中“暂估”的复选框后，点击“暂估改正”</span>
+  </section>
+
+  <main>
+    <div class="pane">
+      <h3 id="trxPaneHeader" class="toggle-header" title="点击折叠/展开">
+        <span>当期明细</span>
+        <span id="trxPaneIcon" class="toggle-icon">▼</span>
+      </h3>
+      <div id="trxPaneContent">
+        <table id="trxTable">
+          <thead>
+            <tr>
+              <th>#</th><th>船名</th><th>型号</th><th>类型</th><th>数量</th><th>停工数量</th><th>单价</th><th>金额</th><th>暂估</th><th>供应商</th><th>日期</th><th>备注</th><th>操作</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
     </div>
 
-    <div class="card" id="fileCard">
-        <div class="card-header" onclick="toggleCard('fileCard')">
-            <h2>📁 文件列表</h2>
-            <span class="card-toggle">▼</span>
-        </div>
-        <div class="card-collapse">
-            <div class="panel-tab-wrap">
-                <div class="tab-item active" data-tab="all">全部制度</div>
-                <div class="tab-item" data-tab="star">我的收藏</div>
-                <div class="tab-item" data-tab="history">最近浏览</div>
-                <div class="view-mode-group">
-                    <div class="view-btn active" title="卡片视图" onclick="switchView('card')">🗂️</div>
-                    <div class="view-btn" title="列表视图" onclick="switchView('table')">📋</div>
-                </div>
-            </div>
-
-            <div class="batch-bar">
-                <button class="btn-outline btn-sm" onclick="selectAllBatch()">全选</button>
-                <button class="btn-outline btn-sm" onclick="unSelectAllBatch()">取消全选</button>
-                <button class="btn-danger" onclick="batchDeleteFiles()">✅ 批量删除选中文件</button>
-                <span id="batchCount" style="margin-left: auto;color:var(--gray-600)">已选：0 个</span>
-            </div>
-
-            <div class="skeleton-list" id="skeletonWrap">
-                <div class="skeleton-item"></div>
-                <div class="skeleton-item"></div>
-                <div class="skeleton-item"></div>
-                <div class="skeleton-item"></div>
-                <div class="skeleton-item"></div>
-                <div class="skeleton-item"></div>
-            </div>
-            <!-- 表格表头容器 -->
-            <div id="tableHeaderContainer" style="display:none;">
-                <div class="table-header-row"> 
-                    <div></div>
-                    <div>文件名</div>
-                     <div></div>
-                     <div style="text-align:right">操作</div>
-                 </div>
-            </div>
-            <div id="fileListBox" class="file-list" style="display: none;"></div>
-            <div class="page-wrap" id="pageWrap"></div>
-        </div>
+    <div class="pane">
+      <h3>当期汇总（统计页）</h3>
+      <table id="snapTable">
+        <thead>
+          <tr>
+            <th rowspan="2">调拨标记</th>
+            <th rowspan="2">船舶名称</th>
+            <th rowspan="2">规格型号</th>
+            <th colspan="2">期初结存</th>
+            <th colspan="3">本期增加</th>
+            <th colspan="6">本期减少</th>
+            <th colspan="3">期末结存</th>
+          </tr>
+          <tr>
+            <th>数量</th><th>金额</th>
+            <th>购入数量</th><th>单价</th><th>金额</th>
+            <th>消耗数量</th><th>停工数量</th><th>加权单价</th><th>消耗金额</th><th>停工金额</th><th>合计消耗</th>
+            <th>数量</th><th>单价</th><th>金额</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
     </div>
+  </main>
 
-    <div class="preview-modal" id="previewModal">
-        <span class="close-modal" onclick="closePreview()">×</span>
-        <div class="preview-box" id="previewContent"></div>
-    </div>
-
-    <div class="confirm-modal" id="confirmModal">
-        <div class="confirm-box">
-            <div class="confirm-title" id="confirmTitle">文件重复提示</div>
-            <div class="confirm-desc" id="confirmDesc"></div>
-            <input type="text" class="confirm-input" id="confirmInput" placeholder="修改文件名称">
-            <div class="confirm-btn-group">
-                <button class="btn-outline" onclick="cancelConfirm()">跳过该文件</button>
-                <button class="btn-primary" onclick="submitRenameUpload()">确认改名上传</button>
-            </div>
+  <!-- 录入弹窗 -->
+  <div id="entryModal" class="modal hidden">
+    <div class="modal-content">
+      <h3 id="entryTitle">录入</h3>
+      <div class="form-row">
+        <label>船名</label>
+        <div class="inline">
+          <select id="entryShip"></select>
+          <span id="favShip" class="star" title="设为常用">☆</span>
+          <input id="newShipName" placeholder="新增船名" />
+          <button id="btnAddShipInline">添加</button>
+          <button id="btnDelShipInline" title="删除选中船名">删除</button>
         </div>
-    </div>
-
-    <div class="addItemModal" id="addItemModal">
-        <div class="add-box">
-            <div class="confirm-title" id="addModalTitle">管理项目</div>
-            <div style="display:flex;gap:8px;">
-                <input type="text" class="confirm-input" id="addItemInput" placeholder="输入名称">
-                <button class="btn-primary" onclick="submitAddItem()">新增</button>
-            </div>
-            <div class="item-list-title">已有条目（点击删除单条）</div>
-            <div class="item-list-wrap" id="itemListContainer"></div>
-            <div class="batch-del-wrap">
-                <button class="btn-danger" onclick="batchDeleteAllItem()">⚠️ 批量清空全部</button>
-            </div>
-            <div class="confirm-btn-group">
-                <button class="btn-outline" onclick="closeAddModal()">关闭</button>
-            </div>
+      </div>
+      <div class="form-row">
+        <label>型号</label>
+        <div class="inline">
+          <select id="entryModel"></select>
+          <span id="favModel" class="star" title="设为常用">☆</span>
+          <input id="newModelName" placeholder="新增型号" />
+          <button id="btnAddModelInline">添加</button>
+          <button id="btnDelModelInline" title="删除选中型号">删除</button>
         </div>
+      </div>
+      <div class="form-row" id="rowCarry">
+        <label>期初承接</label>
+        <div class="inline">
+          <label class="inline"><input type="checkbox" id="chkCarry"/> 承接上期期末为期初</label>
+          <span class="sublabel">仅“期初”可选</span>
+        </div>
+      </div>
+      <div class="form-row" id="rowBeginQty">
+        <label>期初数量</label>
+        <input id="entryBeginQty" type="number" step="0.000001" min="0" value="0" />
+      </div>
+      <div class="form-row" id="rowBeginAmt">
+        <label>期初金额</label>
+        <input id="entryBeginAmt" type="number" step="0.01" min="0" value="0" />
+      </div>
+      <div class="form-row" id="rowQty">
+        <label>数量</label>
+        <input id="entryQty" type="number" step="0.000001" min="0" value="0" />
+      </div>
+      <div class="form-row" id="rowStopQty">
+        <label>停工数量</label>
+        <input id="entryStopQty" type="number" step="0.000001" min="0" value="0" />
+      </div>
+      <div class="form-row" id="rowConsumeAmt">
+         <label>消耗金额</label>
+         <input id="entryConsumeAmt" type="number" step="0.01" min="0" value="0" placeholder="不填则自动计算" />
+      </div>
+      <div class="form-row" id="rowPrice">
+        <label>单价</label>
+        <input id="entryPrice" type="number" step="0.000001" min="0" value="0" />
+      </div>
+      <div class="form-row" id="rowAmount">
+        <label>金额</label>
+        <input id="entryAmount" type="number" step="0.01" min="0" value="0" />
+      </div>
+      <div class="form-row" id="rowSupplier">
+        <label>供应商</label>
+        <input id="entrySupplier" placeholder="供应商名称" />
+      </div>
+      <div class="form-row" id="rowDate">
+        <label>日期</label>
+        <input id="entryPurchaseDate" type="date" />
+      </div>
+      <div class="form-row" id="rowEstimate">
+        <label>是否暂估</label>
+        <label class="inline"><input type="checkbox" id="chkEstimate"/> 暂估</label>
+      </div>
+      <div class="actions-bar">
+        <button id="btnEntryCancel">取消</button>
+        <button id="btnEntryOK">确定</button>
+      </div>
     </div>
+  </div>
 
-<script>
-const PAT = "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";
-const OWNER = "huaiping221-cyber";
-const REPO = "-221";
-const BRANCH = "main";
-const FOLDER_CONFIG = {
-    img: "files/images/",
-    pdf: "files/pdf/",
-    word: "files/word/",
-    excel: "files/excel/",
-    other: "files/other/"
+  <!-- 差异汇总弹窗 -->
+  <div id="diffModal" class="modal hidden">
+    <div class="modal-content">
+      <h3 id="diffTitle">差异汇总（消耗/停工/合计）</h3>
+      <div id="diffBody"></div>
+      <div class="actions-bar">
+        <button id="btnExportDiff">导出</button>
+        <button id="btnDiffClose">关闭</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 暂估统计弹窗 -->
+  <div id="estModal" class="modal hidden">
+    <div class="modal-content" style="min-width: 80%;">
+      <h3>暂估统计</h3>
+      <div id="estBody"></div>
+      <div class="actions-bar">
+        <button id="btnExportEst">导出</button>
+        <button id="btnEstClose">关闭</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 暂估更正输入弹窗 -->
+  <div id="fixEstModal" class="modal hidden" style="z-index: 1100;">
+    <div class="modal-content" style="min-width: 320px;">
+      <h3>暂估更正</h3>
+      <div id="fixEstLabel" class="note" style="margin-bottom:12px; font-weight:bold;"></div>
+      <div class="form-row">
+        <label>正式数量</label>
+        <input id="fixQty" type="number" step="0.000001" />
+      </div>
+      <div class="form-row">
+        <label>正式金额</label>
+        <input id="fixAmt" type="number" step="0.01" />
+      </div>
+      <div class="actions-bar">
+        <button id="btnFixCancel">取消</button>
+        <button id="btnFixConfirm">确定</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 区间统计弹窗 -->
+  <div id="rangeStatsModal" class="modal hidden">
+    <div class="modal-content" style="min-width: 80%;">
+      <h3>区间累计统计</h3>
+      <div style="background:#f5f5f5; padding:10px; border-radius:4px; margin-bottom:10px;">
+        <label>统计范围：
+          <select id="rangeStart"></select>
+          至
+          <select id="rangeEnd"></select>
+        </label>
+        <button id="btnCalcRange" style="margin-left:10px;">查询统计</button>
+        <span class="note" style="margin-left:10px;">提示：统计结果受主界面“船名/型号”筛选影响</span>
+      </div>
+      <div style="max-height: 400px; overflow-y: auto;">
+        <table id="rangeStatsTable">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>船舶名称</th>
+              <th>规格型号</th>
+              <th>累计购入数量</th>
+              <th>累计购入金额</th>
+              <th>累计消耗数量</th>
+              <th>累计停工数量</th>
+              <th>累计消耗金额</th>
+              <th>累计停工金额</th>
+              <th>累计合计消耗(消耗+停工)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td colspan="10" class="center muted">请选择月份范围并点击查询</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="actions-bar">
+        <button id="btnExportRange">导出结果</button>
+        <button id="btnRangeClose">关闭</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 导入数据弹窗 -->
+  <div id="importModal" class="modal hidden">
+    <div class="modal-content">
+      <h3>导入数据</h3>
+      <div class="grid">
+        <div class="card">
+          <h4>导入往期（JSON）</h4>
+          <p>覆盖当前工程的数据，格式与“移交导出”一致。</p>
+          <button id="btnImportPast">选择文件</button>
+        </div>
+        <div class="card">
+          <h4>导入期初（Excel）</h4>
+          <p>按模板导入期初数据（.xls）。</p>
+          <button id="btnImportBeginXls">选择文件</button>
+        </div>
+        <div class="card">
+          <h4>导入采购（Excel）</h4>
+          <p>按模板导入采购数据（.xls）。</p>
+          <button id="btnImportPurchaseXls">选择文件</button>
+        </div>
+        <div class="card">
+          <h4>导入消耗（Excel）</h4>
+          <p>按模板导入消耗数据（.xls）。</p>
+          <button id="btnImportConsumeXls">选择文件</button>
+        </div>
+      </div>
+      <div class="note" style="margin-top:10px;">
+        Excel 模板首列为“月份”，格式示例：2025-03。船名/型号将自动新增；导入完成后自动重算。注意：导入作用于当前工程。
+      </div>
+      <div class="actions-bar">
+        <button id="btnImportClose">关闭</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 导出数据弹窗 -->
+  <div id="exportModal" class="modal hidden">
+    <div class="modal-content">
+      <h3>导出数据</h3>
+      <div class="grid">
+        <div class="card">
+          <h4>移交导出（JSON）</h4>
+          <p>导出当前工程完整备份，另一端使用“导入往期（JSON）”可一键恢复到一个工程。</p>
+          <button id="btnExportHandover">导出</button>
+        </div>
+        <div class="card">
+          <h4>导出期初模版（Excel）</h4>
+          <p>模板字段：月份, 船名, 型号, 期初数量, 期初金额, 是否暂估(是/否), 备注</p>
+          <button id="btnExportBeginTpl">导出</button>
+        </div>
+        <div class="card">
+          <h4>导出采购模版（Excel）</h4>
+          <p>模板字段：月份, 船名, 型号, 数量, 单价, 金额, 是否暂估(是/否), 供应商, 采购日期(YYYY-MM-DD), 备注</p>
+          <button id="btnExportPurchaseTpl">导出</button>
+        </div>
+        <div class="card">
+          <h4>导出消耗模版（Excel）</h4>
+          <p>模板字段：月份, 船名, 型号, 消耗数量, 停工数量, 备注</p>
+          <button id="btnExportConsumeTpl">导出</button>
+        </div>
+
+        <!-- 水印设置 -->
+        <div class="card">
+          <h4>水印设置（导出统计表）</h4>
+          <p>位置1：标题左上角；位置2：表尾“制单：”；位置3：表尾“审核：”。仅对“导出当月”生效。</p>
+          <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:6px;">
+            <button id="btnSetWm1">选择图片(位置1)</button>
+            <button id="btnSetWm2">选择图片(位置2)</button>
+            <button id="btnSetWm3">选择图片(位置3)</button>
+          </div>
+          <div class="wm-preview">
+            <span class="note">预览：</span>
+            <img id="wmPrev1" alt="无" />
+            <img id="wmPrev2" alt="无" />
+            <img id="wmPrev3" alt="无" />
+          </div>
+          <!-- 大小与位置设置 -->
+          <div class="wm-row">
+            <strong>位置1</strong>
+            <label>高度(px)<input class="num" id="wm1H" type="number" min="8" step="1"></label>
+            <label>左右偏移(px)<input class="num" id="wm1DX" type="number" step="1"></label>
+            <label>上下偏移(px)<input class="num" id="wm1DY" type="number" step="1"></label>
+            <button id="wm1Reset" class="btn-link">恢复默认</button>
+          </div>
+          <div class="wm-row">
+            <strong>位置2</strong>
+            <label>高度(px)<input class="num" id="wm2H" type="number" min="8" step="1"></label>
+            <label>左右偏移(px)<input class="num" id="wm2DX" type="number" step="1"></label>
+            <label>上下偏移(px)<input class="num" id="wm2DY" type="number" step="1"></label>
+            <button id="wm2Reset" class="btn-link">恢复默认</button>
+          </div>
+          <div class="wm-row">
+            <strong>位置3</strong>
+            <label>高度(px)<input class="num" id="wm3H" type="number" min="8" step="1"></label>
+            <label>左右偏移(px)<input class="num" id="wm3DX" type="number" step="1"></label>
+            <label>上下偏移(px)<input class="num" id="wm3DY" type="number" step="1"></label>
+            <button id="wm3Reset" class="btn-link">恢复默认</button>
+          </div>
+          <div class="note"><small>提示：偏移通过设置图片的 margin-left / margin-top 实现，导出到 .xls（HTML）中同样有效。</small></div>
+          <div style="margin-top:6px;">
+            <button id="btnClearWm" class="btn-link">清除全部水印</button>
+          </div>
+        </div>
+      </div>
+      <div class="actions-bar">
+        <button id="btnExportClose">关闭</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 导入结果弹窗 -->
+  <div id="importResultModal" class="modal hidden">
+    <div class="modal-content">
+      <h3>导入结果</h3>
+      <div id="importResultSummary" class="note"></div>
+      <div id="importResultTableWrap" style="margin-top:8px;"></div>
+      <div class="actions-bar">
+        <button id="btnExportImportErrors">导出错误清单</button>
+        <button id="btnImportResultClose">关闭</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 帮助弹窗 -->
+  <div id="helpModal" class="modal hidden">
+    <div class="modal-content">
+      <h3>帮助与使用说明</h3>
+      <div style="line-height:1.6; font-size:14px; color:#444;">
+        <p><strong>一、工程与月份</strong></p>
+        <p>- 工程：点击“新增工程”创建独立账套；下拉选择切换工程；“删除工程”将删除该工程的全部数据；“重命名”可修改工程名称。</p>
+        <p>- 新工程的月份从起始月开始（默认：2025-01）。</p>
+        <p>- 月份：在当前工程下新增/删除月份；导出当月/全部输出当前工程的统计表。</p>
+
+        <p><strong>二、筛选与刷新</strong></p>
+        <p>- 船名/型号：可下拉筛选查看当期明细与统计页；“全部”为不过滤。</p>
+        <p>- 显示期初期末为均零数据：选择“是”则统计页显示零行，默认不显示。</p>
+        <p>- 刷新：自左至右逐月重算结转，确保统计正确（作用于当前工程）。</p>
+
+        <p><strong>三、录入明细</strong></p>
+        <p>- 期初：支持“承接上期”（不录数，仅结转上期末余额）或手工录入数量/金额；可标记“暂估”。</p>
+        <p>- 采购：录入数量后，填写单价或金额（二选一，系统自动联动计算）；可录采购日期、供应商，并可勾选“暂估”。</p>
+        <p>- 消耗：录入消耗数量与停工数量（均可为 0，不能为负）。</p>
+        <p>- 常用与最近：录入弹窗中可将船名/型号设为“常用”，系统也会记住最近使用项。</p>
+
+        <p><strong>四、暂估改正</strong></p>
+        <p>- 在“当期明细”表勾选暂估行，点击“暂估改正”。请确保每次只勾选一条记录，以便准确输入该笔记录的正式金额。</p>
+        <p>- 采购暂估：输入正式数量与金额，系统将直接改写该暂估行（不新增行），并按口径生成各月“消耗金额差异/停工金额差异/合计消耗差异”。</p>
+        <p>- 期初暂估：输入正式数量与金额，直接改写该期初行并重新结转，再生成差异。</p>
+        <p>- 恢复：在“暂估统计”弹窗中对已更正的行点击“恢复”，系统移除与该暂估相关的差异记录；并将该行恢复为更正前的暂估数据（若有备份）。</p>
+        <p>- 差异归零：清除所有已生成的差异记录，不影响已更正的正式记录。</p>
+
+        <p><strong>五、统计与导出</strong></p>
+        <p>- 统计页：显示期初、本期增加（含单价列）、本期减少（含加权单价）、期末等信息，底部带合计。</p>
+        <p>- 调拨标记：在统计页勾选行首复选框，可标记“调入”或“调出”。标记后行背景变黄，导出时同样生效。</p>
+        <p>- <strong>调出逻辑：若某行被标记为“调出”，且该行在上一月没有任何未更正的暂估，则下个月的期初将归零；若存在未更正暂估，则忽略调出标记，继续承接。</strong></p>
+        <p>- 差异汇总：按年份汇总“消耗金额差异/停工金额差异/合计消耗差异”（来源于暂估改正），支持导出。</p>
+        <p>- 暂估统计：汇总所有暂估（含已更正/未更正），展示数量/单价/金额与差额，支持导出。</p>
+        <p>- 区间统计：按时间段汇总购入数量/金额、消耗数量/金额及停工数量/金额。</p>
+
+        <p><strong>六、导入/导出数据</strong></p>
+        <p>- 移交导出（JSON）：导出当前工程完整备份，另一端可在任意工程下用“导入往期（JSON）”覆盖导入。</p>
+        <p>- 模板导入（Excel）：请先导出对应模板，填写后在“导入数据”中选择导入；导入作用于当前工程。</p>
+      </div>
+      <div class="actions-bar">
+        <button id="btnHelpClose">关闭</button>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+function $(id){ return document.getElementById(id); }
+function nowTs(){ return Date.now(); }
+function genId(list){
+  let max = 0;
+  list.forEach(x=>{ if(x.id > max) max = x.id; });
+  return max + 1;
+}
+function round2(v){
+  return Math.round(Number(v || 0) * 100) / 100;
+}
+function round6(v){
+  return Math.round(Number(v || 0) * 1000000) / 1000000;
+}
+function ymNext(ym){
+  const [y,m] = ym.split("-").map(Number);
+  let ny = y, nm = m + 1;
+  if(nm > 12){
+    ny++;
+    nm = 1;
+  }
+  return `${ny}-${String(nm).padStart(2,'0')}`;
+}
+const state = {
+  projects: [],
+  currentPid: 0,
+  months: [],
+  ym: "",
+  ships: [],
+  models: [],
+  trxs: [],
+  transfers: {},
+  favorites: { ships: [], models: [] },
+  recent: { ships: [], models: [] },
+  showZeroBeginEnd: false,
+  showZeroOccurrence: false,
+  watermarks: { topLeft:"", maker:"", auditor:"" },
+  watermarkStyles: {
+    topLeft: { h:36, dx:0, dy:0 },
+    maker: { h:36, dx:0, dy:0 },
+    auditor: { h:36, dx:0, dy:0 }
+  },
+  lastImportErrors: { header: [], errors: [], headerRow: [], kind: "", ok: 0, bad: 0 },
+  filterShip: 0,
+  filterModel: 0,
+  snapsCache: {},
+  selectedEstimates: new Set()
 };
-const MAX_FILE_SIZE = 20 * 1024 * 1024;
-const PAGE_SIZE = 18;
-
-let allFileData = [];
-let currentFilter = {type:"all",dept:"all",keyword:"",tab:"all"};
-let pageNow = 1, pageTotal = 1;
-let uploadCancelFlag = false;
-let currentUploadFile = null;
-let pendingUploadFiles = [];
-let pdfScaleCache = 1.2;
-let addModalType = "";
-let currentView = "card";
-let batchSelected = [];
-
-const STORAGE_KEY_STAR = "manage_book_star";
-const STORAGE_KEY_HISTORY = "manage_book_history";
-const STORAGE_KEY_CACHE = "manage_file_cache";
-const STORAGE_DEPT = "manage_dept_list";
-const STORAGE_CATE = "manage_cate_list";
-
-let starList = JSON.parse(localStorage.getItem(STORAGE_KEY_STAR) || "[]");
-let historyList = JSON.parse(localStorage.getItem(STORAGE_KEY_HISTORY) || "[]");
-let deptList = JSON.parse(localStorage.getItem(STORAGE_DEPT) || '["通用","财务部","人事部","行政部","工程部"]');
-let cateList = JSON.parse(localStorage.getItem(STORAGE_CATE) || '["其他","报销制度","人事管理","安全生产","项目管理","采购管理"]');
-
-function toggleCard(id) {
-    const card = document.getElementById(id);
-    card.classList.toggle("collapsed");
-}
-function switchView(mode) {
-    currentView = mode;
-    document.querySelectorAll(".view-btn").forEach(b => b.classList.remove("active"));
-    document.querySelector(`.view-btn[onclick="switchView('${mode}')"]`).classList.add("active");
-    // 切换表格表头显示隐藏
-    const tableHeader = document.getElementById("tableHeaderContainer");
-    tableHeader.style.display = mode === "table" ? "block" : "none";
-    renderFileList();
-}
-function selectAllBatch() {
-    const items = document.querySelectorAll(".batch-check");
-    batchSelected = [];
-    items.forEach(cb => { cb.checked = true; batchSelected.push(cb.dataset.name); });
-    updateBatchCount();
-}
-function unSelectAllBatch() {
-    const items = document.querySelectorAll(".batch-check");
-    items.forEach(cb => cb.checked = false);
-    batchSelected = [];
-    updateBatchCount();
-}
-function updateBatchCount() {
-    document.getElementById("batchCount").innerText = `已选：${batchSelected.length} 个`;
-}
-function toggleBatchSelect(name) {
-    const idx = batchSelected.indexOf(name);
-    if(idx > -1) batchSelected.splice(idx, 1);
-    else batchSelected.push(name);
-    updateBatchCount();
-}
-async function batchDeleteFiles() {
-    if(batchSelected.length === 0) return showToast("请先选择文件","warning");
-    if(!confirm(`确定删除选中的 ${batchSelected.length} 个文件？`)) return;
-    setLoading(true);
-    let success = 0;
-    for(const name of batchSelected) {
-        const item = allFileData.find(f => f.name === name);
-        if(!item) continue;
-        try {
-            await fetch(`https://api.github.com/repos/${OWNER}/${REPO}/contents/${item.path}`,{
-                method:"DELETE",
-                headers:{Authorization:`Bearer ${PAT}`,"Content-Type":"application/json"},
-                body:JSON.stringify({message:`批量删除 ${name}`,sha:item.sha,branch:BRANCH})
-            });
-            success++;
-        }catch(e){}
+    const LS_KEY_V2 = "fuel_book_html_v2";
+    const LS_KEY_V1 = "fuel_book_html_v1"; // 兼容旧版迁移
+    const BASE_YM = "2025-01";
+    const DEFAULT_PROJECT_NAME = "日照总项目部";
+    // 云端GitHub配置【修改开始】
+    const GITHUB_API_BASE = "https://api.github.com/repos/huaiping221-cyber/-221";
+    const GITHUB_REPO_BRANCH = "main";
+    let GH_TOKEN = "github_pat"
+    + "_11CFWBULY0UobZbZKtISOD_suu9DcTmAB"
+    + "E1j9xXol60c9GNORvtRdOIJIuh"
+    + "JEj2XAOI5XI4PDUd32aD63N";
+    // 云端规则：每个工程单独文件 {工程名称}.json
+    // ========== 云端工具函数【全部重写】
+    /**
+     * 获取仓库main分支下所有 .json 文件列表（工程文件清单）
+     */
+    async function listAllCloudProjectFiles() {
+      try {
+        const res = await fetch(`${GITHUB_API_BASE}/git/trees/${GITHUB_REPO_BRANCH}?recursive=1`, {
+          headers: { Authorization: `token ${GH_TOKEN}` }
+        });
+        if (!res.ok) throw new Error("获取文件列表失败");
+        const tree = await res.json();
+        // 筛选后缀 .json 并且不是旧 fuel_data.json
+        return tree.tree.filter(item => {
+          return item.type === "blob"
+            && item.path.endsWith(".json")
+            && item.path !== "fuel_data.json";
+        });
+      } catch (e) {
+        console.error("listAllCloudProjectFiles", e);
+        return [];
+      }
     }
-    batchSelected = [];
-    updateBatchCount();
-    showToast(`成功删除 ${success} 个文件`);
-    loadRemoteFileList();
-}
 
-function showToast(msg, type = "success") {
-    const box = document.getElementById("toastBox");
-    const toast = document.createElement("div");
-    toast.className = `toast toast-${type}`;
-    toast.innerText = msg;
-    box.appendChild(toast);
-    setTimeout(() => toast.remove(), 2500);
-}
-function setLoading(show) {
-    document.getElementById('loading').style.display = show ? 'block' : 'none';
-    document.getElementById('skeletonWrap').style.display = show ? 'grid' : 'none';
-    document.getElementById('fileListBox').style.display = show ? 'none' : 'grid';
-    document.getElementById("tableHeaderContainer").style.display = show ? "none" : (currentView === "table" ? "block" : "none");
-}
-function formatSize(bytes) {
-    if (bytes < 1024) return bytes + " B";
-    if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + " KB";
-    return (bytes / (1024 * 1024)).toFixed(1) + " MB";
-}
-function getFileType(ext) {
-    ext = ext.toLowerCase();
-    if (['jpg','jpeg','png','gif','webp'].includes(ext)) return "img";
-    if (ext === "pdf") return "pdf";
-    if (['doc','docx'].includes(ext)) return "word";
-    if (['xls','xlsx'].includes(ext)) return "excel";
-    return "other";
-}
-function getFileIcon(type) {
-    const map = {img:'🖼️',pdf:'📕',word:'📄',excel:'📊',other:'📁'};
-    return map[type] || '📄';
-}
-
-function renderDeptSelect() {
-    const sel = document.getElementById("deptSelect");
-    sel.innerHTML = "";
-    deptList.forEach(d=>{
-        const opt = document.createElement("option");
-        opt.value = d;
-        opt.innerText = d;
-        sel.appendChild(opt);
-    })
-}
-function renderCateSelect() {
-    const sel = document.getElementById("cateSelect");
-    sel.innerHTML = "";
-    cateList.forEach(c=>{
-        const opt = document.createElement("option");
-        opt.value = c;
-        opt.innerText = c;
-        sel.appendChild(opt);
-    })
-}
-
-function renderModalItemList() {
-    const container = document.getElementById("itemListContainer");
-    container.innerHTML = "";
-    let list = addModalType === "dept" ? deptList : cateList;
-    if(list.length === 0) {
-        container.innerHTML = '<div style="text-align:center;color:#999;padding:10px;">暂无数据</div>';
-        return;
+    /**
+     * 根据文件路径下载单个云端工程json
+     */
+    async function downloadSingleCloudFile(filePath) {
+      try {
+        const res = await fetch(`${GITHUB_API_BASE}/contents/${encodeURIComponent(filePath)}`, {
+          headers: { Authorization: `token ${GH_TOKEN}` }
+        });
+        if (!res.ok) throw new Error(`下载${filePath}失败`);
+        const info = await res.json();
+        const rawBin = atob(info.content);
+        const uint = Uint8Array.from([...rawBin].map(c=>c.charCodeAt(0)));
+        const rawText = new TextDecoder("utf-8").decode(uint);
+        return JSON.parse(rawText);
+      } catch (e) {
+        console.error("downloadSingleCloudFile", filePath, e);
+        return null;
+      }
     }
-    list.forEach(name => {
-        const line = document.createElement("div");
-        line.className = "item-line";
-        line.innerHTML = `<span>${name}</span><button class="btn-danger item-del-btn">删除</button>`;
-        line.querySelector(".item-del-btn").onclick = () => singleDeleteItem(name);
-        container.appendChild(line);
-    })
-}
+    /**
+     * 上传单个工程到云端独立文件：工程名称.json
+     * @param project 完整工程对象
+     */
+async function uploadSingleProjectToCloud(project) {
+  const fileName = `${project.name}.json`;
 
-function singleDeleteItem(name) {
-    if(!confirm(`确定删除【${name}】？`)) return;
-    if(addModalType === "dept") {
-        deptList = deptList.filter(i => i !== name);
-        localStorage.setItem(STORAGE_DEPT, JSON.stringify(deptList));
-        renderDeptSelect();
-        renderDeptFilter();
-    } else {
-        cateList = cateList.filter(i => i !== name);
-        localStorage.setItem(STORAGE_CATE, JSON.stringify(cateList));
-        renderCateSelect();
+  // =====【关键】手动重建纯净对象，拒绝structuredClone！只保留必要字段 =====
+  const cleanProject = {
+    id: project.id,
+    name: project.name,
+    data: {
+      months: Array.isArray(project.data.months) ? [...project.data.months] : [],
+      ships: Array.isArray(project.data.ships) ? project.data.ships.map(s => ({id:s.id, name:s.name})) : [],
+      models: Array.isArray(project.data.models) ? project.data.models.map(m => ({id:m.id, name:m.name})) : [],
+      transfers: {...(project.data.transfers || {})},
+      favorites: {
+        ships: Array.isArray(project.data.favorites?.ships) ? [...project.data.favorites.ships] : [],
+        models: Array.isArray(project.data.favorites?.models) ? [...project.data.favorites.models] : []
+      },
+      recent: {
+        ships: Array.isArray(project.data.recent?.ships) ? [...project.data.recent.ships] : [],
+        models: Array.isArray(project.data.recent?.models) ? [...project.data.recent.models] : []
+      },
+      showZeroBeginEnd: !!project.data.showZeroBeginEnd,
+      showZeroOccurrence: !!project.data.showZeroOccurrence,
+      watermarks: {...(project.data.watermarks || {})},
+      watermarkStyles: {
+        topLeft: {...(project.data.watermarkStyles?.topLeft || {h:36,dx:0,dy:0})},
+        maker: {...(project.data.watermarkStyles?.maker || {h:36,dx:0,dy:0})},
+        auditor: {...(project.data.watermarkStyles?.auditor || {h:36,dx:0,dy:0})}
+      },
+      lastImportErrors: { header:[], errors:[], headerRow:[], kind:"", ok:0, bad:0 }
     }
-    renderModalItemList();
-    showToast(`已删除：${name}`);
-}
+  };
 
-function batchDeleteAllItem() {
-    const typeName = addModalType === "dept" ? "部门" : "分类";
-    if(!confirm(`⚠️ 警告：确定清空所有${typeName}吗？删除后无法恢复！`)) return;
-    if(addModalType === "dept") {
-        deptList = [];
-        localStorage.setItem(STORAGE_DEPT, JSON.stringify(deptList));
-        renderDeptSelect();
-        renderDeptFilter();
-    } else {
-        cateList = [];
-        localStorage.setItem(STORAGE_CATE, JSON.stringify(cateList));
-        renderCateSelect();
+  // 逐条重建 trxs，强制删除所有 _backup 临时属性！
+  cleanProject.data.trxs = [];
+  if(Array.isArray(project.data.trxs)){
+    for(const t of project.data.trxs){
+      const newTrx = {
+        id: t.id,
+        ym: t.ym,
+        shipId: t.shipId,
+        modelId: t.modelId,
+        type: t.type,
+        qty: t.qty ?? 0,
+        unitPrice: t.unitPrice ?? 0,
+        amount: t.amount ?? 0,
+        stopQty: t.stopQty ?? 0,
+        isEstimate: !!t.isEstimate,
+        isManualConsumeAmt: !!t.isManualConsumeAmt,
+        sourceId: t.sourceId ?? null,
+        note: t.note ?? "",
+        supplier: t.supplier ?? "",
+        purchaseDate: t.purchaseDate ?? "",
+        diffConsumeAmt: t.diffConsumeAmt ?? 0,
+        diffStopAmt: t.diffStopAmt ?? 0,
+        ts: t.ts ?? 0
+      };
+      // 强制移除会造成循环/超大体积的备份字段
+      delete newTrx._backupPurchase;
+      delete newTrx._backupBegin;
+      cleanProject.data.trxs.push(newTrx);
     }
-    renderModalItemList();
-    showToast(`已清空全部${typeName}`);
-}
+  }
 
-function openAddModal(type) {
-    addModalType = type;
-    const title = type === "dept" ? "管理业务部门" : "管理文件分类";
-    document.getElementById("addModalTitle").innerText = title;
-    document.getElementById("addItemInput").value = "";
-    document.getElementById("addItemModal").style.display = "flex";
-    renderModalItemList();
+  const payload = {
+    app: "fuel_book_html",
+    version: 2,
+    exportedAt: new Date().toISOString(),
+    project: cleanProject
+  };
+
+  let jsonStr;
+  try{
+    // 原生无任何replacer序列化！！杜绝递归遍历爆栈
+    jsonStr = JSON.stringify(payload);
+  }catch(err){
+    console.error("序列化失败", err);
+    alert(`❌ 数据体量过大序列化失败！
+操作建议：
+1. 先点【导出数据→移交导出JSON】本地备份
+2. 删除多年无用历史月份、清理冗余明细
+3. 分批上传
+错误信息：${err.message}`);
+    return false;
+  }
+
+  // Base64编码
+  const uint8 = new TextEncoder().encode(jsonStr);
+  const contentB64 = btoa(String.fromCharCode(...uint8));
+
+  // 获取文件sha
+  let sha = null;
+  try {
+    const checkRes = await fetch(`${GITHUB_API_BASE}/contents/${encodeURIComponent(fileName)}`, {
+      headers: { Authorization: `token ${GH_TOKEN}` }
+    });
+    if (checkRes.ok) {
+      const fileInfo = await checkRes.json();
+      sha = fileInfo.sha;
+    }
+  } catch (err) {
+    // 文件不存在
+  }
+
+  const body = {
+    message: `云端更新工程【${project.name}】${new Date().toLocaleString()}`,
+    content: contentB64,
+    branch: GITHUB_REPO_BRANCH
+  };
+  if (sha) body.sha = sha;
+
+  const uploadRes = await fetch(`${GITHUB_API_BASE}/contents/${encodeURIComponent(fileName)}`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `token ${GH_TOKEN}`
+    },
+    body: JSON.stringify(body)
+  });
+
+  if (!uploadRes.ok) {
+    const errInfo = await uploadRes.json().catch(() => ({}));
+    throw new Error(errInfo.message || "上传接口返回异常");
+  }
+  return true;
 }
-function closeAddModal() {
-    document.getElementById("addItemModal").style.display = "none";
-}
-function submitAddItem() {
-    const val = document.getElementById("addItemInput").value.trim();
-    if(!val) return showToast("名称不能为空","warning");
-    const list = addModalType === "dept" ? deptList : cateList;
-    if(list.includes(val)) return showToast("已存在","warning");
+    /**
+     * 页面启动自动加载：拉取云端全部工程，合并到本地
+     */
+    async function loadCloudData() {
+      try {
+        const fileList = await listAllCloudProjectFiles();
+        if (!fileList.length) {
+          console.log("云端暂无工程文件");
+          return null;
+        }
+        const importedProjects = [];
+        for (const fileItem of fileList) {
+          const data = await downloadSingleCloudFile(fileItem.path);
+          if (!data || !data.project) continue;
+          importedProjects.push(data.project);
+        }
+        return importedProjects; // 返回云端所有工程数组
+      } catch (e) {
+        console.log("云端批量加载异常：", e.message);
+        return null;
+      }
+    }
     
-    list.push(val);
-    if(addModalType === "dept") {
-        localStorage.setItem(STORAGE_DEPT, JSON.stringify(deptList));
-        renderDeptSelect();
-        renderDeptFilter();
-    } else {
-        localStorage.setItem(STORAGE_CATE, JSON.stringify(cateList));
-        renderCateSelect();
+    /**
+     * 【按钮2：云端保存完整版】上传本地所有工程
+     */
+    async function saveToCloud() {
+      const allProjects = [...state.projects];
+      let successCount = 0;
+      let failList = [];
+      for (const pj of allProjects) {
+        try {
+          await uploadSingleProjectToCloud(pj);
+          successCount++;
+        } catch (err) {
+          failList.push(`${pj.name}:${err.message}`);
+        }
+      }
+      let msg = `✅ 完成！成功上传${successCount}/${allProjects.length}个工程`;
+      if (failList.length > 0) msg += "\n失败：" + failList.join("\n");
+      alert(msg);
     }
-    document.getElementById("addItemInput").value = "";
-    renderModalItemList();
-    showToast("新增成功");
-}
+        // 【按钮1：云端保存(仅当前工程)】只上传当前选中单个工程
+    async function saveToCloudSingleProject() {
+      const pj = currentProject();
+      try {
+        await uploadSingleProjectToCloud(pj);
+        alert(`✅ 单个工程【${pj.name}】云端保存成功！`);
+      } catch (e) {
+        alert(`❌ 保存失败：${e.message}`);
+      }
+    }
+    // ========== 多工程：存取与迁移 ==========
+    function newEmptyProjectData(){
+      return {
+        months: [BASE_YM],
+        ships: [], models: [], trxs: [],
+        favorites: { ships: [], models: [] },
+        recent: { ships: [], models: [] },
+        transfers: {}, // 新增调拨标记存储
+        showZeroBeginEnd: false,
+		showZeroOccurrence: false, // 新增
+        watermarks: { topLeft:"", maker:"", auditor:"" },
+        watermarkStyles: {
+          topLeft: { h:36, dx:0, dy:0 },
+          maker: { h:36, dx:0, dy:0 },
+          auditor: { h:36, dx:0, dy:0 }
+        },
+        lastImportErrors: { header: [], errors: [], headerRow: [], kind: "", ok: 0, bad: 0 }
+      };
+    }
+    function newProject(name){
+      return { id: nowTs(), name: name || DEFAULT_PROJECT_NAME, data: newEmptyProjectData() };
+    }
 
-function resetAllFilter() {
-    document.getElementById("searchInput").value = "";
-    currentFilter = { type: "all", dept: "all", keyword: "", tab: "all" };
-    document.querySelectorAll("#typeFilterBar .filter-tag").forEach(t => t.classList.remove("active"));
-    document.querySelector('#typeFilterBar .filter-tag[data-type="all"]').classList.add("active");
-    document.querySelectorAll(".tab-item").forEach(t => t.classList.remove("active"));
-    document.querySelector('.tab-item[data-tab="all"]').classList.add("active");
-    pageNow = 1;
-    renderFileList();
-}
-function initFilterEvent() {
-    document.querySelectorAll('#typeFilterBar .filter-tag').forEach(tag => {
-        tag.onclick = () => {
-            document.querySelectorAll('#typeFilterBar .filter-tag').forEach(t => t.classList.remove('active'));
-            tag.classList.add('active');
-            currentFilter.type = tag.dataset.type;
-            pageNow = 1;
-            renderFileList();
-        }
-    })
-    document.querySelectorAll(".tab-item").forEach(tab => {
-        tab.onclick = () => {
-            document.querySelectorAll(".tab-item").forEach(i => i.classList.remove("active"));
-            tab.classList.add("active");
-            currentFilter.tab = tab.dataset.tab;
-            pageNow = 1;
-            renderFileList();
-        }
-    })
-}
-function renderDeptFilter() {
-    const box = document.getElementById("deptFilterBar");
-    const set = new Set(["all"]);
-    allFileData.forEach(i=>set.add(i.dept));
-    const arr = Array.from(set);
-    box.innerHTML = "";
-    arr.forEach(d=>{
-        const div = document.createElement("div");
-        div.className = "filter-tag" + (d === "all" ? " active" : "");
-        div.innerText = d === "all" ? "全部部门" : d;
-        div.dataset.dept = d;
-        div.onclick = () => {
-            document.querySelectorAll("#deptFilterBar .filter-tag").forEach(t=>t.classList.remove("active"));
-            div.classList.add("active");
-            currentFilter.dept = d;
-            pageNow = 1;
-            renderFileList();
-        }
-        box.appendChild(div);
-    })
-}
-function getFilteredData() {
-    let arr = [...allFileData];
-    if(currentFilter.tab === "star") arr = arr.filter(i=>starList.includes(i.name));
-    if(currentFilter.tab === "history") arr = arr.filter(i=>historyList.some(h=>h.name === i.name));
-    const kw = currentFilter.keyword.toLowerCase();
-    if(kw) arr = arr.filter(i=>
-        i.name.toLowerCase().includes(kw) ||
-        i.dept.toLowerCase().includes(kw) ||
-        i.cate.toLowerCase().includes(kw)
-    );
-    if(currentFilter.type !== "all") arr = arr.filter(i=>i.type === currentFilter.type);
-    if(currentFilter.dept !== "all") arr = arr.filter(i=>i.dept === currentFilter.dept);
-    return arr;
-}
-function getPageData(sourceArr) {
-    pageTotal = Math.ceil(sourceArr.length / PAGE_SIZE);
-    const start = (pageNow - 1) * PAGE_SIZE;
-    return sourceArr.slice(start, start + PAGE_SIZE);
-}
-function renderPageCtrl() {
-    const wrap = document.getElementById("pageWrap");
-    wrap.innerHTML = "";
-    if(pageTotal <= 1) return;
-    const prev = document.createElement("button");
-    prev.className = "btn-outline";
-    prev.innerText = "上一页";
-    prev.disabled = pageNow === 1;
-    prev.onclick = ()=>{pageNow--;renderFileList()};
-    wrap.appendChild(prev);
-    for(let i=1;i<=pageTotal;i++){
-        const num = document.createElement("span");
-        num.className = "page-num" + (i === pageNow ? " active" : "");
-        num.innerText = i;
-        num.onclick = ()=>{pageNow=i;renderFileList()};
-        wrap.appendChild(num);
-    }
-    const next = document.createElement("button");
-    next.className = "btn-outline";
-    next.innerText = "下一页";
-    next.disabled = pageNow === pageTotal;
-    next.onclick = ()=>{pageNow++;renderFileList()};
-    wrap.appendChild(next);
-}
-function renderFileList() {
-    currentFilter.keyword = document.getElementById("searchInput").value.trim();
-    const box = document.getElementById("fileListBox");
-    box.className = currentView === "table" ? "file-list table" : "file-list";
-    box.innerHTML = "";
-    const filterAll = getFilteredData();
-    const pageData = getPageData(filterAll);
-    renderPageCtrl();
-    if(filterAll.length === 0){
-        box.innerHTML = '<div class="empty-tip">暂无匹配文件</div>';
+    function migrateFromV1IfNeeded(){
+      const rawV2 = localStorage.getItem(LS_KEY_V2);
+      if(rawV2) return;
+
+      const rawV1 = localStorage.getItem(LS_KEY_V1);
+      if(!rawV1){
+        const pj = newProject(DEFAULT_PROJECT_NAME);
+        const store = { projects:[pj], currentPid: pj.id };
+        localStorage.setItem(LS_KEY_V2, JSON.stringify(store));
         return;
+      }
+      try{
+        const d = JSON.parse(rawV1);
+        const pjName = d.projectName || DEFAULT_PROJECT_NAME;
+        const pdata = {
+          months: d.months || [BASE_YM],
+          ships: d.ships || [],
+          models: d.models || [],
+          trxs: d.trxs || [],
+          transfers: d.transfers || {},
+          favorites: d.favorites || { ships: [], models: [] },
+          recent: d.recent || { ships: [], models: [] },
+          showZeroBeginEnd: !!d.showZeroBeginEnd,
+          watermarks: { topLeft:"", maker:"", auditor:"" },
+          watermarkStyles: {
+            topLeft: { h:36, dx:0, dy:0 },
+            maker: { h:36, dx:0, dy:0 },
+            auditor: { h:36, dx:0, dy:0 }
+          },
+          lastImportErrors: { header: [], errors: [], headerRow: [], kind: "", ok: 0, bad: 0 }
+        };
+        const pj = { id: nowTs(), name: pjName, data: pdata };
+        const store = { projects:[pj], currentPid: pj.id };
+        localStorage.setItem(LS_KEY_V2, JSON.stringify(store));
+      }catch(e){
+        const pj = newProject(DEFAULT_PROJECT_NAME);
+        const store = { projects:[pj], currentPid: pj.id };
+        localStorage.setItem(LS_KEY_V2, JSON.stringify(store));
+      }
     }
-    pageData.forEach(item=>{
-        const isStar = starList.includes(item.name);
-        const icon = getFileIcon(item.type);
-        const checked = batchSelected.includes(item.name) ? "checked" : "";
-        const div = document.createElement("div");
-        div.className = "file-item";
-        // 区分卡片/列表两种HTML结构
-        if(currentView === "table"){
-            div.innerHTML = `
-                <input type="checkbox" class="batch-check" data-name="${item.name}" ${checked} onchange="toggleBatchSelect('${item.name}')">
-                <div style="display:flex;align-items:center;gap:8px;">
-                    <span class="file-icon">${icon}</span>
-                    <span class="file-name" title="${item.name}">${item.name}</span>
-                </div>
-                <div ></div>
-                <div ></div>
-                <div class="file-ops">
-                    <button class="star-btn ${isStar?'star-active':''}" title="收藏">★</button>
-                    <button class="rename-btn" title="重命名">✏️</button>
-                    <button class="del-file-btn" title="删除">−</button>
-                </div>
-            `;
+
+    function loadV2(){
+      migrateFromV1IfNeeded();
+      const raw = localStorage.getItem(LS_KEY_V2);
+      if(!raw){
+        const pj = newProject(DEFAULT_PROJECT_NAME);
+        state.projects = [pj]; state.currentPid = pj.id;
+        applyProjectToState(pj);
+        return;
+      }
+      try{
+        const store = JSON.parse(raw);
+        state.projects = store.projects || [];
+        state.currentPid = store.currentPid || (state.projects[0]?.id || 0);
+        if(!state.projects.length){
+          const pj = newProject(DEFAULT_PROJECT_NAME);
+          state.projects = [pj]; state.currentPid = pj.id;
+        }
+        const pj = state.projects.find(p => p.id === state.currentPid) || state.projects[0];
+        state.currentPid = pj.id;
+        applyProjectToState(pj);
+      }catch(e){
+        const pj = newProject(DEFAULT_PROJECT_NAME);
+        state.projects = [pj]; state.currentPid = pj.id;
+        applyProjectToState(pj);
+      }
+    }
+
+    function saveV2(){
+      const pj = state.projects.find(p => p.id === state.currentPid);
+      if(pj){
+        pj.data = {
+          months: state.months, ships: state.ships, models: state.models, trxs: state.trxs,
+          transfers: state.transfers,
+          favorites: state.favorites, recent: state.recent,
+          showZeroBeginEnd: state.showZeroBeginEnd,
+          watermarks: state.watermarks,
+          watermarkStyles: state.watermarkStyles,
+          lastImportErrors: state.lastImportErrors
+        };
+      }
+      const store = { projects: state.projects, currentPid: state.currentPid };
+      localStorage.setItem(LS_KEY_V2, JSON.stringify(store));
+    }
+
+    function applyProjectToState(project){
+      const d = project.data || newEmptyProjectData();
+      state.months = Array.isArray(d.months) && d.months.length ? d.months.slice().sort() : [BASE_YM];
+      state.ym = state.months[state.months.length - 1];
+      state.ships = d.ships || [];
+      state.models = d.models || [];
+      state.trxs = d.trxs || [];
+      state.transfers = d.transfers || {};
+      state.favorites = d.favorites || { ships: [], models: [] };
+      state.recent = d.recent || { ships: [], models: [] };
+      state.showZeroBeginEnd = !!d.showZeroBeginEnd;
+	  state.showZeroOccurrence = !!d.showZeroOccurrence; 
+
+      const wm = d.watermarks || {};
+      if ("img1" in wm || "img2" in wm || "img3" in wm) {
+        state.watermarks = {
+          topLeft: wm.img1 || "",
+          maker: wm.img2 || "",
+          auditor: wm.img3 || ""
+        };
+      }else{
+        state.watermarks = {
+          topLeft: wm.topLeft || "",
+          maker: wm.maker || "",
+          auditor: wm.auditor || ""
+        };
+      }
+
+      const wms = d.watermarkStyles || {};
+      function norm(obj){ return { h: Number(obj?.h)||36, dx: Number(obj?.dx)||0, dy: Number(obj?.dy)||0 }; }
+      state.watermarkStyles = {
+        topLeft: norm(wms.topLeft),
+        maker: norm(wms.maker),
+        auditor: norm(wms.auditor)
+      };
+
+      state.lastImportErrors = d.lastImportErrors || { header: [], errors: [], headerRow: [], kind: "", ok: 0, bad: 0 };
+      state.filterShip = 0;
+      state.filterModel = 0;
+      state.snapsCache = {};
+      state.selectedEstimates = new Set();
+    }
+
+    function currentProject(){
+      return state.projects.find(p => p.id === state.currentPid);
+    }
+    function currentProjectName(){
+      const p = currentProject();
+      return p ? p.name : DEFAULT_PROJECT_NAME;
+    }
+
+    // ========== 其余工具 ==========
+    function shipName(id){ const s=state.ships.find(x=>x.id===id); return s? s.name:id; }
+    function modelName(id){ const m=state.models.find(x=>x.id===id); return m? m.name:id; }
+    function ensureMonth(ym){
+      if(!/^\d{4}-\d{2}$/.test(ym)) return;
+      if(!state.months.includes(ym)) { state.months.push(ym); state.months = state.months.slice().sort(); }
+    }
+    function getOrCreateShipIdByName(name){
+      const n = (name||"").trim(); if(!n) return 0;
+      const hit = state.ships.find(x=>x.name===n);
+      if(hit) return hit.id;
+      const id = genId(state.ships); state.ships.push({id, name:n}); return id;
+    }
+    function getOrCreateModelIdByName(name){
+      const n = (name||"").trim(); if(!n) return 0;
+      const hit = state.models.find(x=>x.name===n);
+      if(hit) return hit.id;
+      const id = genId(state.models); state.models.push({id, name:n}); return id;
+    }
+    function touchRecent(kind,id,limit=6){ const a=state.recent[kind]; const i=a.indexOf(id); if(i>=0)a.splice(i,1); a.unshift(id); if(a.length>limit)a.length=limit; }
+    function toggleFavorite(kind,id){ const a=state.favorites[kind]; const i=a.indexOf(id); if(i>=0)a.splice(i,1); else a.push(id); }
+    function isFav(kind,id){ return state.favorites[kind].includes(id); }
+
+    // ========== 事件绑定 ==========
+    function bindEvents(){
+      // 工程相关
+      $("projectSelect").onchange = (e)=>{
+        const pid = parseInt(e.target.value||"0");
+        if(!pid || pid===state.currentPid) return;
+        state.currentPid = pid;
+        const pj = currentProject();
+        applyProjectToState(pj);
+        saveV2();
+        renderAll();
+      };
+$("btnProjectAdd").onclick = async ()=>{
+  const name = prompt("输入新工程名称：", "");
+  const n = (name||"").trim();
+  if(!n) return;
+  if(state.projects.some(p=>p.name===n)){ alert("已存在同名工程"); return; }
+
+  // 新增：手动选择项目起始月份
+  let startYm = prompt("请输入工程起始月份（格式 YYYY-MM，例如 2025-01）", BASE_YM);
+  if(startYm === null) return; // 用户点取消
+  startYm = startYm.trim();
+  // 简单格式校验
+  const ymReg = /^\d{4}-\d{2}$/;
+  if(!ymReg.test(startYm)){
+    alert("月份格式错误！必须为 YYYY-MM 形式，例如：2025-01");
+    return;
+  }
+
+  const pj = newProject(n);
+  // 覆盖默认月份，使用用户输入的起始年月
+  pj.data.months = [startYm];
+
+  state.projects.push(pj);
+  state.currentPid = pj.id;
+  applyProjectToState(pj);
+  saveV2();
+  renderProjectSelect();
+  renderAll();
+};      $("btnProjectRename").onclick = ()=>{
+        const pj = currentProject(); if(!pj) return;
+        const name = prompt("输入新名称：", pj.name||"");
+        const n = (name||"").trim();
+        if(!n) return;
+        if(state.projects.some(p=>p.id!==pj.id && p.name===n)){ alert("已存在同名工程"); return; }
+        pj.name = n;
+        saveV2();
+        renderProjectSelect();
+        renderAll();
+      };
+      $("btnProjectDel").onclick = ()=>{
+        const pj = currentProject(); if(!pj) return;
+        if(!confirm(`确认删除工程“${pj.name}”？该工程全部数据将被删除！`)) return;
+        state.projects = state.projects.filter(p=>p.id!==pj.id);
+        if(!state.projects.length){
+          const np = newProject(DEFAULT_PROJECT_NAME);
+          state.projects = [np]; state.currentPid = np.id; applyProjectToState(np);
         }else{
-            div.innerHTML = `
-                <input type="checkbox" class="batch-check" data-name="${item.name}" ${checked} onchange="toggleBatchSelect('${item.name}')">
-                <div class="file-icon">${icon}</div>
-                <div class="file-name">${item.name}</div>
-                <div class="file-meta">部门：${item.dept}<br>分类：${item.cate} | ${formatSize(item.size)}</div>
-                <div class="file-tag-group"><span class="mini-tag">${item.type.toUpperCase()}</span></div>
-                <button class="star-btn ${isStar?'star-active':''}" title="收藏">★</button>
-                <button class="rename-btn" title="重命名">✏️</button>
-                <button class="del-file-btn" title="删除">−</button>
-            `;
+          state.currentPid = state.projects[0].id;
+          applyProjectToState(currentProject());
         }
-        div.onclick = e=>{
-            if(e.target.classList.contains("star-btn")||e.target.classList.contains("rename-btn")||e.target.classList.contains("del-file-btn")||e.target.classList.contains("batch-check")) return;
-            openFile(item);addHistory(item);
+        saveV2();
+        renderProjectSelect();
+        renderAll();
+      };
+
+      // 月份
+      $("btnAddMonth").onclick=()=>{
+        if(!state.months.length){
+          state.months=[BASE_YM]; state.ym=BASE_YM;
+        }else{
+          const last=state.months[state.months.length-1];
+          const nxt=ymNext(last);
+          if(!state.months.includes(nxt)) state.months.push(nxt);
+          state.ym=nxt;
         }
-        div.querySelector(".star-btn").onclick = e=>{e.stopPropagation();toggleStar(item.name);renderFileList();}
-        div.querySelector(".rename-btn").onclick = e=>{e.stopPropagation();openRenameModal(item);}
-        div.querySelector(".del-file-btn").onclick = e=>{e.stopPropagation();deleteFile(item);}
-        box.appendChild(div);
-    })
-}
-function toggleStar(name) {
-    const idx = starList.indexOf(name);
-    if(idx > -1){ starList.splice(idx,1); showToast("取消收藏");
-    }else{ starList.push(name); showToast("收藏成功"); }
-    localStorage.setItem(STORAGE_KEY_STAR, JSON.stringify(starList));
-}
-function addHistory(item) {
-    const idx = historyList.findIndex(h=>h.name === item.name);
-    if(idx > -1) historyList.splice(idx,1);
-    historyList.unshift(item);
-    if(historyList.length>20) historyList = historyList.slice(0,20);
-    localStorage.setItem(STORAGE_KEY_HISTORY, JSON.stringify(historyList));
-}
-async function renderPdfPreview(url, name) {
-    const content = document.getElementById("previewContent");
-    content.innerHTML = `
-        <div class="pdf-toolbar">
-            <div class="pdf-title">${name}</div>
-            <div class="pdf-ctrl-group">
-                <button class="btn-primary" id="pdfDownload">下载</button>
-                <button class="btn-outline" id="pdfZoomOut">-缩小</button>
-                <button class="btn-outline" id="pdfZoomIn">放大+</button>
-                <button class="btn-danger" onclick="closePreview()">关闭</button>
-            </div>
-        </div>
-        <div class="pdf-view-wrap"><div id="pdfCanvasContainer">加载中...</div></div>
-    `;
-    document.getElementById("pdfDownload").onclick = ()=>{ const a = document.createElement("a");a.href=url;a.download=name;a.click(); }
-    const pdfjsLib = window['pdfjs-dist/build/pdf'];
-    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js';
-    let scale = pdfScaleCache;
-    const canvasBox = document.getElementById("pdfCanvasContainer");
-    try{
-        const doc = await pdfjsLib.getDocument(url).promise;
-        const renderAll = async ()=>{
-            canvasBox.innerHTML = "";
-            for(let i=1;i<=doc.numPages;i++){
-                const page = await doc.getPage(i);
-                const vp = page.getViewport({scale});
-                const canvas = document.createElement("canvas");
-                canvas.width = vp.width;canvas.height = vp.height;
-                canvasBox.appendChild(canvas);
-                await page.render({canvasContext:canvas.getContext("2d"), viewport:vp}).promise;
+        state.snapsCache={}; saveV2(); renderMonths(); reloadAll();
+      };
+      $("btnDelMonth").onclick=deleteCurrentMonth;
+      $("monthSelect").onchange=(e)=>{ state.ym=e.target.value; reloadAll(); };
+
+      // 刷新重算
+      $("btnReload").onclick=()=>{
+        if(!state.months.length){ reloadAll(); return; }
+        recompute(state.months.slice().sort()[0]);
+        saveV2();
+        renderTrxTable();
+        renderSnapTable();
+      };
+      $("btnExportMonth").onclick=exportMonthSummaryXlsWithWatermarks;
+      $("btnExportAll").onclick = exportAllSummariesCSV;
+
+      // 录入
+      $("btnAddBegin").onclick=()=>openEntryModal("BEGIN");
+      $("btnAddPurchase").onclick=()=>openEntryModal("PURCHASE");
+      $("btnAddConsume").onclick=()=>openEntryModal("CONSUME");
+      $("btnAdjust").onclick=doAdjustBatch;
+      $("btnEntryCancel").onclick=closeEntryModal;
+      $("btnEntryOK").onclick=submitEntry;
+      $("chkCarry").onchange=updateBeginFields;
+      $("btnAddShipInline").onclick=addShipInline;
+      $("btnAddModelInline").onclick=addModelInline;
+      $("btnDelShipInline").onclick=delShipInline;
+      $("btnDelModelInline").onclick=delModelInline;
+      $("favShip").onclick=()=>toggleFavUI("ships");
+      $("favModel").onclick=()=>toggleFavUI("models");
+      ["entryPrice","entryAmount"].forEach(id=>{
+        $(id).addEventListener("input", (e)=>{ lastEditedField = (e.target.id==="entryPrice")?"price":"amount"; recalcPurchaseDerived(); });
+      });
+      $("entryQty").addEventListener("input", ()=>recalcPurchaseDerived());
+
+      // 导出/导入弹窗
+      $("btnExportData").onclick = () => { $("exportModal").classList.remove("hidden"); refreshWmPreview(); fillWmInputs(); bindWmInputs(); };
+      $("btnImportData").onclick = () => $("importModal").classList.remove("hidden");
+      $("btnExportClose").onclick = () => $("exportModal").classList.add("hidden");
+      $("btnImportClose").onclick = () => $("importModal").classList.add("hidden");
+
+      // 导出子项
+      $("btnExportHandover").onclick = exportAllData;
+      $("btnExportBeginTpl").onclick = exportBeginTemplateXls;
+      $("btnExportPurchaseTpl").onclick = exportPurchaseTemplateXls;
+      $("btnExportConsumeTpl").onclick = exportConsumeTemplateXls;
+
+      // 导入子项
+      $("btnImportPast").onclick = () => $("fileImportJson").click();
+      $("btnImportBeginXls").onclick = () => $("fileImportBeginXls").click();
+      $("btnImportPurchaseXls").onclick = () => $("fileImportPurchaseXls").click();
+      $("btnImportConsumeXls").onclick = () => $("fileImportConsumeXls").click();
+
+      // 文件回调
+      $("fileImportJson").onchange = handleImportFileJson;
+      $("fileImportBeginXls").onchange = (e)=>handleImportXls(e, "BEGIN");
+      $("fileImportPurchaseXls").onchange = (e)=>handleImportXls(e, "PURCHASE");
+      $("fileImportConsumeXls").onchange = (e)=>handleImportXls(e, "CONSUME");
+
+      // 差异汇总 / 暂估统计
+      $("btnDiffSummary").onclick=showDiffSummary;
+      $("btnDiffClose").onclick=()=>$("diffModal").classList.add("hidden");
+      $("btnExportDiff").onclick=exportDiffSummaryCSV;
+      $("btnEstimateStats").onclick=showEstimateStats;
+      $("btnEstClose").onclick=()=>$("estModal").classList.add("hidden");
+      $("btnExportEst").onclick=exportEstimateStatsXls;
+
+      $("btnZeroDiffs").onclick=zeroEstimateDiffs;
+
+      // 导入结果弹窗
+      $("btnImportResultClose").onclick = () => $("importResultModal").classList.add("hidden");
+      $("btnExportImportErrors").onclick = exportLastImportErrorsXls;
+
+      // 帮助
+      $("btnHelp").onclick = () => $("helpModal").classList.remove("hidden");
+      $("btnHelpClose").onclick = () => $("helpModal").classList.add("hidden");
+      // 云端保存按钮
+      $("btnCloudSave").onclick = async () => {
+       await saveToCloud();
+      };
+      $("btnCloudSaveSingle").onclick = async () => {
+        await saveToCloudSingleProject();
+      };
+
+      // 新水印：按钮与文件回调
+      $("btnSetWm1").onclick = () => $("fileWm1").click();
+      $("btnSetWm2").onclick = () => $("fileWm2").click();
+      $("btnSetWm3").onclick = () => $("fileWm3").click();
+      $("fileWm1").onchange = (e)=>handlePickWm(e, "topLeft");
+      $("fileWm2").onchange = (e)=>handlePickWm(e, "maker");
+      $("fileWm3").onchange = (e)=>handlePickWm(e, "auditor");
+      $("btnClearWm").onclick = ()=>{
+        if(!confirm("清除当前工程全部水印？")) return;
+        state.watermarks = { topLeft:"", maker:"", auditor:"" };
+        // 保留样式设置不变，仅清图片
+        saveV2();
+        refreshWmPreview();
+      };
+
+      // 水印样式重置按钮
+      const reset = (key)=>{ state.watermarkStyles[key] = { h:36, dx:0, dy:0 }; saveV2(); fillWmInputs(); refreshWmPreview(); };
+      $("wm1Reset").onclick = ()=>reset("topLeft");
+      $("wm2Reset").onclick = ()=>reset("maker");
+      $("wm3Reset").onclick = ()=>reset("auditor");
+
+      // 新增：导出暂估采购按钮
+      $("btnExportEstimatePurchase").onclick = exportEstimatePurchaseXls;
+      
+      // 新增：暂估更正弹窗按钮
+      $("btnFixCancel").onclick = () => {
+        $("fixEstModal").classList.add("hidden");
+        currentFixEstId = null;
+      };
+      
+      $("btnFixConfirm").onclick = () => {
+        if (!currentFixEstId) return;
+        const qty = parseFloat($("fixQty").value || "0");
+        const amt = parseFloat($("fixAmt").value || "0");
+        
+        if (isNaN(qty) || isNaN(amt)) {
+          alert("请输入有效的数字");
+          return;
+        }
+
+        const est = state.trxs.find(x => x.id === currentFixEstId);
+        if (!est) {
+          $("fixEstModal").classList.add("hidden");
+          return;
+        }
+
+        if (est.type === "PURCHASE") {
+          adjustOneEstimate(currentFixEstId, qty, amt, null, null);
+        } else if (est.type === "BEGIN") {
+          adjustOneEstimate(currentFixEstId, null, null, qty, amt);
+        }
+        
+        state.snapsCache={}; 
+        saveV2(); 
+        renderEstimateStats(); 
+        renderTrxTable(); 
+        renderSnapTable();
+        
+        $("fixEstModal").classList.add("hidden");
+        currentFixEstId = null;
+      };
+
+      // 新增：区间统计相关事件
+      $("btnRangeStats").onclick = showRangeStatsModal;
+      $("btnRangeClose").onclick = () => $("rangeStatsModal").classList.add("hidden");
+      $("btnCalcRange").onclick = calculateAndRenderRangeStats;
+      $("btnExportRange").onclick = exportRangeStats;
+
+      // 新增：折叠/展开当期明细
+      $("trxPaneHeader").onclick = () => {
+        const content = $("trxPaneContent");
+        const icon = $("trxPaneIcon");
+        if (content.style.display === "none") {
+          content.style.display = "block";
+          icon.textContent = "▼";
+          icon.classList.remove("closed");
+        } else {
+          content.style.display = "none";
+          icon.textContent = "▶";
+          icon.classList.add("closed");
+        }
+      };
+    }
+
+    function renderProjectSelect(){
+      const sel = $("projectSelect");
+      const options = state.projects
+        .slice()
+        .sort((a,b)=>a.name.localeCompare(b.name))
+        .map(p=>`<option value="${p.id}">${p.name}</option>`).join("");
+      sel.innerHTML = options;
+      sel.value = String(state.currentPid);
+    }
+
+    // ========== 现有 UI 渲染与逻辑 ==========
+    function save(){ saveV2(); }
+    function ensureInit(){
+      loadV2();
+      if(!state.months.length){
+        state.months = [BASE_YM];
+        state.ym = BASE_YM;
+        save();
+      }else{
+        state.ym = state.months[state.months.length-1];
+      }
+    }
+
+    function renderMonths(){
+      const ms=$("monthSelect");
+      ms.innerHTML=state.months.map(m=>`<option value="${m}">${m}</option>`).join("");
+      ms.value=state.ym;
+    }
+
+    function fmtAmt(v){
+      const n = Number(v||0);
+      return n.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+
+    function isZeroBeginEndSnap(s){
+      return (round6(s.beginQty||0)===0 && round2(s.beginAmt||0)===0 && round6(s.endQty||0)===0 && round2(s.endAmt||0)===0);
+    }
+	function isZeroOccurrenceSnap(s){
+	  return (round6(s.purchasedQty||0) === 0 && round6(s.consumeQty||0) === 0 && round6(s.stopQty||0) === 0 );
+	}
+    function filterSnapsByZeroOption(snaps){
+	  let result = snaps;
+      if(!state.showZeroBeginEnd) {
+          result = result.filter(s => !isZeroBeginEndSnap(s));
+    }
+	  if(!state.showZeroOccurrence) {
+	      result = result.filter(s => !isZeroOccurrenceSnap(s));
+	}
+	  return result;
+	}
+
+    function renderFilters(){
+      const fs=$("filterShip"); fs.innerHTML=`<option value="0">全部</option>` + state.ships.map(s=>`<option value="${s.id}">${s.name}</option>`).join("");
+      const fm=$("filterModel"); fm.innerHTML=`<option value="0">全部</option>` + state.models.map(m=>`<option value="${m.id}">${m.name}</option>`).join("");
+      fs.value=state.filterShip||0; fm.value=state.filterModel||0;
+      fs.onchange=(e)=>{ state.filterShip=parseInt(e.target.value||"0"); renderTrxTable(); renderSnapTable(); };
+      fm.onchange=(e)=>{ state.filterModel=parseInt(e.target.value||"0"); renderTrxTable(); renderSnapTable(); };
+
+      const fz = $("filterZeroBE");
+      fz.value = state.showZeroBeginEnd ? "yes" : "no";
+      fz.onchange = (e)=>{
+          state.showZeroBeginEnd = (e.target.value === "yes");
+          save();
+          renderSnapTable();
+      };
+	  const fzo = $("filterZeroOccur");
+	  fzo.value = state.showZeroOccurrence ? "yes" : "no";
+	  fzo.onchange = (e)=>{
+	      state.showZeroOccurrence = (e.target.value === "yes");
+		  save();
+		  renderSnapTable();
+	  };
+	}
+    function reloadAll(){ renderMonths(); renderFilters(); renderTrxTable(); renderSnapTable(); }
+    function renderAll(){ renderProjectSelect(); reloadAll(); }
+
+    function deleteCurrentMonth(){
+      if(!state.ym){ alert("暂无可删除的月份"); return; }
+      const ym = state.ym;
+      if(!confirm(`确认删除月份 ${ym} 吗？该月份的所有明细将一并删除！`)) return;
+
+      state.trxs = state.trxs.filter(t => t.ym !== ym);
+      const idx = state.months.indexOf(ym);
+      state.months = state.months.filter(m => m !== ym);
+
+      // 清除当月关联的 transfers
+      Object.keys(state.transfers).forEach(k => {
+        if(k.startsWith(ym + "|")) delete state.transfers[k];
+      });
+
+      if(state.months.length){
+        const nextIdx = Math.min(idx, state.months.length - 1);
+        state.ym = state.months[nextIdx];
+      }else{
+        state.months = [BASE_YM];
+        state.ym = BASE_YM;
+      }
+
+      state.snapsCache = {};
+      save();
+      renderMonths();
+      reloadAll();
+    }
+
+    function currentMonthTrxs(){
+      return state.trxs.filter(t=>t.ym===state.ym &&
+        (!state.filterShip || t.shipId===state.filterShip) &&
+        (!state.filterModel || t.modelId===state.filterModel)
+      ).sort((a,b)=> (a.ts||0)-(b.ts||0) || (a.id-b.id));
+    }
+
+    const TYPE_LABEL = {
+      BEGIN: "期初",
+      PURCHASE: "采购",
+      CONSUME: "消耗",
+      ADJUST_FORMAL: "改正正式",
+      ADJUST_CONSUME_DIFF: "消耗差异"
+    };
+    function typeLabel(t){ return TYPE_LABEL[t] || t; }
+
+    function renderTrxTable(){
+      const tb=$("trxTable").querySelector("tbody"); tb.innerHTML=""; state.selectedEstimates.clear();
+      const rows=currentMonthTrxs();
+      rows.forEach((t,idx)=>{
+        const tr=document.createElement("tr");
+        const isEst = (t.type==="PURCHASE" || t.type==="BEGIN") && t.isEstimate;
+        if (t.type==="PURCHASE" && t.isEstimate) tr.classList.add("estimate");
+        if (t.type==="BEGIN" && t.isEstimate) tr.classList.add("estimate");
+        const op=`<button data-id="${t.id}" class="del">删除</button>` + (isEst ? ` <label><input type="checkbox" class="chk" data-id="${t.id}"/> 改正</label>` : "");
+        const supplier = t.type==="PURCHASE" ? (t.supplier||"") : "";
+        const pdate = t.type==="PURCHASE" ? (t.purchaseDate||"") : "";
+        const stopQty = t.type==="CONSUME" ? (t.stopQty||0) : "";
+        tr.innerHTML=`
+          <td>${idx+1}</td>
+          <td>${shipName(t.shipId)}</td>
+          <td>${modelName(t.modelId)}</td>
+          <td>${typeLabel(t.type)}</td>
+          <td>${t.qty}</td>
+          <td>${stopQty}</td>
+          <td>${t.unitPrice}</td>
+          <td>${fmtAmt(t.amount)}</td>
+          <td>${(t.type==="PURCHASE"||t.type==="BEGIN") ? (t.isEstimate?"是":"否"):"-"}</td>
+          <td>${supplier}</td>
+          <td>${pdate}</td>
+          <td>${t.note||""}</td>
+          <td>${op}</td>`;
+        tb.appendChild(tr);
+      });
+      tb.querySelectorAll("button.del").forEach(btn=>{
+        btn.onclick=(e)=>{
+          const id=parseInt(e.target.getAttribute("data-id"));
+          if(!confirm("确认删除该行？")) return;
+          state.trxs=state.trxs.filter(x=>x.id!==id);
+          state.snapsCache={}; save(); renderTrxTable(); renderSnapTable();
+        };
+      });
+      tb.querySelectorAll("input.chk").forEach(chk=>{
+        chk.onchange=(e)=>{
+          const id=parseInt(e.target.getAttribute("data-id"));
+          if(e.target.checked) state.selectedEstimates.add(id);
+          else state.selectedEstimates.delete(id);
+        };
+      });
+    }
+
+    // 结转重算 (修改：增加调出检测逻辑，若有暂估则强制承接)
+    function recompute(fromYm){
+      const months=[...state.months].sort();
+      const startIdx=fromYm ? Math.max(0, months.indexOf(fromYm)) : 0;
+      for(let i=startIdx;i<months.length;i++) delete state.snapsCache[months[i]];
+
+      const byDim={};
+      state.trxs.forEach(t=>{
+        if (months.indexOf(t.ym) < startIdx) return;
+        const key=`${t.shipId}-${t.modelId}`;
+        byDim[key]=byDim[key]||{};
+        (byDim[key][t.ym]=byDim[key][t.ym]||[]).push(t);
+      });
+
+      for(const key of Object.keys(byDim)){
+        let prevEndQty=0, prevEndAmt=0;
+        // 获取 shipId 和 modelId 供调出逻辑判断使用
+        const [sIdStr, mIdStr] = key.split("-");
+        const sId = Number(sIdStr);
+        const mId = Number(mIdStr);
+
+        for(let i=startIdx;i<months.length;i++){
+          const ym=months[i];
+          const list=(byDim[key][ym]||[]).sort((a,b)=>(a.ts||0)-(b.ts||0) || (a.id-b.id));
+
+          // === 修改开始：检查上一月是否标记为“调出”且无暂估 ===
+          let isTransferredOutPrev = false;
+          if(i > 0) {
+              const prevYm = months[i-1];
+              // 构造上一月的调拨 Key
+              const tKey = `${prevYm}|${sId}|${mId}`;
+              
+              if(state.transfers[tKey] === "OUT") {
+                  // 修改逻辑：不仅检查上一月，而是检查【截止到上一月的所有月份】是否存在“未更正”的暂估
+                  // 只要历史上有任何未更正暂估，就不允许断开承接（视为调出无效）
+                  let hasAnyUncorrectedEst = false;
+                   // 遍历从第0个月到第i-1个月
+                   for (let j = 0; j < i; j++) {
+                       const histYm = months[j];
+                       const histList = (byDim[key][histYm]||[]);
+                       const hasEst = histList.some(t => 
+                           (t.type === "PURCHASE" || t.type === "BEGIN") && t.isEstimate === true
+                       );
+                       if (hasEst) {
+                           hasAnyUncorrectedEst = true;
+                           break; // 只要发现一个，即可终止检查
+                       }
+                   }
+
+                  if (!hasAnyUncorrectedEst) {
+                      isTransferredOutPrev = true;
+                  }
+              }
+          }
+
+          // 如果上月调出且无暂估，默认期初为0；否则承接上期期末
+          let beginQty = isTransferredOutPrev ? 0 : prevEndQty;
+          let beginAmt = isTransferredOutPrev ? 0 : prevEndAmt;
+          // === 修改结束 ===
+
+          // 如果本月有手动录入的期初，则覆盖自动计算值
+          for(const t of list){ if(t.type==="BEGIN"){ beginQty=t.qty||0; beginAmt=t.amount||0; } }
+
+          const purchasedList = list.filter(t=>["PURCHASE","ADJUST_FORMAL"].includes(t.type));
+          const purchasedQty = purchasedList.reduce((s,t)=>s+(t.qty||0),0);
+          const purchasedAmt = purchasedList.reduce((s,t)=>s+(t.amount||0),0);
+
+          const denom = beginQty + purchasedQty;
+          const weighted = denom>0 ? (beginAmt + purchasedAmt)/denom : 0;
+
+          const consumeQty = list.filter(t=>t.type==="CONSUME").reduce((s,t)=>s+(t.qty||0),0);
+          const stopQty = list.filter(t=>t.type==="CONSUME").reduce((s,t)=>s+(t.stopQty||0),0);
+
+          const consumeAmtAuto = round2(consumeQty * weighted);
+          const stopAmtAuto = round2(stopQty * weighted);
+          let consumeAmt = 0;
+          let stopAmt = 0;
+          const manualConsumeRows = list.filter(t=>t.type==="CONSUME" && t.isManualConsumeAmt);
+          if(manualConsumeRows.length > 0){
+             consumeAmt = round2(manualConsumeRows.reduce((s,t)=>s+(t.amount||0), 0));
+             stopAmt = stopAmtAuto;
+          }else{
+              consumeAmt = consumeAmtAuto;
+              stopAmt = stopAmtAuto;
+          }
+          const totalConsume = round2(consumeAmt + stopAmt);
+
+          const endQty = round6(beginQty + purchasedQty - consumeQty - stopQty);
+          const endAmt = round2(beginAmt + purchasedAmt - totalConsume);
+
+          const [shipId, modelId]=key.split("-").map(Number);
+          state.snapsCache[ym]=state.snapsCache[ym]||[];
+          const arr=state.snapsCache[ym];
+          const idx=arr.findIndex(s=>s.shipId===shipId && s.modelId===modelId);
+          const snap={
+            ym, shipId, modelId,
+            beginQty: round6(beginQty), beginAmt: round2(beginAmt),
+            purchasedQty: round6(purchasedQty), purchasedAmt: round2(purchasedAmt),
+            consumeQty: round6(consumeQty), consumeAmt: round2(consumeAmt),
+            stopQty: round6(stopQty), stopAmt: round2(stopAmt),
+            weightedPrice: round6(weighted),
+            endQty: round6(endQty), endAmt: round2(endAmt),
+            totalConsume: round2(totalConsume)
+          };
+          if(idx>=0) arr[idx]=snap; else arr.push(snap);
+
+          prevEndQty=endQty; prevEndAmt=endAmt;
+        }
+      }
+    }
+
+    function getSnaps(ym){ if(!state.snapsCache[ym]) recompute(ym); return state.snapsCache[ym]||[]; }
+    function getSnapOf(ym, shipId, modelId){
+      const snaps=getSnaps(ym);
+      return snaps.find(s=>s.shipId===shipId && s.modelId===modelId) || {consumeAmt:0, stopAmt:0, totalConsume:0};
+    }
+
+    function renderSnapTable(){
+      const tb=$("snapTable").querySelector("tbody"); tb.innerHTML="";
+      let snaps=getSnaps(state.ym).filter(s=>
+        (!state.filterShip || s.shipId===state.filterShip) &&
+        (!state.filterModel || s.modelId===state.filterModel)
+      ).sort((a,b)=> (shipName(a.shipId)+modelName(a.modelId)).localeCompare(shipName(b.shipId)+modelName(b.modelId)));
+
+      snaps = filterSnapsByZeroOption(snaps);
+
+      let totals = { bq:0, ba:0, pq:0, pa:0, cq:0, cstopq:0, wpnum:0, wpden:0, ca:0, cstopa:0, csum:0, eq:0, ea:0 };
+      snaps.forEach(s=>{
+        const wp = s.weightedPrice||0;
+        const stopQ = s.stopQty||0;
+        const stopA = s.stopAmt||0;
+        const csum = s.totalConsume || round2((s.consumeAmt||0)+(s.stopAmt||0));
+        const ppu = (s.purchasedQty > 0) ? round6((s.purchasedAmt||0) / (s.purchasedQty||0)) : 0;
+        
+        // 调拨状态处理
+        const tKey = `${state.ym}|${s.shipId}|${s.modelId}`;
+        const transferStatus = state.transfers[tKey];
+        const isTransferred = !!transferStatus;
+        const transferLabel = transferStatus === "IN" ? "(调入)" : (transferStatus === "OUT" ? "(调出)" : "");
+        const trClass = isTransferred ? 'class="transfer-highlight"' : "";
+        const chkChecked = isTransferred ? "checked" : "";
+
+        const tr=document.createElement("tr");
+        if (transferStatus === "IN") {
+            tr.className = "transfer-in";
+        } else if (transferStatus === "OUT") {
+            tr.className = "transfer-out";
+        }
+        tr.innerHTML=`
+          <td>
+            <label class="inline">
+              <input type="checkbox" class="chk-transfer" data-key="${tKey}" ${chkChecked}>
+              ${transferLabel}
+            </label>
+          </td>
+          <td>${shipName(s.shipId)}</td>
+          <td>${modelName(s.modelId)}</td>
+          <td>${s.beginQty}</td><td>${fmtAmt(s.beginAmt)}</td>
+          <td>${s.purchasedQty}</td><td>${round6(ppu)}</td><td>${fmtAmt(s.purchasedAmt)}</td>
+          <td>${s.consumeQty}</td><td>${round6(stopQ)}</td><td>${wp}</td><td>${fmtAmt(s.consumeAmt)}</td><td>${fmtAmt(stopA)}</td><td>${fmtAmt(csum)}</td>
+          <td>${s.endQty}</td><td>${wp}</td><td>${fmtAmt(s.endAmt)}</td>`;
+        tb.appendChild(tr);
+
+        totals.bq+=s.beginQty||0; totals.ba+=s.beginAmt||0;
+        totals.pq+=s.purchasedQty||0; totals.pa+=s.purchasedAmt||0;
+        totals.cq+=s.consumeQty||0; totals.cstopq+=stopQ;
+        totals.wpnum+=s.consumeAmt||0; totals.wpden+=s.consumeQty||0;
+        totals.ca+=s.consumeAmt||0; totals.cstopa+=stopA; totals.csum+=csum;
+        totals.eq+=s.endQty||0; totals.ea+=s.endAmt||0;
+      });
+      const wpa = totals.wpden ? totals.wpnum/totals.wpden : 0;
+      const tr=document.createElement("tr");
+      tr.innerHTML=`
+        <td></td>
+        <td><strong>合计</strong></td><td></td>
+        <td>${round6(totals.bq)}</td><td>${fmtAmt(round2(totals.ba))}</td>
+        <td>${round6(totals.pq)}</td><td>${round6(totals.pq?totals.pa/totals.pq:0)}</td><td>${fmtAmt(round2(totals.pa))}</td>
+        <td>${round6(totals.cq)}</td><td>${round6(totals.cstopq)}</td><td>${round6(wpa)}</td><td>${fmtAmt(round2(totals.ca))}</td><td>${fmtAmt(round2(totals.cstopa))}</td><td>${fmtAmt(round2(totals.csum))}</td>
+        <td>${round6(totals.eq)}</td><td>${round6(wpa)}</td><td>${fmtAmt(round2(totals.ea))}</td>`;
+      tb.appendChild(tr);
+      
+      // 绑定调拨勾选事件
+      tb.querySelectorAll(".chk-transfer").forEach(chk => {
+        chk.onchange = (e) => {
+          const key = e.target.getAttribute("data-key");
+          if(e.target.checked) {
+            // 勾选后弹出选项
+            const input = prompt("请输入类型编号：\n1. 调入\n2. 调出", "1");
+            if (input === "1") {
+              state.transfers[key] = "IN";
+            } else if (input === "2") {
+              state.transfers[key] = "OUT";
+            } else {
+              // 取消或输入无效，回退
+              e.target.checked = false;
+              delete state.transfers[key];
             }
-            pdfScaleCache = scale;
-        }
-        await renderAll();
-        document.getElementById("pdfZoomIn").onclick = async ()=>{scale+=0.2;await renderAll()};
-        document.getElementById("pdfZoomOut").onclick = async ()=>{if(scale>0.4){scale-=0.2;await renderAll()}};
-    }catch(err){ canvasBox.innerHTML = `<div style="color:#fff">加载失败：${err.message}</div>`; }
-}
-async function openFile(obj) {
-    const name = obj.name;
-    const ext = name.split(".").pop().toLowerCase();
-    const modal = document.getElementById("previewModal");
-    const content = document.getElementById("previewContent");
-    content.innerHTML = "";
-    if(['jpg','jpeg','png','gif','webp'].includes(ext)){
-        content.innerHTML = `
-            <div class="preview-img-wrap"><img src="${obj.download_url}"></div>
-            <div style="padding:10px;text-align:center;background:#222;">
-                <button class="btn-success" onclick="downloadFile('${obj.download_url}','${name}')">下载图片</button>
-            </div>
-        `;
-        modal.style.display = "flex";
-    }else if(ext === "pdf"){
-        modal.style.display = "flex";
-        await renderPdfPreview(obj.download_url, name);
-    }else{
-        downloadFile(obj.download_url, name);
-        showToast("开始下载");
+          } else {
+            // 取消勾选，清除状态
+            delete state.transfers[key];
+          }
+          saveV2();
+          renderSnapTable(); // 重绘以显示黄色高亮和文字
+        };
+      });
     }
-}
-function downloadFile(url,name) {
-    const a = document.createElement("a"); a.href=url;a.download=name;a.target="_blank";a.click();
-}
-function closePreview() {
-    document.getElementById("previewModal").style.display = "none";
-}
-async function loadRemoteFileList() {
-    setLoading(true);
-    try{
-        const res = await fetch(`https://api.github.com/repos/${OWNER}/${REPO}/contents/files?ref=${BRANCH}`,{
-            headers:{Authorization:`Bearer ${PAT}`,Accept:"application/vnd.github.v3+json"}
-        });
-        const data = await res.json();
-        let allFiles = [];
-        for(const dir of data){
-            if(dir.type === "dir"){
-                const r = await fetch(`https://api.github.com/repos/${OWNER}/${REPO}/contents/${dir.path}?ref=${BRANCH}`,{headers:{Authorization:`Bearer ${PAT}`}});
-                const d = await r.json();
-                if(Array.isArray(d)) allFiles.push(...d.filter(x=>x.type==="file"));
-            }else if(dir.type === "file") allFiles.push(dir);
-        }
-        allFileData = allFiles.filter(x=>x.type==="file").map(item=>{
-            const n = item.name;
-            const ext = n.split(".").pop().toLowerCase();
-            const type = getFileType(ext);
-            let dept = "通用", cate = "其他";
-            if(n.includes("-")){ const arr = n.split("-"); if(arr.length>=2){dept=arr[0];cate=arr[1];} }
-            return { name:n,download_url:item.download_url,size:item.size,type,dept,cate,sha:item.sha,path:item.path }
-        })
-        localStorage.setItem(STORAGE_KEY_CACHE, JSON.stringify(allFileData));
-        renderDeptFilter();renderFileList();
-        showToast("刷新完成");
-    }catch(err){
-        showToast("加载失败","error");
-        allFileData = [];
-    }finally{ setLoading(false); }
-}
-async function deleteFile(obj) {
-    if(!confirm(`确认删除【${obj.name}】？`)) return;
-    setLoading(true);
-    try{
-        await fetch(`https://api.github.com/repos/${OWNER}/${REPO}/contents/${obj.path}`,{
-            method:"DELETE",
-            headers:{Authorization:`Bearer ${PAT}`,"Content-Type":"application/json"},
-            body:JSON.stringify({message:`删除${obj.name}`,sha:obj.sha,branch:BRANCH})
-        });
-        showToast("删除成功");
-        loadRemoteFileList();
-    }catch(err){
-        showToast("删除失败","error");
-    }finally{ setLoading(false); }
-}
-function openRenameModal(obj) {
-    currentUploadFile = obj;
-    document.getElementById("confirmTitle").innerText = "文件重命名";
-    document.getElementById("confirmDesc").innerText = `当前：${obj.name}`;
-    document.getElementById("confirmInput").value = obj.name.split(".").slice(0,-1).join(".");
-    document.getElementById("confirmModal").style.display = "flex";
-}
-function openDuplicateModal(file, fullName) {
-    currentUploadFile = {file, fullName};
-    document.getElementById("confirmTitle").innerText = "文件重复";
-    document.getElementById("confirmDesc").innerText = `【${fullName}】已存在`;
-    document.getElementById("confirmInput").value = fullName.split(".").slice(0,-1).join(".");
-    document.getElementById("confirmModal").style.display = "flex";
-}
-function cancelConfirm() {
-    document.getElementById("confirmModal").style.display = "none";
-    currentUploadFile = null;
-}
-async function submitRenameUpload() {
-    const newPure = document.getElementById("confirmInput").value.trim();
-    if(!newPure) return showToast("名称不能为空","warning");
-    const old = currentUploadFile;
-    cancelConfirm();
-    if(old.path){
-        try{
-            const blob = await (await fetch(old.download_url)).blob();
-            await uploadSingleFile(blob, `${newPure}.${old.name.split(".").pop()}`);
-            await deleteFile(old);
-            showToast("重命名成功");
-        }catch(e){showToast("失败","error")}
-    }else{
-        await uploadSingleFile(old.file, `${newPure}.${old.file.name.split(".").pop()}`);
-        processPendingUpload();
+
+    // 录入弹窗逻辑
+    let currentEntryType="PURCHASE";
+    function fillSelectWithFavAndRecent(kind, sel, list){
+      const recentIds=(state.recent[kind]||[]).filter(id=>!state.favorites[kind].includes(id));
+      const byId=new Map(list.map(x=>[x.id,x]));
+      const favs=(state.favorites[kind]||[]).map(id=>byId.get(id)).filter(Boolean);
+      const recents=recentIds.map(id=>byId.get(id)).filter(Boolean);
+      const alls=list.slice().sort((a,b)=>a.name.localeCompare(b.name));
+      const opt=[];
+      if(favs.length) opt.push(`<optgroup label="常用">`+favs.map(x=>`<option value="${x.id}">${x.name}</option>`).join("")+`</optgroup>`);
+      if(recents.length) opt.push(`<optgroup label="最近使用">`+recents.map(x=>`<option value="${x.id}">${x.name}</option>`).join("")+`</optgroup>`);
+      opt.push(`<optgroup label="全部">`+alls.map(x=>`<option value="${x.id}">${x.name}</option>`).join("")+`</optgroup>`);
+      sel.innerHTML=opt.join("");
+      const firstVal=(favs[0]?.id)||(recents[0]?.id)||(alls[0]?.id)||"";
+      sel.value=firstVal;
     }
-}
-function fileToBase64(file) {
-    return new Promise((res,rej)=>{ const r = new FileReader(); r.readAsDataURL(file); r.onload=()=>res(r.result); r.onerror=rej; })
-}
-async function uploadSingleFile(file, customName=null) {
-    return new Promise(async (resolve,reject)=>{
-        try{
-            if(file.size > MAX_FILE_SIZE) throw new Error("超过20MB");
-            const ext = file.name.split(".").pop();
-            const type = getFileType(ext);
-            let fullName = customName || `${document.getElementById("deptSelect").value}-${document.getElementById("cateSelect").value}-${document.getElementById("docNameInput").value.trim()}.${ext}`;
-            if(allFileData.some(x=>x.name===fullName)){ openDuplicateModal(file,fullName); return reject("dup"); }
-            const base64 = await fileToBase64(file);
-             const content = base64.split(',')[1];
-            const path = FOLDER_CONFIG[type] + fullName;
+    function syncFavStar(kind){
+      if(kind==="ships"){
+        const id=parseInt(($("entryShip").value)||"0");
+        $("favShip").textContent = isFav("ships",id)?"★":"☆";
+        $("favShip").classList.toggle("fav", isFav("ships",id));
+      }else{
+        const id=parseInt(($("entryModel").value)||"0");
+        $("favModel").textContent = isFav("models",id)?"★":"☆";
+        $("favModel").classList.toggle("fav", isFav("models",id));
+      }
+    }
+    function toggleFavUI(kind){
+      if(kind==="ships"){
+        const id=parseInt(($("entryShip").value)||"0"); if(!id) return;
+        toggleFavorite("ships",id); save(); syncFavStar("ships");
+        fillSelectWithFavAndRecent("ships", $("entryShip"), state.ships); $("entryShip").value=id;
+      }else{
+        const id=parseInt(($("entryModel").value)||"0"); if(!id) return;
+        toggleFavorite("models",id); save(); syncFavStar("models");
+        fillSelectWithFavAndRecent("models", $("entryModel"), state.models); $("entryModel").value=id;
+      }
+    }
+    function openEntryModal(type){
+      currentEntryType=type;
+      $("entryTitle").innerText = type==="BEGIN" ? "录入期初" : (type==="PURCHASE" ? "录入当期采购" : "录入当期消耗");
+      fillSelectWithFavAndRecent("ships", $("entryShip"), state.ships);
+      fillSelectWithFavAndRecent("models", $("entryModel"), state.models);
+      syncFavStar("ships"); syncFavStar("models");
 
-            const resp = await fetch(`https://api.github.com/repos/${OWNER}/${REPO}/contents/${path}`,{
-                method:"PUT",
-                headers:{Authorization:`Bearer ${PAT}`,"Content-Type":"application/json"},
-                body:JSON.stringify({message:`上传 ${fullName}`,content,branch:BRANCH})
-            });
+      $("rowCarry").style.display = (type==="BEGIN") ? "flex" : "none";
+      $("rowBeginQty").style.display = (type==="BEGIN") ? "flex" : "none";
+      $("rowBeginAmt").style.display = (type==="BEGIN") ? "flex" : "none";
+      $("rowQty").style.display = (type!=="BEGIN") ? "flex" : "none";
+      $("rowStopQty").style.display = (type==="CONSUME") ? "flex" : "none";
+      $("rowConsumeAmt").style.display = (type==="CONSUME") ? "flex" : "none";
+      $("rowPrice").style.display = (type==="PURCHASE") ? "flex" : "none";
+      $("rowAmount").style.display = (type==="PURCHASE") ? "flex" : "none";
+      $("rowSupplier").style.display = (type==="PURCHASE") ? "flex" : "none";
+      $("rowDate").style.display = (type==="PURCHASE") ? "flex" : "none";
+      $("rowEstimate").style.display = (type==="PURCHASE" || type==="BEGIN") ? "flex" : "none";
 
-            if(!resp.ok) throw new Error(await resp.text());
-            resolve(true);
-        }catch(e){
-            if(e.message !== "dup") showToast("上传失败："+e.message,"error");
-            reject(e);
-        }
-    })
-}
+      $("entryQty").value=0; $("entryPrice").value=0; $("entryAmount").value=0;
+      $("entryBeginQty").value=0; $("entryBeginAmt").value=0;
+      $("entrySupplier").value=""; $("entryPurchaseDate").value="";
+      $("entryStopQty").value=0;
+      $("chkEstimate").checked=false; $("chkCarry").checked=true;
+      updateBeginFields();
+      $("entryConsumeAmt").value=0;
+      $("entryShip").onchange=()=>syncFavStar("ships");
+      $("entryModel").onchange=()=>syncFavStar("models");
 
-async function processPendingUpload() {
-    if(uploadCancelFlag || pendingUploadFiles.length === 0) {
-        pendingUploadFiles = [];
-        document.getElementById("uploadProgressWrap").style.display = "none";
-        uploadCancelFlag = false;
-        loadRemoteFileList();
+      lastEditedField="price";
+      $("entryModal").classList.remove("hidden");
+    }
+    function closeEntryModal(){ $("entryModal").classList.add("hidden"); }
+    function updateBeginFields(){
+      const carry=$("chkCarry").checked;
+      $("entryBeginQty").disabled = carry;
+      $("entryBeginAmt").disabled = carry;
+      $("rowEstimate").style.display = (currentEntryType==="PURCHASE" || currentEntryType==="BEGIN") ? "flex" : "none";
+      $("chkEstimate").disabled = (currentEntryType==="BEGIN" && carry);
+       
+      if(carry){ $("entryBeginQty").value=0; $("entryBeginAmt").value=0; $("chkEstimate").checked=false; }
+    }
+
+    // 采购联动
+    let lastEditedField="price";
+    function recalcPurchaseDerived(){
+      if(currentEntryType!=="PURCHASE") return;
+      const qty=parseFloat($("entryQty").value||"0")||0;
+      let price=parseFloat($("entryPrice").value||"0")||0;
+      let amount=parseFloat($("entryAmount").value||"0")||0;
+      if(qty<=0){
+        if(lastEditedField==="price") { $("entryAmount").value = round2(qty*price); }
+        else if(lastEditedField==="amount") { $("entryPrice").value = (qty>0)?round6(amount/qty):0; }
         return;
+      }
+      if(lastEditedField==="price"){
+        amount = round2(qty*price);
+        $("entryAmount").value = amount;
+      }else{
+        price = round6(amount/qty);
+        $("entryPrice").value = price;
+      }
     }
 
-    const total = pendingUploadFiles.length;
-    const currentFile = pendingUploadFiles.shift();
-    const idx = total - pendingUploadFiles.length;
-
-    document.getElementById("uploadProgressText").innerText = `上传进度：${idx}/${total}`;
-    document.getElementById("uploadProgressBar").style.width = (idx/total)*100 + "%";
-
-    try {
-        await uploadSingleFile(currentFile);
-    } catch(e) {}
-    processPendingUpload();
-}
-
-function cancelUploadTask() {
-    if(pendingUploadFiles.length === 0) return showToast("没有正在进行的任务","warning");
-    uploadCancelFlag = true;
-    pendingUploadFiles = [];
-    showToast("已取消上传任务");
-    document.getElementById("uploadProgressWrap").style.display = "none";
-}
-
-async function uploadFiles() {
-    const dept = document.getElementById("deptSelect").value;
-    const cate = document.getElementById("cateSelect").value;
-    const docName = document.getElementById("docNameInput").value.trim();
-    const files = document.getElementById("fileInput").files;
-
-    if(!dept || !cate || !docName || files.length === 0) {
-        return showToast("请完善部门、分类、名称并选择文件","warning");
+    function addShipInline(){
+      const name=$("newShipName").value.trim(); if(!name) return;
+      if(state.ships.some(s=>s.name===name)){ alert("已存在该船名"); return; }
+      const id=genId(state.ships); state.ships.push({id,name}); $("newShipName").value=""; save();
+      fillSelectWithFavAndRecent("ships", $("entryShip"), state.ships); $("entryShip").value=id; syncFavStar("ships"); renderFilters();
+    }
+    function addModelInline(){
+      const name=$("newModelName").value.trim(); if(!name) return;
+      if(state.models.some(m=>m.name===name)){ alert("已存在该型号"); return; }
+      const id=genId(state.models); state.models.push({id,name}); $("newModelName").value=""; save();
+      fillSelectWithFavAndRecent("models", $("entryModel"), state.models); $("entryModel").value=id; syncFavStar("models"); renderFilters();
+    }
+    function delShipInline(){
+      const id=parseInt(($("entryShip").value)||"0"); if(!id) return;
+      if(state.trxs.some(t=>t.shipId===id)){ alert("该船名已有明细使用，无法删除"); return; }
+      if(!confirm("确认删除该船名？")) return;
+      state.ships=state.ships.filter(s=>s.id!==id);
+      state.favorites.ships=state.favorites.ships.filter(x=>x!==id);
+      state.recent.ships=state.recent.ships.filter(x=>x!==id);
+      save(); fillSelectWithFavAndRecent("ships", $("entryShip"), state.ships); syncFavStar("ships"); renderFilters();
+    }
+    function delModelInline(){
+      const id=parseInt(($("entryModel").value)||"0"); if(!id) return;
+      if(state.trxs.some(t=>t.modelId===id)){ alert("该型号已有明细使用，无法删除"); return; }
+      if(!confirm("确认删除该型号？")) return;
+      state.models=state.models.filter(m=>m.id!==id);
+      state.favorites.models=state.favorites.models.filter(x=>x!==id);
+      state.recent.models=state.recent.models.filter(x=>x!==id);
+      save(); fillSelectWithFavAndRecent("models", $("entryModel"), state.models); syncFavStar("models"); renderFilters();
     }
 
-    pendingUploadFiles = Array.from(files);
-    uploadCancelFlag = false;
-    document.getElementById("uploadProgressWrap").style.display = "block";
-    document.getElementById("uploadProgressBar").style.width = "0%";
-    processPendingUpload();
-}
+    function submitEntry(){
+      const shipId=parseInt(($("entryShip").value)||"0");
+      const modelId=parseInt(($("entryModel").value)||"0");
+      if(!shipId||!modelId){ alert("请选择船名与型号"); return; }
+      const type=currentEntryType;
 
-window.onload = function() {
-    renderDeptSelect();
-    renderCateSelect();
-    initFilterEvent();
-    loadRemoteFileList();
-}
-</script>
+      if(type==="BEGIN"){
+        const carry=$("chkCarry").checked;
+        const qty = parseFloat($("entryBeginQty").value||"0");
+        const amt = parseFloat($("entryBeginAmt").value||"0");
+        const isEstimate = !carry && $("chkEstimate").checked;
+        state.trxs.push({
+          id: genId(state.trxs),
+          ym: state.ym, shipId, modelId,
+          type: "BEGIN",
+          qty: carry ? 0 : round6(qty),
+          unitPrice: 0,
+          amount: carry ? 0 : round2(amt),
+          isEstimate, sourceId:null, note: carry ? "承接上期" : (isEstimate?"期初暂估":"期初正式"),
+          supplier: "", purchaseDate: "",
+          ts: nowTs()
+        });
+      }else if(type==="PURCHASE"){
+        const qtyRaw = $("entryQty").value;
+        const priceRaw = $("entryPrice").value;
+        const amountRaw = $("entryAmount").value;
+
+        const qty = parseFloat(qtyRaw||"0")||0;
+        let price = parseFloat(priceRaw||"0")||0;
+        let amount = parseFloat(amountRaw||"0")||0;
+        const supplier = ($("entrySupplier").value||"").trim();
+        const purchaseDate = $("entryPurchaseDate").value || "";
+
+        if(qty<=0){ alert("采购数量必须大于 0"); return; }
+        if(amount>0 && price>0){
+          price = round6(amount/qty);
+        }else if(amount>0 && price<=0){
+          price = round6(amount/qty);
+        }else if(price>0 && amount<=0){
+          amount = round2(qty*price);
+        }else{
+          alert("请填写单价或金额（至少一个）"); return;
+        }
+
+        const isEstimate=$("chkEstimate").checked;
+        state.trxs.push({
+          id: genId(state.trxs),
+          ym: state.ym, shipId, modelId,
+          type:"PURCHASE", qty:round6(qty), unitPrice:price, amount:round2(amount),
+          isEstimate, sourceId:null, note:isEstimate?"暂估":"正式",
+          supplier, purchaseDate,
+          ts:nowTs()
+        });
+      }else if(type==="CONSUME"){
+        const qty=parseFloat($("entryQty").value||"0");
+        const stopQty=parseFloat($("entryStopQty").value||"0");
+        const manualAmt=parseFloat($("entryConsumeAmt").value||"0");
+        state.trxs.push({
+          id: genId(state.trxs),
+          ym: state.ym, shipId, modelId,
+          type:"CONSUME", qty:round6(qty), stopQty: round6(stopQty), unitPrice:0, amount:round2(manualAmt),
+          isManualConsumeAmt: manualAmt > 0,
+          isEstimate:false, sourceId:null, note:"",
+          supplier:"", purchaseDate:"",
+          ts:nowTs()
+        });
+      }
+
+      touchRecent("ships",shipId); touchRecent("models",modelId);
+      state.snapsCache={}; saveV2(); renderTrxTable(); renderSnapTable(); closeEntryModal();
+    }
+
+    // 暂估更正：直接改写原行，并记录“消耗/停工/合计”三类差异
+    function isEstimateRow(t){ return (t.type==="PURCHASE" || t.type==="BEGIN"); }
+    function isCorrectedEstimate(est){
+      return state.trxs.some(x=>(x.type==="ADJUST_CONSUME_DIFF" && x.sourceId===est.id)) || (est.isEstimate===false && /已更正/.test(est.note||""));
+    }
+    function adjustOneEstimate(estId, qty, amount, beginQty, beginAmt){
+      const est = state.trxs.find(x=>x.id===estId);
+      if(!est){ alert("未找到该暂估"); return; }
+      if(!isEstimateRow(est)){ alert("该行不是可暂估的类型"); return; }
+
+      // 改正影响起始月与维度
+      const ymStart = est.ym;
+      const shipId = est.shipId;
+      const modelId = est.modelId;
+      const months = state.months.filter(m => m >= ymStart).sort();
+
+      // 改正前：逐月记录消耗金额、停工金额、合计消耗
+      const beforeC = {}, beforeS = {}, beforeT = {};
+      months.forEach(m => {
+        const snap = getSnapOf(m, shipId, modelId);
+        beforeC[m] = snap.consumeAmt || 0;
+        beforeS[m] = snap.stopAmt || 0;
+        beforeT[m] = snap.totalConsume || round2((snap.consumeAmt||0) + (snap.stopAmt||0));
+      });
+
+      // 清理旧版本遗留差异记录
+      state.trxs = state.trxs.filter(x => !(x.type === "ADJUST_CONSUME_DIFF" && x.sourceId === est.id));
+      state.trxs = state.trxs.filter(x => !(x.type === "ADJUST_FORMAL" && x.sourceId === est.id));
+
+      // 备份并改写原暂估行为正式
+      if(est.type === "PURCHASE"){
+        if(!est._backupPurchase){
+          est._backupPurchase = {
+            qty: est.qty, amount: est.amount, unitPrice: est.unitPrice,
+            note: est.note, isEstimate: est.isEstimate === true
+          };
+        }
+        const formalQty = round6(qty||0);
+        const formalAmt = round2(amount||0);
+        const unitPrice = formalQty > 0 ? round6(formalAmt / formalQty) : 0;
+        est.qty = formalQty;
+        est.amount = formalAmt;
+        est.unitPrice = unitPrice;
+        est.isEstimate = false;
+        est.note = "采购正式 [已更正]";
+      }else if(est.type === "BEGIN"){
+        if(!est._backupBegin){
+          est._backupBegin = {
+            qty: est.qty, amount: est.amount, note: est.note, isEstimate: est.isEstimate === true
+          };
+        }
+        est.qty = round6(beginQty||0);
+        est.amount = round2(beginAmt||0);
+        est.isEstimate=false;
+        est.note = "期初正式 [已更正]";
+      }
+
+      // 重算：得到改正后逐月的消耗/停工/合计
+      state.snapsCache = {};
+      months.forEach(m => { void getSnapOf(m, shipId, modelId); });
+
+      months.forEach(m => {
+        const snap = getSnapOf(m, shipId, modelId);
+        const afterC = snap.consumeAmt || 0;
+        const afterS = snap.stopAmt || 0;
+        const afterT = snap.totalConsume || round2((snap.consumeAmt||0) + (snap.stopAmt||0));
+
+        const diffC = round2(afterC - (beforeC[m]||0));
+        const diffS = round2(afterS - (beforeS[m]||0));
+        const diffT = round2(afterT - (beforeT[m]||0));
+
+        if(diffC !== 0 || diffS !== 0 || diffT !== 0){
+          state.trxs.push({
+            id: genId(state.trxs), ym: m, shipId, modelId,
+            type: "ADJUST_CONSUME_DIFF",
+            qty:0, unitPrice:0,
+            amount: diffT,                    // 合计消耗差异（向后兼容）
+            diffConsumeAmt: diffC,            // 新增：消耗金额差异
+            diffStopAmt: diffS,               // 新增：停工金额差异
+            isEstimate:false, sourceId: est.id,
+            note:`改正导致差异 of ${est.id}`,
+            ts:nowTs()
+          });
+        }
+      });
+
+      state.snapsCache={}; saveV2();
+    }
+    function revertOneEstimate(estId){
+      const est = state.trxs.find(x=>x.id===estId);
+      if(!est){ alert("未找到该暂估"); return; }
+      const ym=est.ym, shipId=est.shipId, modelId=est.modelId;
+
+      // 移除与该暂估关联的差异记录
+      state.trxs = state.trxs.filter(x=> !((x.type==="ADJUST_FORMAL" && x.sourceId===est.id) || (x.type==="ADJUST_CONSUME_DIFF" && x.sourceId===est.id)));
+
+      if(isEstimateRow(est)){
+        if(est.type==="BEGIN"){
+          if(est._backupBegin){
+            est.qty = round6(est._backupBegin.qty || 0);
+            est.amount = round2(est._backupBegin.amount || 0);
+            est.isEstimate = !!est._backupBegin.isEstimate;
+            const baseNote = est._backupBegin.note || "期初暂估";
+            est.note = baseNote + " [已恢复]";
+          }else{
+            est.isEstimate=true;
+            est.note = "期初暂估 [已恢复]";
+          }
+        }else if(est.type==="PURCHASE"){
+          if(est._backupPurchase){
+            est.qty = round6(est._backupPurchase.qty || 0);
+            est.amount = round2(est._backupPurchase.amount || 0);
+            est.unitPrice = round6(est._backupPurchase.unitPrice || 0);
+            est.isEstimate = !!est._backupPurchase.isEstimate;
+            const baseNote = est._backupPurchase.note || "暂估";
+            est.note = baseNote + " [已恢复]";
+          }else{
+            est.isEstimate=true;
+            est.note = "暂估 [已恢复]";
+          }
+        }
+      }
+
+      state.snapsCache={}; saveV2();
+    }
+    
+    // 修改：使用统一的弹窗进行暂估改正，限制单选
+    function doAdjustBatch(){
+      const ids = Array.from(state.selectedEstimates);
+      if(!ids.length){ alert("请选择要改正的暂估行"); return; }
+      
+      // 为配合弹窗模式，限制一次只能勾选一条记录
+      if(ids.length > 1){ 
+        alert("为确保金额准确，请每次勾选单条记录进行更正。"); 
+        return; 
+      }
+
+      const id = ids[0];
+      const est = state.trxs.find(x => x.id === id);
+      if(!est) return;
+
+      // 复用“暂估统计”中的弹窗逻辑
+      currentFixEstId = id;
+      $("fixEstLabel").innerText = `船名: ${shipName(est.shipId)} / 型号: ${modelName(est.modelId)} (${typeLabel(est.type)})`;
+
+      // 预填当前值（暂估值）作为参考
+      $("fixQty").value = est.qty;
+      $("fixAmt").value = est.amount;
+
+      $("fixEstModal").classList.remove("hidden");
+    }
+
+    // ====== 导出工具（CSV/Excel 2003 XML/HTML） ======
+    function fmtCnYm(ym){
+      const [y, m] = (ym||"").split("-");
+      return `${y}年${m}月`;
+    }
+    function csvEscape(v){
+      if (v === null || v === undefined) return "";
+      const s = String(v);
+      if (/["\n,\r,]/.test(s)) return '"' + s.replace(/"/g, '""') + '"';
+      return s;
+    }
+    function rowsToCsv(rows){
+      return rows.map(r => r.map(csvEscape).join(",")).join("\r\n");
+    }
+    function downloadCsv(rowsOrString, filename){
+      const csv = Array.isArray(rowsOrString) ? rowsToCsv(rowsOrString) : String(rowsOrString||"");
+      const blob = new Blob(["\ufeff" + csv], {type: "text/csv;charset=utf-8"});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url; a.download = filename || "export.csv";
+      document.body.appendChild(a); a.click(); a.remove();
+      URL.revokeObjectURL(url);
+    }
+    function htmlEscape(v){
+      if (v === null || v === undefined) return "";
+      return String(v)
+        .replace(/&/g,"&amp;")
+        .replace(/</g,"&lt;")
+        .replace(/>/g,"&gt;")
+        .replace(/"/g,"&quot;");
+    }
+    function rowsToHtmlTable(rows){
+      const tdStyle = 'style="border:1px solid #666;padding:4px 6px;font-size:12px;white-space:nowrap;"';
+      const tr = (r)=>"<tr>" + r.map(c=>`<td ${tdStyle}>${htmlEscape(c)}</td>`).join("") + "</tr>";
+      return `<table style="border-collapse:collapse;">${rows.map(tr).join("")}</table>`;
+    }
+
+    // HTML .xls 文档外壳
+    function buildExcelHtmlDocument(innerHtml, sheetName){
+      const sName = htmlEscape(sheetName || "Sheet1");
+      return `
+<!DOCTYPE html>
+<html xmlns:o="urn:schemas-microsoft-com:office:office"
+      xmlns:x="urn:schemas-microsoft-com:office:excel"
+      xmlns:v="urn:schemas-microsoft-com:vml"
+      xmlns="http://www.w3.org/TR/REC-html40">
+<head>
+<meta charset="utf-8" />
+<!--[if gte mso 9]><xml>
+  <x:ExcelWorkbook>
+    <x:ExcelWorksheets>
+      <x:ExcelWorksheet>
+        <x:Name>${sName}</x:Name>
+        <x:WorksheetOptions>
+          <x:DisplayGridlines/>
+        </x:WorksheetOptions>
+      </x:ExcelWorksheet>
+    </x:ExcelWorksheets>
+  </x:ExcelWorkbook>
+</xml><![endif]-->
+<style>
+  body { font-family: Arial, sans-serif; }
+  table { border-collapse: collapse; }
+  th, td { border:1px solid #666; padding:4px 6px; font-size:12px; white-space:nowrap; }
+  .title { font-weight:bold; font-size:16px; text-align:center; }
+  .center { text-align:center; }
+  .left { text-align:left; }
+  .nb td, .nb th { border:none !important; }
+</style>
+<title>${sName}</title>
+</head>
+<body>
+${innerHtml}
+</body>
+</html>`.trim();
+    }
+
+    function downloadXlsFromRows(rows, filename, sheetName){
+      const tableHtml = rowsToHtmlTable(rows);
+      const html = buildExcelHtmlDocument(tableHtml, sheetName);
+      const blob = new Blob([html], { type: "application/vnd.ms-excel;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = filename || "export.xls";
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    }
+
+    function xmlEscape(v){
+      if (v === null || v === undefined) return "";
+      return String(v)
+        .replace(/&/g,"&amp;")
+        .replace(/</g,"&lt;")
+        .replace(/>/g,"&gt;")
+        .replace(/"/g,"&quot;");
+    }
+    function rowsToWorksheetXml(sheetName, rows){
+      const name = xmlEscape(sheetName || "Sheet1");
+      const table = rows.map(r => `<Row>${r.map(cellXml).join("")}</Row>`).join("");
+      return `<Worksheet ss:Name="${name}"><Table>${table}</Table></Worksheet>`;
+    }
+    function cellXml(v){
+      if (v === null || v === undefined || v === "") {
+        return '<Cell><Data ss:Type="String"></Data></Cell>';
+      }
+      if (typeof v === "number") {
+        return `<Cell><Data ss:Type="Number">${v}</Data></Cell>`;
+      }
+      const num = Number(v);
+      if (!isNaN(num) && /^\s*-?\d+(\.\d+)?\s*$/.test(String(v))) {
+        return `<Cell><Data ss:Type="Number">${num}</Data></Cell>`;
+      }
+      return `<Cell><Data ss:Type="String">${xmlEscape(String(v))}</Data></Cell>`;
+    }
+
+    // 补充丢失的函数：导出XML Workbook
+    function downloadExcelXmlWorkbook(sheets, filename){
+      const wss = sheets.map(s => rowsToWorksheetXml(s.name, s.rows));
+      downloadExcelXmlFromWorksheetsXml(wss, filename);
+    }
+    
+    // 生成 Excel XML，增加黄色高亮样式支持
+    function downloadExcelXmlFromWorksheetsXml(worksheetsXmlArr, filename){
+      const xml = `<?xml version="1.0"?>
+<Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet"
+          xmlns:o="urn:schemas-microsoft-com:office:office"
+          xmlns:x="urn:schemas-microsoft-com:office:excel"
+          xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet">
+  <Styles>
+    <Style ss:ID="nb"><Alignment ss:Horizontal="Center" ss:Vertical="Center"/></Style>
+    <Style ss:ID="nbLeft"><Alignment ss:Horizontal="Left" ss:Vertical="Center"/></Style>
+    <Style ss:ID="Default" ss:Name="Normal">
+      <Alignment ss:Vertical="Center"/>
+      <Font ss:FontName="Segoe UI" ss:Size="10"/>
+    </Style>
+    <Style ss:ID="h1">
+      <Font ss:Bold="1" ss:Size="14"/>
+      <Alignment ss:Horizontal="Center" ss:Vertical="Center"/>
+    </Style>
+    <Style ss:ID="th">
+      <Font ss:Bold="1"/>
+      <Alignment ss:Horizontal="Center" ss:Vertical="Center"/>
+      <Borders>
+        <Border ss:Position="Left" ss:LineStyle="Continuous" ss:Weight="1"/>
+        <Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1"/>
+        <Border ss:Position="Top" ss:LineStyle="Continuous" ss:Weight="1"/>
+        <Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1"/>
+      </Borders>
+    </Style>
+    <Style ss:ID="td">
+      <Alignment ss:Horizontal="Center" ss:Vertical="Center"/>
+      <Borders>
+        <Border ss:Position="Left" ss:LineStyle="Continuous" ss:Weight="1"/>
+        <Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1"/>
+        <Border ss:Position="Top" ss:LineStyle="Continuous" ss:Weight="1"/>
+        <Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1"/>
+      </Borders>
+    </Style>
+    <Style ss:ID="tdLeft">
+      <Alignment ss:Horizontal="Left" ss:Vertical="Center"/>
+      <Borders>
+        <Border ss:Position="Left" ss:LineStyle="Continuous" ss:Weight="1"/>
+        <Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1"/>
+        <Border ss:Position="Top" ss:LineStyle="Continuous" ss:Weight="1"/>
+        <Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1"/>
+      </Borders>
+    </Style>
+    <!-- 新增黄色高亮样式 -->
+    <Style ss:ID="tdYellow">
+      <Alignment ss:Horizontal="Center" ss:Vertical="Center"/>
+      <Borders>
+        <Border ss:Position="Left" ss:LineStyle="Continuous" ss:Weight="1"/>
+        <Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1"/>
+        <Border ss:Position="Top" ss:LineStyle="Continuous" ss:Weight="1"/>
+        <Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1"/>
+      </Borders>
+      <Interior ss:Color="#FFFF00" ss:Pattern="Solid"/>
+    </Style>
+    <Style ss:ID="tdLeftYellow">
+      <Alignment ss:Horizontal="Left" ss:Vertical="Center"/>
+      <Borders>
+        <Border ss:Position="Left" ss:LineStyle="Continuous" ss:Weight="1"/>
+        <Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1"/>
+        <Border ss:Position="Top" ss:LineStyle="Continuous" ss:Weight="1"/>
+        <Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1"/>
+      </Borders>
+      <Interior ss:Color="#FFFF00" ss:Pattern="Solid"/>
+    </Style>
+    <Style ss:ID="tdGreen">
+        <Alignment ss:Horizontal="Center" ss:Vertical="Center"/>
+        <Borders>
+            <Border ss:Position="Left" ss:LineStyle="Continuous" ss:Weight="1"/>
+            <Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1"/>
+            <Border ss:Position="Top" ss:LineStyle="Continuous" ss:Weight="1"/>
+            <Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1"/>
+        </Borders>
+        <Interior ss:Color="#C8F9C8" ss:Pattern="Solid"/>
+    </Style>
+    <Style ss:ID="tdLeftGreen">
+        <Alignment ss:Horizontal="Left" ss:Vertical="Center"/>
+        <Borders>
+            <Border ss:Position="Left" ss:LineStyle="Continuous" ss:Weight="1"/>
+            <Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1"/>
+            <Border ss:Position="Top" ss:LineStyle="Continuous" ss:Weight="1"/>
+            <Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1"/>
+        </Borders>
+        <Interior ss:Color="#C8F9C8" ss:Pattern="Solid"/>
+    </Style>
+  </Styles>
+  ${ws}
+</Workbook>`.trim();
+
+      const blob = new Blob([xml], { type: "application/vnd.ms-excel;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url; a.download = filename || "export.xls";
+      document.body.appendChild(a); a.click(); a.remove();
+      URL.revokeObjectURL(url);
+    }
+
+    // 模板版统计页（XML工作表，用于“导出全部”），已增加高亮逻辑
+    // 修改：如果该月有高亮行，将TabColor设为黄色
+    function buildTemplateWorksheetXml(ym){
+      const sheetName = ym.replace("-", ".") + "消耗";
+      const title = "燃料消耗明细表";
+      const subLeft = "  工程名称:" + currentProjectName();
+
+      let snaps = getSnaps(ym)
+        .filter(s =>
+          (!state.filterShip || s.shipId === state.filterShip) &&
+          (!state.filterModel || s.modelId === state.filterModel)
+        )
+        .sort((a,b)=> (shipName(a.shipId)+modelName(a.modelId))
+          .localeCompare(shipName(b.shipId)+modelName(b.modelId)));
+
+      snaps = filterSnapsByZeroOption(snaps);
+
+      const dataRows = [];
+      let idx = 1;
+      let totals = { bq:0, ba:0, pq:0, pa:0, cq:0, cstopq:0, wpnum:0, wpden:0, ca:0, cstopa:0, csum:0, eq:0, ea:0 };
+
+      // 标记该Sheet是否包含高亮行
+      let sheetHasHighlight = false;
+
+      snaps.forEach(s=>{
+        const wp = s.weightedPrice||0;
+        const csum = s.totalConsume || round2((s.consumeAmt||0) + (s.stopAmt||0));
+        const pu = (s.purchasedQty > 0) ? round6((s.purchasedAmt||0) / (s.purchasedQty||0)) : 0;
+        
+        // 检查调拨状态
+        const tKey = `${ym}|${s.shipId}|${s.modelId}`;
+        const transferStatus = state.transfers[tKey];
+        if (transferStatus) sheetHasHighlight = true;
+
+        dataRows.push({
+          data: [
+            idx++,
+            shipName(s.shipId),
+            modelName(s.modelId),
+            round6(s.beginQty), round2(s.beginAmt),
+            round6(s.purchasedQty), round6(pu), round2(s.purchasedAmt),
+            round6(s.consumeQty), round6(s.stopQty||0), round6(wp),
+            round2(s.consumeAmt), round2(s.stopAmt||0), round2(csum),
+            round6(s.endQty), round6(wp), round2(s.endAmt)
+          ],
+          highlight: !!transferStatus
+        });
+
+        totals.bq+=s.beginQty||0; totals.ba+=s.beginAmt||0;
+        totals.pq+=s.purchasedQty||0; totals.pa+=s.purchasedAmt||0;
+        totals.cq+=s.consumeQty||0; totals.cstopq+=s.stopQty||0;
+        totals.wpnum+=s.consumeAmt||0; totals.wpden+=s.consumeQty||0;
+        totals.ca+=s.consumeAmt||0; totals.cstopa+=s.stopAmt||0; totals.csum+=csum;
+        totals.eq+=s.endQty||0; totals.ea+=s.endAmt||0;
+      });
+      const wpa = totals.wpden ? totals.wpnum/totals.wpden : 0;
+      const pua = totals.pq ? totals.pa/totals.pq : 0;
+
+      const cell = (v, style, mergeAcross, mergeDown) => {
+        const sa = style ? ` ss:StyleID="${style}"` : "";
+        const ma = (mergeAcross && mergeAcross>0) ? ` ss:MergeAcross="${mergeAcross}"` : "";
+        const md = (mergeDown && mergeDown>0) ? ` ss:MergeDown="${mergeDown}"` : "";
+        if (v === null || v === undefined || v === "") {
+          return `<Cell${sa}${ma}${md}><Data ss:Type="String"></Data></Cell>`;
+        }
+        const num = Number(v);
+        if (!isNaN(num) && /^\s*-?\d+(\.\d+)?\s*$/.test(String(v))) {
+          return `<Cell${sa}${ma}${md}><Data ss:Type="Number">${num}</Data></Cell>`;
+        }
+        return `<Cell${sa}${ma}${md}><Data ss:Type="String">${xmlEscape(String(v))}</Data></Cell>`;
+      };
+      const row = (cells) => `<Row>${cells.join("")}</Row>`;
+
+      const headerRow1 = row([ cell(title, "h1", 17, 0) ]);
+      const headerRow2 = row([
+        cell("", "nb"),
+        cell(subLeft, "nbLeft"),
+        cell("", "nb"),cell("", "nb"),cell("", "nb"),cell("", "nb"),cell("", "nb"),
+        cell(fmtCnYm(ym), "nb", 3),
+        cell("", "nb"),cell("", "nb"),cell("", "nb"),cell("", "nb"),cell("", "nb"),cell("", "nb"),cell("", "nb"),cell("", "nb")
+      ]);
+      const headerRow3 = row([
+        cell("序号","th",0,1),
+        cell("船舶名称","th",0,1),
+        cell("规格型号","th",0,1),
+        cell("期初结存","th",1,0),
+        cell("本期增加","th",2,0),
+        cell("本期减少","th",5,0),
+        cell("期末结存","th",2,0)
+      ]);
+      const headerRow4 = row([
+        cell("","th"), cell("","th"), cell("","th"),
+        cell("数量","th"), cell("金额","th"),
+        cell("购入数量","th"), cell("单价","th"), cell("金额","th"),
+        cell("消耗数量","th"), cell("停工数量","th"), cell("加权单价","th"),
+        cell("消耗金额","th"), cell("停工金额","th"), cell("合计消耗","th"),
+        cell("数量","th"), cell("单价","th"), cell("金额","th")
+      ]);
+
+      const dataRowsXml = dataRows.map(obj=>{
+        const r = obj.data;
+        const hl = obj.highlight;
+        // 如果高亮，使用 tdYellow / tdLeftYellow
+        let styleStd = "td";
+        let styleLeft = "tdLeft";
+        if (transferStatus === "IN") {
+            styleStd = "tdYellow";
+            styleLeft = "tdLeftYellow";
+        } else if (transferStatus === "OUT") {
+            styleStd = "tdGreen";
+            styleLeft = "tdLeftGreen";
+        }
+
+        
+        const vals = [ r[0], r[1], r[2], r[3], r[4], r[5], r[6], r[7], r[8], r[9], r[10], r[11], r[12], r[13], r[14], r[15], r[16] ];
+        return row(vals.map((v, cIdx) => (cIdx===1||cIdx===2) ? cell(v,styleLeft) : cell(v,styleStd)));
+      }).join("");
+
+      const totalsRow = row([
+        cell("合计","tdLeft"), cell("","tdLeft"), cell("","tdLeft"),
+        cell(round6(totals.bq),"td"), cell(round2(totals.ba),"td"),
+        cell(round6(totals.pq),"td"), cell(round6(pua),"td"), cell(round2(totals.pa),"td"),
+        cell(round6(totals.cq),"td"), cell(round6(totals.cstopq),"td"), cell(round6(wpa),"td"),
+        cell(round2(totals.ca),"td"), cell(round2(totals.cstopa),"td"), cell(round2(totals.csum),"td"),
+        cell(round6(totals.eq),"td"), cell(round6(wpa),"td"), cell(round2(totals.ea),"td")
+      ]);
+
+      // 如果有高亮行，插入 TabColorIndex 选项 (Index 6 为黄色)
+      const optionsXml = sheetHasHighlight 
+        ? `<x:WorksheetOptions><x:TabColorIndex>6</x:TabColorIndex></x:WorksheetOptions>` 
+        : "";
+
+      const wsXml = `<Worksheet ss:Name="${xmlEscape(sheetName)}">
+        <Table>
+          ${headerRow1}${headerRow2}${headerRow3}${headerRow4}
+          ${dataRowsXml}
+          ${totalsRow}
+        </Table>
+        ${optionsXml}
+      </Worksheet>`;
+      return wsXml;
+    }
+
+    // 补充丢失的函数：导出所有月份
+    function exportAllSummariesCSV() {
+      if(!state.months.length){ alert("暂无月份数据"); return; }
+      const sheets = state.months.map(ym => buildTemplateWorksheetXml(ym));
+      const fname = `${currentProjectName()}-全部月份汇总.xls`;
+      downloadExcelXmlFromWorksheetsXml(sheets, fname);
+    }
+
+    // ====== 水印样式工具 ======
+    function imgStyle(key){
+      const s = state.watermarkStyles[key] || { h:36, dx:0, dy:0 };
+      const h = Math.max(1, Number(s.h)||36);
+      const dx = Number(s.dx)||0;
+      const dy = Number(s.dy)||0;
+      return `height:${h}px; margin-left:${dx}px; margin-top:${dy}px; vertical-align:middle;`;
+    }
+
+    // 补充丢失的函数：水印处理相关
+    function refreshWmPreview(){
+      function upd(id, src, styleKey){
+        const img = $(id);
+        if(!src){
+          img.style.display="none"; img.src="";
+        }else{
+          img.style.display="inline-block"; img.src=src;
+          const s = state.watermarkStyles[styleKey];
+          // 预览时简单缩放，不完全应用dx/dy以免跑出容器
+          img.style.height = (s.h||36)+"px";
+          img.style.marginLeft = "0px";
+          img.style.marginTop = "0px";
+        }
+      }
+      upd("wmPrev1", state.watermarks.topLeft, "topLeft");
+      upd("wmPrev2", state.watermarks.maker, "maker");
+      upd("wmPrev3", state.watermarks.auditor, "auditor");
+    }
+
+    function fillWmInputs(){
+      function f(key, pfx){
+        const s = state.watermarkStyles[key];
+        $(pfx+"H").value = s.h;
+        $(pfx+"DX").value = s.dx;
+        $(pfx+"DY").value = s.dy;
+      }
+      f("topLeft", "wm1");
+      f("maker", "wm2");
+      f("auditor", "wm3");
+    }
+
+    function bindWmInputs(){
+      function b(key, pfx){
+        [pfx+"H", pfx+"DX", pfx+"DY"].forEach(id=>{
+          const el = $(id);
+          // 移除旧监听器防止重复（简便起见直接覆盖onchange）
+          el.onchange = ()=>{
+            const h = parseInt($(pfx+"H").value)||36;
+            const dx = parseInt($(pfx+"DX").value)||0;
+            const dy = parseInt($(pfx+"DY").value)||0;
+            state.watermarkStyles[key] = { h, dx, dy };
+            saveV2();
+            refreshWmPreview();
+          };
+        });
+      }
+      b("topLeft", "wm1");
+      b("maker", "wm2");
+      b("auditor", "wm3");
+    }
+
+    async function handlePickWm(e, key){
+      const file = e.target.files && e.target.files[0];
+      e.target.value = "";
+      if(!file) return;
+      
+      const reader = new FileReader();
+      reader.onload = (evt)=>{
+        const res = evt.target.result;
+        state.watermarks[key] = res;
+        saveV2();
+        refreshWmPreview();
+      };
+      reader.readAsDataURL(file);
+    }
+
+    // ====== “导出当月”：使用固定三位置水印（嵌入 IMG 到表格） ======
+    function buildMonthSummaryTableHtml(ym){
+      let snaps = getSnaps(ym)
+        .filter(s =>
+          (!state.filterShip || s.shipId === state.filterShip) &&
+          (!state.filterModel || s.modelId === state.filterModel)
+        )
+        .sort((a,b)=> (shipName(a.shipId)+modelName(a.modelId))
+          .localeCompare(shipName(b.shipId)+modelName(b.modelId)));
+      snaps = filterSnapsByZeroOption(snaps);
+
+      let totals = { bq:0, ba:0, pq:0, pa:0, cq:0, cstopq:0, ca:0, cstopa:0, csum:0, wpnum:0, wpden:0, eq:0, ea:0 };
+      const rowsHtml = snaps.map(s=>{
+        const wp = s.weightedPrice||0;
+        const pu = (s.purchasedQty>0)? round6((s.purchasedAmt||0)/(s.purchasedQty||0)) : 0;
+        const csum = s.totalConsume || round2((s.consumeAmt||0)+(s.stopAmt||0));
+        
+        // 检查调拨状态
+        const tKey = `${ym}|${s.shipId}|${s.modelId}`;
+        const transferStatus = state.transfers[tKey];
+        // 如果有调拨状态，添加背景色样式
+        let trStyle = "";
+        if (transferStatus === "IN") {
+            trStyle = 'style="background-color: yellow;"';
+        } else if (transferStatus === "OUT") {
+            trStyle = 'style="background-color: #c8f9c8;"';
+        }
+
+        totals.bq+=s.beginQty||0; totals.ba+=s.beginAmt||0;
+        totals.pq+=s.purchasedQty||0; totals.pa+=s.purchasedAmt||0;
+        totals.cq+=s.consumeQty||0; totals.cstopq+=s.stopQty||0;
+        totals.ca+=s.consumeAmt||0; totals.cstopa+=s.stopAmt||0; totals.csum+=csum;
+        totals.wpnum+=s.consumeAmt||0; totals.wpden+=s.consumeQty||0;
+        totals.eq+=s.endQty||0; totals.ea+=s.endAmt||0;
+
+        return `
+          <tr ${trStyle}>
+            <td class="left">${htmlEscape(shipName(s.shipId))}</td>
+            <td class="left">${htmlEscape(modelName(s.modelId))}</td>
+            <td>${round6(s.beginQty)}</td><td>${round2(s.beginAmt)}</td>
+            <td>${round6(s.purchasedQty)}</td><td>${round6(pu)}</td><td>${round2(s.purchasedAmt)}</td>
+            <td>${round6(s.consumeQty)}</td><td>${round6(s.stopQty||0)}</td><td>${round6(wp)}</td>
+            <td>${round2(s.consumeAmt)}</td><td>${round2(s.stopAmt||0)}</td><td>${round2(csum)}</td>
+            <td>${round6(s.endQty)}</td><td>${round6(wp)}</td><td>${round2(s.endAmt)}</td>
+          </tr>`;
+      }).join("");
+
+      const wpa = totals.wpden ? totals.wpnum/totals.wpden : 0;
+      const pua = totals.pq ? totals.pa/totals.pq : 0;
+
+      const totalsHtml = `
+        <tr>
+          <td class="left"><b>合计</b></td><td></td>
+          <td>${round6(totals.bq)}</td><td>${round2(totals.ba)}</td>
+          <td>${round6(totals.pq)}</td><td>${round6(pua)}</td><td>${round2(totals.pa)}</td>
+          <td>${round6(totals.cq)}</td><td>${round6(totals.cstopq)}</td><td>${round6(wpa)}</td>
+          <td>${round2(totals.ca)}</td><td>${round2(totals.cstopa)}</td><td>${round2(totals.csum)}</td>
+          <td>${round6(totals.eq)}</td><td>${round6(wpa)}</td><td>${round2(totals.ea)}</td>
+        </tr>`;
+
+      const s1 = imgStyle("topLeft");
+      const s2 = imgStyle("maker");
+      const s3 = imgStyle("auditor");
+
+      const wm1 = state.watermarks.topLeft ? `<img src="${state.watermarks.topLeft}" style="${s1}">` : "";
+      const wm2 = state.watermarks.maker ? `<img src="${state.watermarks.maker}" style="${s2}">` : "";
+      const wm3 = state.watermarks.auditor ? `<img src="${state.watermarks.auditor}" style="${s3}">` : "";
+
+      const title ="燃料消耗明细表";
+
+      const theadHtml = `
+        <tr class="nb">
+          <td colspan="16"
+              class="title center"
+              align="center"
+              style="text-align:center;">
+          ${htmlEscape(title)}
+          </td>
+        </tr>
+        <tr class="nb">
+          <td style="border:none;">${wm1}</td>
+          <td colspan="5" class="left" style="border:none;">工程名称: ${htmlEscape(currentProjectName())}</td>
+          <td colspan="6" class="center" style="border:none;">${htmlEscape(fmtCnYm(ym))}</td>
+          <td colspan="4" style="border:none;"></td>
+        </tr>
+        <tr class="nb"><td colspan="16" style="border:none;"></td></tr>
+        <tr>
+          <th rowspan="2">船舶名称</th>
+          <th rowspan="2">规格型号</th>
+          <th colspan="2">期初结存</th>
+          <th colspan="3">本期增加</th>
+          <th colspan="6">本期减少</th>
+          <th colspan="3">期末结存</th>
+        </tr>
+        <tr>
+          <th>数量</th><th>金额</th>
+          <th>购入数量</th><th>单价</th><th>金额</th>
+          <th>消耗数量</th><th>停工数量</th><th>加权单价</th><th>消耗金额</th><th>停工金额</th><th>合计消耗</th>
+          <th>数量</th><th>单价</th><th>金额</th>
+        </tr>
+      `;
+
+      const tailHtml = `
+        <tr class="nb"><td colspan="16" style="border:none;"></td></tr>
+        <tr class="nb">
+          <td colspan="5" style="border:none;"></td>
+          <td colspan="5" class="left" style="border:none;">制单： ${wm2}</td>
+          <td colspan="6" class="left" style="border:none;">审核： ${wm3}</td>
+        </tr>
+      `;
+
+      return `
+        <table align="center" style="width:auto; margin:0 auto;">
+          <thead>${theadHtml}</thead>
+          <tbody>
+            ${rowsHtml || `<tr><td colspan="16" class="center">无数据</td></tr>`}
+            ${totalsHtml}
+            ${tailHtml}
+          </tbody>
+        </table>
+      `;
+    }
+
+    function exportMonthSummaryXlsWithWatermarks(){
+      const ym = state.ym;
+      const tableHtml = buildMonthSummaryTableHtml(ym);
+      const htmlDoc = buildExcelHtmlDocument(tableHtml, ym.replace("-", ".") + "消耗");
+      const fname = `${currentProjectName()}-${fmtCnYm(ym)}-燃料消耗明细表(含水印).xls`;
+      const blob = new Blob([htmlDoc], { type: "application/vnd.ms-excel;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url; a.download = fname;
+      document.body.appendChild(a); a.click(); a.remove();
+      URL.revokeObjectURL(url);
+    }
+
+    // ====== 差异汇总（新增三列：消耗/停工/合计） ======
+    function buildDiffData(year){
+      const months=state.months.filter(m=>m.startsWith(year)).sort();
+      const byShip=new Map();
+      // 头：船舶、月份、消耗金额差异、停工金额差异、合计消耗差异
+      const rows=[["船舶","月份","消耗金额差异","停工金额差异","合计消耗差异"]];
+      months.forEach(ym=>{
+        const items=state.trxs.filter(t=>
+          t.ym===ym && t.type==="ADJUST_CONSUME_DIFF" &&
+          (!state.filterShip || t.shipId===state.filterShip) &&
+          (!state.filterModel || t.modelId===state.filterModel)
+        );
+        items.forEach(t=>{
+          const k=t.shipId;
+          if(!byShip.has(k)) byShip.set(k,{name:shipName(k), m:new Map(), totalC:0, totalS:0, totalT:0});
+          const rec=byShip.get(k);
+          const c = Number(t.diffConsumeAmt || 0);
+          const s = Number(t.diffStopAmt || 0);
+          const tt = Number(t.amount || 0); // 向后兼容（合计）
+          const prev = rec.m.get(ym) || { c:0, s:0, t:0 };
+          const cur = { c: round2(prev.c + c), s: round2(prev.s + s), t: round2(prev.t + tt) };
+          rec.m.set(ym, cur);
+          rec.totalC = round2(rec.totalC + c);
+          rec.totalS = round2(rec.totalS + s);
+          rec.totalT = round2(rec.totalT + tt);
+        });
+      });
+
+      let grandC=0, grandS=0, grandT=0;
+      Array.from(byShip.values()).sort((a,b)=>a.name.localeCompare(b.name)).forEach(rec=>{
+        rec.m.forEach((v,ym)=>{
+          if(v.c!==0 || v.s!==0 || v.t!==0){
+            rows.push([rec.name, `${ym.replace("-","年")}月`, round2(v.c), round2(v.s), round2(v.t)]);
+          }
+        });
+        grandC=round2(grandC+rec.totalC);
+        grandS=round2(grandS+rec.totalS);
+        grandT=round2(grandT+rec.totalT);
+      });
+      rows.push(["合计","", round2(grandC), round2(grandS), round2(grandT)]);
+      return { rows, totalC: grandC, totalS: grandS, totalT: grandT };
+    }
+    function showDiffSummary(){
+      const year=state.ym.slice(0,4);
+      const { rows, totalC, totalS, totalT } = buildDiffData(year);
+      const div=$("diffBody");
+      let html=`<div><strong>${htmlEscape(currentProjectName())}：${year} 年差异汇总（消耗/停工/合计）</strong></div><table><thead><tr><th>船舶</th><th>月份</th><th>消耗金额差异</th><th>停工金额差异</th><th>合计消耗差异</th></tr></thead><tbody>`;
+      for(let i=1;i<rows.length-1;i++){
+        const c = rows[i][2], s = rows[i][3], t = rows[i][4];
+        html+=`<tr><td>${htmlEscape(rows[i][0])}</td><td>${htmlEscape(rows[i][1])}</td><td>${fmtAmt(c)}</td><td>${fmtAmt(s)}</td><td>${fmtAmt(t)}</td></tr>`;
+      }
+      html+=`<tr><td><strong>合计</strong></td><td></td><td><strong>${fmtAmt(round2(totalC))}</strong></td><td><strong>${fmtAmt(round2(totalS))}</strong></td><td><strong>${fmtAmt(round2(totalT))}</strong></td></tr>`;
+      html+=`</tbody></table>`;
+      div.innerHTML=html;
+      $("diffModal").classList.remove("hidden");
+    }
+    function exportDiffSummaryCSV(){
+      const year=state.ym.slice(0,4);
+      const { rows } = buildDiffData(year);
+      const fname = `${currentProjectName()}-${year}-差异汇总(消耗-停工-合计).xls`;
+      downloadXlsFromRows(rows, fname, `${year}差异汇总`);
+    }
+    function zeroEstimateDiffs(){
+      if(!confirm("确认将当前工程的所有已生成差异记录归零？不影响已改正的正式记录。")) return;
+      const removed = state.trxs.filter(t=>t.type==="ADJUST_CONSUME_DIFF").length;
+      if(!removed){
+        alert("当前没有可归零的差异记录。");
+        return;
+      }
+      state.trxs = state.trxs.filter(t=>t.type!=="ADJUST_CONSUME_DIFF");
+
+      state.snapsCache = {};
+      saveV2();
+      renderTrxTable();
+      renderSnapTable();
+      if(!$("diffModal").classList.contains("hidden")) showDiffSummary();
+      alert(`已归零差异记录：${removed} 条。`);
+    }
+
+    // ====== 暂估统计（保持逻辑，显示差额为正式-暂估的金额差） ======
+    function allEstimateEntries(){
+      const list=state.trxs.filter(t=> (t.type==="PURCHASE"||t.type==="BEGIN") && (t.isEstimate || isCorrectedEstimate(t)));
+      return list.sort((a,b)=> (a.ym.localeCompare(b.ym)) || (shipName(a.shipId)+modelName(a.modelId)).localeCompare(shipName(b.shipId)+modelName(b.modelId)) || (a.id-b.id));
+    }
+    function getFormalCorrection(est){
+      if(!est) return null;
+      if(est.type === "PURCHASE"){
+        if(est.isEstimate) return null;
+        const uq = round6(est.qty||0);
+        const ua = round2(est.amount||0);
+        const up = (uq>0 && ua>0) ? round6(ua/uq) : 0;
+        return { qty: uq, amount: ua, unitPrice: up };
+      }else if(est.type === "BEGIN"){
+        if(est.isEstimate) return null;
+        const uq = round6(est.qty || 0);
+        const ua = round2(est.amount || 0);
+        const up = (uq>0 && ua>0) ? round6(ua/uq) : 0;
+        return { qty: uq, amount: ua, unitPrice: up };
+      }
+      return null;
+    }
+  
+    function buildEstimateStatsRows(){
+      const list=allEstimateEntries();
+      const header = [
+        "#","月份","船名","型号","类型","采购日期","供应商",
+        "暂估数量","暂估单价","暂估金额",
+        "改正数量","改正单价","改正金额",
+        "金额差额","状态","操作"
+      ];
+      const rowsHtml = [];
+      const rowsDataForExport = [header.slice(0, header.length-1)];
+
+      // 新增：供应商汇总容器（仅统计未更正）
+      const supplierSummary = new Map();
+
+      list.forEach((t,idx)=>{
+        const corrected = isCorrectedEstimate(t) && !t.isEstimate;
+        const status = corrected ? `<span class="pill pill-ok">已更正</span>` : `<span class="pill pill-warn">未更正</span>`;
+        const actFix = `<button class="btn-link est-fix" data-id="${t.id}" ${corrected?'disabled':''}>更正</button>`;
+        const actRevert = `<button class="btn-link est-revert" data-id="${t.id}" ${corrected?'':'disabled'}>恢复</button>`;
+        const supplier = t.type==="PURCHASE" ? (t.supplier||"-") : "-";
+        const theDate = t.type==="PURCHASE" ? (t.purchaseDate||"-") : "-";
+
+        let estQty = 0, estPrice = 0, estAmt = 0;
+        if(t.type==="PURCHASE"){
+          if (t._backupPurchase){
+            estQty = round6(t._backupPurchase.qty||0);
+            estAmt = round2(t._backupPurchase.amount||0);
+            estPrice = (estQty>0 && estAmt>0) ? round6(estAmt/estQty) : 0;
+          }else{
+            estQty = round6(t.qty||0);
+            estPrice = round6(t.unitPrice||0);
+            estAmt = round2(t.amount||0);
+          }
+        }else if(t.type==="BEGIN"){
+          if (t._backupBegin){
+            estQty = round6(t._backupBegin.qty||0);
+            estAmt = round2(t._backupBegin.amount||0);
+            estPrice = (estQty>0 && estAmt>0) ? round6(estAmt/estQty) : 0;
+          }else{
+            estQty = round6(t.qty||0);
+            estAmt = round2(t.amount||0);
+            estPrice = (estQty>0 && estAmt>0) ? round6(estAmt/estQty) : 0;
+          }
+        }
+
+        const formal = getFormalCorrection(t);
+        const fQty = formal ? round6(formal.qty||0) : "";
+        const fPrice = formal ? round6(formal.unitPrice||0) : "";
+        const fAmt = formal ? round2(formal.amount||0) : "";
+        const diffAmt = formal ? round2((formal.amount||0) - estAmt) : "";
+
+        rowsHtml.push(`<tr>
+          <td>${idx+1}</td>
+          <td>${t.ym}</td>
+          <td>${shipName(t.shipId)}</td>
+          <td>${modelName(t.modelId)}</td>
+          <td>${typeLabel(t.type)}</td>
+          <td>${theDate}</td>
+          <td>${supplier}</td>
+          <td>${estQty}</td>
+          <td>${estPrice}</td>
+          <td>${fmtAmt(estAmt)}</td>
+          <td>${fQty===""?"-":fQty}</td>
+          <td>${fPrice===""?"-":fPrice}</td>
+          <td>${fAmt===""?"-":fmtAmt(fAmt)}</td>
+          <td>${diffAmt===""?"-":fmtAmt(diffAmt)}</td>
+          <td>${status}</td>
+          <td>${actFix} | ${actRevert}</td>
+        </tr>`);
+
+        rowsDataForExport.push([
+          idx+1, t.ym, shipName(t.shipId), modelName(t.modelId), typeLabel(t.type), theDate, supplier,
+          estQty, estPrice, estAmt,
+          fQty===""?"":fQty, fPrice===""?"":fPrice, fAmt===""?"":fAmt,
+          diffAmt===""?"":diffAmt, corrected?"已更正":"未更正"
+        ]);
+
+        // ========== 新增逻辑：只汇总【未更正】采购暂估（期初不计入供应商汇总）
+        if(!corrected && t.type === "PURCHASE"){
+          const spName = (t.supplier || "无供应商").trim();
+          if(!supplierSummary.has(spName)){
+            supplierSummary.set(spName, 0);
+          }
+          supplierSummary.set(spName, round2(supplierSummary.get(spName) + estAmt));
+        }
+      });
+
+      // 组装供应商汇总HTML
+      let supplierSummaryHtml = `<div style="margin-top:16px;"><strong>【按供应商汇总 - 仅未更正采购暂估金额】</strong><table style="margin-top:8px;">
+      <thead><tr><th>供应商名称</th><th>未更正暂估合计金额</th></tr></thead><tbody>`;
+      let grandTotal = 0;
+      const sortedSuppliers = Array.from(supplierSummary.entries()).sort((a,b)=>a[0].localeCompare(b[0]));
+      sortedSuppliers.forEach(([sp, amt])=>{
+        grandTotal = round2(grandTotal + amt);
+        supplierSummaryHtml += `<tr><td>${htmlEscape(sp)}</td><td>${fmtAmt(amt)}</td></tr>`;
+      });
+      supplierSummaryHtml += `<tr style="font-weight:bold;background:#f6f6f6;"><td>合计</td><td>${fmtAmt(grandTotal)}</td></tr></tbody></table></div>`;
+
+      return { rowsHtml, exportRows: rowsDataForExport, supplierSummaryHtml };
+    }
+    function renderEstimateStats(){
+      const result = buildEstimateStatsRows();
+      const rowsHtml = result.rowsHtml;
+      const supplierSummaryHtml = result.supplierSummaryHtml;
+
+
+      const html = `
+        <div class="note" style="margin-bottom:6px;">工程：${htmlEscape(currentProjectName())}</div>
+        <table>
+          <thead><tr>
+            <th>#</th><th>月份</th><th>船名</th><th>型号</th><th>类型</th>
+            <th>采购日期</th><th>供应商</th>
+            <th>暂估数量</th><th>暂估单价</th><th>暂估金额</th>
+            <th>改正数量</th><th>改正单价</th><th>改正金额</th>
+            <th>金额差额</th>
+            <th>状态</th><th>操作</th>
+          </tr></thead>
+          <tbody>${rowsHtml.join("")||`<tr><td colspan="16" class="muted">暂无暂估记录</td></tr>`}</tbody>
+        </table>
+        ${supplierSummaryHtml}
+        <div class="note">提示：采购暂估更正请输入“正式数量/金额”；期初暂估更正请输入“正式数量/金额”。恢复将移除该暂估关联的各月差异记录，并恢复该行到更正前的暂估（若有备份）。</div>
+      `;
+      $("estBody").innerHTML=html;
+
+      document.querySelectorAll(".est-fix").forEach(btn=>{
+        btn.onclick=()=>{
+          const id=parseInt(btn.getAttribute("data-id"));
+          const est=state.trxs.find(x=>x.id===id);
+          if(!est) return;
+          
+          currentFixEstId = id;
+          $("fixEstLabel").innerText = `船名: ${shipName(est.shipId)} / 型号: ${modelName(est.modelId)}`;
+          $("fixQty").value = est.qty;
+          $("fixAmt").value = est.amount;
+          
+          $("fixEstModal").classList.remove("hidden");
+        };
+      });
+      document.querySelectorAll(".est-revert").forEach(btn=>{
+        btn.onclick=()=>{
+          const id=parseInt(btn.getAttribute("data-id"));
+          if(!confirm("确认恢复该暂估的改正？")) return;
+          revertOneEstimate(id);
+          state.snapsCache={}; saveV2(); renderEstimateStats(); renderTrxTable(); renderSnapTable();
+        };
+      });
+    }
+    function showEstimateStats(){
+      renderEstimateStats();
+      $("estModal").classList.remove("hidden");
+    }
+    function exportEstimateStatsXls(){
+      const result = buildEstimateStatsRows();
+      const exportRows = result.exportRows;
+      const ym = state.ym || "";
+      const fname = `${currentProjectName()}-暂估统计-${ym}.xls`;
+      downloadXlsFromRows(exportRows, fname, "暂估统计");
+    }
+
+    // ====== 整库导出/导入（JSON） ======
+    function buildExportPayloadForCurrentProject(){
+      const pj = currentProject();
+      return {
+        app: "fuel_book_html",
+        version: 2,
+        exportedAt: new Date().toISOString(),
+        project: { id: pj.id, name: pj.name },
+        data: {
+          months: state.months,
+          ships: state.ships,
+          models: state.models,
+          trxs: state.trxs,
+          transfers: state.transfers,
+          favorites: state.favorites,
+          recent: state.recent,
+          showZeroBeginEnd: state.showZeroBeginEnd,
+          watermarks: state.watermarks,
+          watermarkStyles: state.watermarkStyles
+        }
+      };
+    }
+    function downloadJson(obj, filename){
+      const json = JSON.stringify(obj, null, 2);
+      const blob = new Blob([JSON.stringify(obj, null, 2)], { type: "application/json;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = filename || "fuel-book-backup.json";
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    }
+    function exportAllData(){
+      const payload = buildExportPayloadForCurrentProject();
+      const today = new Date().toISOString().slice(0,10);
+      const fname = `${currentProjectName()}-燃料消耗数据备份-${today}.json`;
+      downloadJson(payload, fname);
+    }
+    async function handleImportFileJson(e){
+      const file = e.target.files && e.target.files[0];
+      e.target.value = "";
+      if(!file){ return; }
+      let text = "";
+      try { 
+          const reader = new FileReader();
+          reader.readAsText(file, "utf-8");
+          await new Promise(res=>reader.onload=()=>{text=reader.result;res()});
+      } catch(err){ alert("读取文件失败"); return; }
+      
+      let payload;
+      try { payload = JSON.parse(text); } catch(err){ alert("JSON 解析失败：文件内容不是有效的 JSON"); return; }
+      if(!payload || !payload.data){ alert("数据格式不正确：缺少 data 字段"); return; }
+      const d = payload.data;
+      if(!Array.isArray(d.months) || !Array.isArray(d.trxs)){ alert("数据格式不正确：months 或 trxs 非数组"); return; }
+      if(!confirm(`导入将覆盖当前工程（${currentProjectName()}）数据，是否继续？`)) return;
+
+      state.months = d.months || [];
+      state.ships = d.ships || [];
+      state.models = d.models || [];
+      state.trxs = d.trxs || [];
+      state.transfers = d.transfers || {};
+      state.favorites = d.favorites || { ships: [], models: [] };
+      state.recent = d.recent || { ships: [], models: [] };
+      state.showZeroBeginEnd = !!d.showZeroBeginEnd;
+
+      // 兼容导入水印（两种结构）
+      const wm = d.watermarks || {};
+      state.watermarks = ("img1" in wm || "img2" in wm || "img3" in wm)
+        ? { topLeft: wm.img1 || "", maker: wm.img2 || "", auditor: wm.img3 || "" }
+        : { topLeft: wm.topLeft || "", maker: wm.maker || "", auditor: wm.auditor || "" };
+
+      const wms = d.watermarkStyles || {};
+      function norm(obj){ return { h: Number(obj?.h)||36, dx: Number(obj?.dx)||0, dy: Number(obj?.dy)||0 }; }
+      state.watermarkStyles = {
+        topLeft: norm(wms.topLeft),
+        maker: norm(wms.maker),
+        auditor: norm(wms.auditor)
+      };
+
+      state.ym = state.months[state.months.length - 1] || BASE_YM;
+
+      state.snapsCache = {};
+      saveV2();
+      renderMonths();
+      reloadAll();
+      alert("导入完成（当前工程已覆盖）");
+    }
+
+    // ====== 模板导出（Excel .xls XML） ======
+    function exportBeginTemplateXls(){
+      const rows = [
+        ["月份","船名","型号","期初数量","期初金额","是否暂估(是/否)","备注"],
+        ["2025-01","示例船","示例型号","0","0","否",""]
+      ];
+      downloadExcelXmlWorkbook([{ name:"期初模板", rows }], "导入模板-期初.xls");
+    }
+    function exportPurchaseTemplateXls(){
+      const rows = [
+        ["月份","船名","型号","数量","单价","金额","是否暂估(是/否)","供应商","采购日期(YYYY-MM-DD)","备注"],
+        ["2025-01","示例船","示例型号","0","","0","否","示例供应商","2025-01-15",""]
+      ];
+      downloadExcelXmlWorkbook([{ name:"采购模板", rows }], "导入模板-采购.xls");
+    }
+    function exportConsumeTemplateXls(){
+      const rows = [
+        ["月份","船名","型号","消耗数量","停工数量","备注"],
+        ["2025-01","示例船","示例型号","0","0",""]
+      ];
+      downloadExcelXmlWorkbook([{ name:"消耗模板", rows }], "导入模板-消耗.xls");
+    }
+
+    // ====== Excel(.xls) 导入（解析我们导出的 Excel 2003 XML） ======
+    function strToBool(s){
+      const t = String(s||"").trim();
+      if(!t) return false;
+      return ["是","true","1","y","yes"].includes(t.toLowerCase());
+    }
+    function parseNumber(n, def=0){
+      if(n==null || n==="") return def;
+      const v = Number(String(n).replace(/,/g,"").trim());
+      return isNaN(v) ? def : v;
+    }
+    function normalizeYm(s){
+      const t = String(s||"").trim();
+      if(/^\d{4}-\d{2}$/.test(t)) return t;
+      if(/^\d{4}\/\d{2}$/.test(t)) return t.replace("/","-");
+      if(/^\d{4}\.\d{2}$/.test(t)) return t.replace(".","-");
+      return "";
+    }
+    function parseExcelXmlToRows(xmlText){
+      let doc;
+      try{
+        doc = new DOMParser().parseFromString(xmlText, "text/xml");
+      }catch(e){ return null; }
+      const err = doc.getElementsByTagName("parsererror")[0];
+      if(err) return null;
+
+      const worksheets = Array.from(doc.getElementsByTagName("*")).filter(n=>n.localName==="Worksheet");
+      if(!worksheets.length) return null;
+      const table = Array.from(worksheets[0].getElementsByTagName("*")).find(n=>n.localName==="Table");
+      if(!table) return null;
+
+      const rows = [];
+      const rowNodes = Array.from(table.getElementsByTagName("*")).filter(n=>n.parentElement===table && n.localName==="Row");
+      rowNodes.forEach(rn=>{
+        const cells = Array.from(rn.children).filter(n=>n.localName==="Cell");
+        const row = [];
+        cells.forEach(cn=>{
+          const data = Array.from(cn.children).find(n=>n.localName==="Data");
+          row.push(data ? (data.textContent||"").trim() : "");
+        });
+        let end = row.length;
+        while(end>0 && String(row[end-1]||"").trim()==="") end--;
+        if(end>0) rows.push(row.slice(0,end));
+      });
+      return rows;
+    }
+
+    function showImportResult(kind, headerRow, errors, ok, bad){
+      state.lastImportErrors = { header: ["行号","原因"].concat(headerRow), errors: [], headerRow, kind, ok, bad };
+      state.lastImportErrors.errors = errors;
+
+      const summary = `工程：${currentProjectName()}；导入类型：${kind==="BEGIN"?"期初":(kind==="PURCHASE"?"采购":"消耗")}；成功 ${ok} 条，失败 ${bad} 条。`;
+      $("importResultSummary").textContent = summary;
+
+      const wrap = $("importResultTableWrap");
+      if(!errors.length){
+        wrap.innerHTML = `<div class="note">全部导入成功。</div>`;
+      }else{
+        const thead = `<thead><tr>${["行号","原因"].concat(headerRow).map(h=>`<th>${htmlEscape(h)}</th>`).join("")}</tr></thead>`;
+        const rowsHtml = errors.map(err=>{
+          return `<tr>${[err.row, err.reason].concat(err.rawRow).map(v=>`<td>${htmlEscape(v)}</td>`).join("")}</tr>`;
+        }).join("");
+        wrap.innerHTML = `<table>${thead}<tbody>${rowsHtml}</tbody></table>
+          <div class="note" style="margin-top:6px;">提示：行号以 Excel 中的可见行序号为准（含表头从第 1 行开始）。</div>`;
+      }
+      $("importResultModal").classList.remove("hidden");
+    }
+
+    function exportLastImportErrorsXls(){
+      const { header, errors, kind } = state.lastImportErrors || {};
+      if(!header || !errors){ alert("暂无可导出的错误清单"); return; }
+      const rows = [header].concat(errors.map(e=>{
+        return [e.row, e.reason].concat(e.rawRow);
+      }));
+      const ts = new Date().toISOString().replace(/[:T]/g,"-").slice(0,19);
+      const fname = `${currentProjectName()}-导入错误清单-${(kind==="BEGIN"?"期初":kind==="PURCHASE"?"采购":"消耗")}-${ts}.xls`;
+      downloadXlsFromRows(rows, fname, "导入错误");
+    }
+
+    async function handleImportXls(e, kind){
+      const file = e.target.files && e.target.files[0];
+      e.target.value = "";
+      if(!file) return;
+
+      let text = "";
+      try{
+        text = await file.text();
+      }catch(err){
+        alert("读取文件失败"); return;
+      }
+      if(!text || !/^\s*<\?xml/.test(text)){
+        alert("文件格式不支持：请使用本系统导出的 .xls 模版文件"); return;
+      }
+      const rows = parseExcelXmlToRows(text);
+      if(!rows || !rows.length){ alert("Excel 内容为空或无法解析"); return; }
+
+      const headerRowOriginal = rows[0].slice();
+      const header = rows[0].map(x=>x.replace(/\s+/g,""));
+      let ok=0, bad=0;
+      const errors = [];
+      function pushErr(excelRowIndex, reason, rawRow){
+        errors.push({ row: excelRowIndex, reason, rawRow });
+        bad++;
+      }
+
+      if(kind==="BEGIN"){
+        const need = ["月份","船名","型号","期初数量","期初金额","是否暂估(是/否)","备注"];
+        if(need.some((k,i)=> (header[i]||"")!==k)){
+          showImportResult(kind, headerRowOriginal, [{ row: 1, reason: "表头不匹配，请使用“导出期初模版(Excel)”", rawRow: headerRowOriginal }], 0, 1);
+          return;
+        }
+        for(let i=1;i<rows.length;i++){
+          const r = rows[i]; if(!r || r.length<need.length){ pushErr(i+1,"行列数不足", r||[]); continue; }
+          const ym = normalizeYm(r[0]);
+          const ship = (r[1]||"").trim(); const model = (r[2]||"").trim();
+          const bq = parseNumber(r[3],0);
+          const ba = parseNumber(r[4],0);
+          const est = strToBool(r[5]);
+          const note = r[6]||"";
+          if(!ym){ pushErr(i+1,"月份为空或格式不正确(应为YYYY-MM)", r); continue; }
+          if(!ship){ pushErr(i+1,"船名为空", r); continue; }
+          if(!model){ pushErr(i+1,"型号为空", r); continue; }
+          if(bq<0){ pushErr(i+1,"期初数量不能为负数", r); continue; }
+          if(ba<0){ pushErr(i+1,"期初金额不能为负数", r); continue; }
+          ensureMonth(ym);
+          const shipId = getOrCreateShipIdByName(ship);
+          const modelId = getOrCreateModelIdByName(model);
+          if(!shipId || !modelId){ pushErr(i+1,"创建船名/型号失败", r); continue; }
+          state.trxs.push({
+            id: genId(state.trxs), ym, shipId, modelId,
+            type:"BEGIN", qty: round6(bq), unitPrice:0, amount: round2(ba),
+            isEstimate: est, sourceId:null,
+            note: (est?"期初暂估":"期初正式") + (note?(" "+note):""),
+            supplier:"", purchaseDate:"", ts:nowTs()
+          });
+          ok++;
+        }
+      }else if(kind==="PURCHASE"){
+        const need = ["月份","船名","型号","数量","单价","金额","是否暂估(是/否)","供应商","采购日期(YYYY-MM-DD)","备注"];
+        if(need.some((k,i)=> (header[i]||"")!==k)){
+          showImportResult(kind, headerRowOriginal, [{ row: 1, reason: "表头不匹配，请使用“导出采购模版(Excel)”", rawRow: headerRowOriginal }], 0, 1);
+          return;
+        }
+        for(let i=1;i<rows.length;i++){
+          const r=rows[i]; if(!r || r.length<need.length){ pushErr(i+1,"行列数不足", r||[]); continue; }
+          const ym = normalizeYm(r[0]);
+          const ship=(r[1]||"").trim(); const model=(r[2]||"").trim();
+          const qty=parseNumber(r[3],0);
+          let price=parseNumber(r[4],0);
+          let amount=parseNumber(r[5],0);
+          const est=strToBool(r[6]);
+          const supplier=r[7]||"";
+          const pdate=(r[8]||"").trim();
+          const note=r[9]||"";
+          if(!ym){ pushErr(i+1,"月份为空或格式不正确(应为YYYY-MM)", r); continue; }
+          if(!ship){ pushErr(i+1,"船名为空", r); continue; }
+          if(!model){ pushErr(i+1,"型号为空", r); continue; }
+          if(!(qty>0)){ pushErr(i+1,"数量必须大于0", r); continue; }
+          if(!(price>0 || amount>0)){ pushErr(i+1,"单价与金额至少填写一个", r); continue; }
+          if(amount>0 && price>0){ price=round6(amount/qty); }
+          else if(amount>0 && price<=0){ price=round6(amount/qty); }
+          else if(price>0 && amount<=0){ amount=round2(qty*price); }
+          ensureMonth(ym);
+          const shipId=getOrCreateShipIdByName(ship);
+          const modelId=getOrCreateModelIdByName(model);
+          if(!shipId || !modelId){ pushErr(i+1,"创建船名/型号失败", r); continue; }
+          state.trxs.push({
+            id: genId(state.trxs), ym, shipId, modelId,
+            type:"PURCHASE", qty:round6(qty), unitPrice:round6(price), amount:round2(amount),
+            isEstimate: est, sourceId:null, note: (est?"暂估":"正式") + (note?(" "+note):""),
+            supplier, purchaseDate: pdate, ts:nowTs()
+          });
+          ok++;
+        }
+      }else if(kind==="CONSUME"){
+        const need = ["月份","船名","型号","消耗数量","停工数量","备注"];
+        if(need.some((k,i)=> (header[i]||"")!==k)){
+          showImportResult(kind, headerRowOriginal, [{ row: 1, reason: "表头不匹配，请使用“导出消耗模版(Excel)”", rawRow: headerRowOriginal }], 0, 1);
+          return;
+        }
+        for(let i=1;i<rows.length;i++){
+          const r=rows[i]; if(!r || r.length<need.length){ pushErr(i+1,"行列数不足", r||[]); continue; }
+          const ym = normalizeYm(r[0]);
+          const ship=(r[1]||"").trim(); const model=(r[2]||"").trim();
+          const qty=parseNumber(r[3],0);
+          const stopQty=parseNumber(r[4],0);
+          const note=r[5]||"";
+          if(!ym){ pushErr(i+1,"月份为空或格式不正确(应为YYYY-MM)", r); continue; }
+          if(!ship){ pushErr(i+1,"船名为空", r); continue; }
+          if(!model){ pushErr(i+1,"型号为空", r); continue; }
+          if(qty<0){ pushErr(i+1,"消耗数量不能为负数", r); continue; }
+          if(stopQty<0){ pushErr(i+1,"停工数量不能为负数", r); continue; }
+          ensureMonth(ym);
+          const shipId=getOrCreateShipIdByName(ship);
+          const modelId=getOrCreateModelIdByName(model);
+          if(!shipId || !modelId){ pushErr(i+1,"创建船名/型号失败", r); continue; }
+          state.trxs.push({
+            id: genId(state.trxs), ym, shipId, modelId,
+            type:"CONSUME", qty:round6(qty), stopQty: round6(stopQty),
+            unitPrice:0, amount:0, isEstimate:false, sourceId:null,
+            note: note||"", supplier:"", purchaseDate:"", ts:nowTs()
+          });
+          ok++;
+        }
+      }else{
+        alert("未知导入类型"); return;
+      }
+
+      state.months = state.months.slice().sort();
+      state.snapsCache = {};
+      saveV2(); renderMonths(); reloadAll();
+
+      showImportResult(kind, headerRowOriginal, errors, ok, bad);
+      alert(`导入完成：成功 ${ok} 条，失败 ${bad} 条。`);
+    }
+
+    // ====== 新增功能：导出当月采购和期初（合并） ======
+    function exportEstimatePurchaseXls(){
+      const ym = state.ym;
+      if(!ym){ alert("请选择月份"); return; }
+
+      // 获取当月的采购数据（包括暂估和正式）
+      const purchaseData = state.trxs
+        .filter(t => 
+          t.ym === ym && 
+          t.type === "PURCHASE" &&
+          (!state.filterShip || t.shipId === state.filterShip) &&
+          (!state.filterModel || t.modelId === state.filterModel)
+        )
+        .sort((a, b) => (a.ts || 0) - (b.ts || 0) || (a.id - b.id));
+
+      // 获取当月的期初数据
+      const beginData = state.trxs
+        .filter(t => 
+          t.ym === ym && 
+          t.type === "BEGIN" &&
+          (!state.filterShip || t.shipId === state.filterShip) &&
+          (!state.filterModel || t.modelId === state.filterModel)
+        )
+        .sort((a, b) => (a.ts || 0) - (b.ts || 0) || (a.id - b.id));
+
+      // 合并采购和期初数据
+      const allData = [...purchaseData, ...beginData];
+
+      if(allData.length === 0){
+        alert("当前月份无采购或期初数据");
+        return;
+      }
+
+      // 构建表头
+      const header = [
+        "序号", "月份", "船名", "型号", "类型", "数量", "单价", "金额", 
+        "供应商", "采购日期", "备注", "状态"
+      ];
+
+      // 构建数据行
+      const rows = [header];
+      allData.forEach((item, index) => {
+        const status = item.isEstimate ? "暂估" : "正式";
+        const typeName = item.type === "PURCHASE" ? "采购" : "期初";
+        
+        rows.push([
+          index + 1,
+          item.ym,
+          shipName(item.shipId),
+          modelName(item.modelId),
+          typeName,
+          round6(item.qty || 0),
+          item.type === "PURCHASE" ? round6(item.unitPrice || 0) : "", // 期初没有单价
+          round2(item.amount || 0),
+          item.supplier || "",
+          item.purchaseDate || "",
+          item.note || "",
+          status
+        ]);
+      });
+
+      // 导出文件
+      const fileName = `${currentProjectName()}-${fmtCnYm(ym)}-采购期初明细(含暂估正式).xls`;
+      downloadXlsFromRows(rows, fileName, "采购期初明细");
+    }
+
+    // ====== 新增功能：区间统计 ======
+    let lastRangeCalcResult = null;
+    let lastRangeStr = "";
+
+    function showRangeStatsModal() {
+      if (!state.months.length) { alert("暂无月份数据"); return; }
+      const sortedMonths = [...state.months].sort();
+      
+      const startSel = $("rangeStart");
+      const endSel = $("rangeEnd");
+      
+      const opts = sortedMonths.map(m => `<option value="${m}">${m}</option>`).join("");
+      startSel.innerHTML = opts;
+      endSel.innerHTML = opts;
+      
+      // 默认选择第一个月到最后一个月（或者当前选中的月）
+      startSel.value = sortedMonths[0];
+      endSel.value = state.ym || sortedMonths[sortedMonths.length - 1];
+      
+      // 清空旧结果
+      $("rangeStatsTable").querySelector("tbody").innerHTML = '<tr><td colspan="10" class="center muted">请选择月份范围并点击查询</td></tr>';
+      lastRangeCalcResult = null;
+      
+      $("rangeStatsModal").classList.remove("hidden");
+    }
+
+    function calculateAndRenderRangeStats() {
+      const startYm = $("rangeStart").value;
+      const endYm = $("rangeEnd").value;
+      
+      if (startYm > endYm) {
+        alert("开始月份不能晚于结束月份");
+        return;
+      }
+      
+      // 筛选范围内的月份
+      const targetMonths = state.months.filter(m => m >= startYm && m <= endYm).sort();
+      
+      // 聚合数据 Map<key, {pq, pa, cq, sq, ca, sa}>
+      const aggMap = {}; 
+      // pq: purchasedQty, pa: purchasedAmt
+      // cq: consumeQty, sq: stopQty
+      // ca: consumeAmt, sa: stopAmt
+      
+      targetMonths.forEach(ym => {
+        // 使用 getSnaps 确保数据已计算，并且包含了根据加权平均单价算出的消耗金额
+        const snaps = getSnaps(ym);
+        
+        snaps.forEach(s => {
+          // 应用全局筛选
+          if (state.filterShip && s.shipId !== state.filterShip) return;
+          if (state.filterModel && s.modelId !== state.filterModel) return;
+          
+          const key = `${s.shipId}-${s.modelId}`;
+          if (!aggMap[key]) {
+            aggMap[key] = {
+              shipId: s.shipId,
+              modelId: s.modelId,
+              pq: 0, pa: 0,
+              cq: 0, sq: 0,
+              ca: 0, sa: 0
+            };
+          }
+          
+          const rec = aggMap[key];
+          // 累加
+          rec.pq += (s.purchasedQty || 0);
+          rec.pa += (s.purchasedAmt || 0);
+          rec.cq += (s.consumeQty || 0);
+          rec.sq += (s.stopQty || 0);
+          rec.ca += (s.consumeAmt || 0);
+          rec.sa += (s.stopAmt || 0);
+        });
+      });
+      
+      // 转换为数组并排序
+      const resultList = Object.values(aggMap).sort((a,b)=> 
+        (shipName(a.shipId)+modelName(a.modelId)).localeCompare(shipName(b.shipId)+modelName(b.modelId))
+      );
+      
+      // 渲染表格
+      const tbody = $("rangeStatsTable").querySelector("tbody");
+      tbody.innerHTML = "";
+      
+      if (resultList.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="10" class="center muted">该范围内无数据</td></tr>';
+        lastRangeCalcResult = null;
+        return;
+      }
+      
+      let totals = { pq:0, pa:0, cq:0, sq:0, ca:0, sa:0, sumTotal:0 };
+      
+      resultList.forEach((r, idx) => {
+        const totalConsumeAmt = r.ca + r.sa;
+        
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${idx + 1}</td>
+          <td>${shipName(r.shipId)}</td>
+          <td>${modelName(r.modelId)}</td>
+          <td>${round6(r.pq)}</td>
+          <td>${fmtAmt(r.pa)}</td>
+          <td>${round6(r.cq)}</td>
+          <td>${round6(r.sq)}</td>
+          <td>${fmtAmt(r.ca)}</td>
+          <td>${fmtAmt(r.sa)}</td>
+          <td>${fmtAmt(totalConsumeAmt)}</td>
+        `;
+        tbody.appendChild(tr);
+        
+        totals.pq += r.pq;
+        totals.pa += r.pa;
+        totals.cq += r.cq;
+        totals.sq += r.sq;
+        totals.ca += r.ca;
+        totals.sa += r.sa;
+        totals.sumTotal += totalConsumeAmt;
+      });
+      
+      // 合计行
+      const trTotal = document.createElement("tr");
+      trTotal.style.fontWeight = "bold";
+      trTotal.style.backgroundColor = "#f0f0f0";
+      trTotal.innerHTML = `
+        <td colspan="3" class="center">合计</td>
+        <td>${round6(totals.pq)}</td>
+        <td>${fmtAmt(totals.pa)}</td>
+        <td>${round6(totals.cq)}</td>
+        <td>${round6(totals.sq)}</td>
+        <td>${fmtAmt(totals.ca)}</td>
+        <td>${fmtAmt(totals.sa)}</td>
+        <td>${fmtAmt(totals.sumTotal)}</td>
+      `;
+      tbody.appendChild(trTotal);
+      
+      // 保存结果供导出使用
+      lastRangeCalcResult = { list: resultList, totals, startYm, endYm };
+    }
+    
+    function exportRangeStats() {
+      if (!lastRangeCalcResult) {
+        alert("请先进行查询统计");
+        return;
+      }
+      
+      const { list, totals, startYm, endYm } = lastRangeCalcResult;
+      
+      const header = [
+        "序号", "船舶名称", "规格型号", 
+        "累计购入数量", "累计购入金额", 
+        "累计消耗数量", "累计停工数量", 
+        "累计消耗金额", "累计停工金额", "累计合计消耗"
+      ];
+      
+      const rows = [header];
+      
+      list.forEach((r, idx) => {
+        rows.push([
+          idx + 1,
+          shipName(r.shipId),
+          modelName(r.modelId),
+          round6(r.pq),
+          round2(r.pa),
+          round6(r.cq),
+          round6(r.sq),
+          round2(r.ca),
+          round2(r.sa),
+          round2(r.ca + r.sa)
+        ]);
+      });
+      
+      // 合计行
+      rows.push([
+        "", "合计", "",
+        round6(totals.pq),
+        round2(totals.pa),
+        round6(totals.cq),
+        round6(totals.sq),
+        round2(totals.ca),
+        round2(totals.sa),
+        round2(totals.sumTotal)
+      ]);
+      
+      const fname = `${currentProjectName()}-区间统计(${startYm}至${endYm}).xls`;
+      downloadXlsFromRows(rows, fname, "区间统计表");
+    }
+
+// 启动
+(async function main(){
+  ensureInit();
+  bindEvents();
+  // 无论本地file还是网页模式，启动都尝试拉取云端数据
+  try{
+    const cloudData = await loadCloudData();
+    if (cloudData && cloudData.length > 0 && confirm("检测到云端备份工程，是否使用云端数据覆盖本地？")) {
+      const store = {
+        projects: cloudData,
+        currentPid: cloudData[0]?.id || 0
+      };
+      localStorage.setItem(LS_KEY_V2, JSON.stringify(store));
+      loadV2();
+      renderAll();
+      alert("✅ 云端工程加载完成");
+    }
+  }catch(err){
+    console.warn("启动自动拉取云端失败：", err);
+  }
+  renderAll();
+})();
+  </script>
 </body>
 </html>
