@@ -123,6 +123,18 @@
 			<option value="yes">是</option>
 	    </select>
 	</label>
+	<label>冻结截止月份:
+	    <span id="lockYmDisplay" style="color:#c00;font-weight:bold;">无冻结</span>
+	    <button id="btnSetLock">设置冻结</button>
+	    <button id="btnClearLock">解除冻结</button>
+	</label>
+	 <label>暂估统计隐藏冻结暂估:
+	     <select id="filterHideLockedEst">
+	         <option value="no">否</option>
+	         <option value="yes">是</option>
+	     </select>
+	 </label>
+
     <button id="btnReload">刷新</button>
   </section>
 
@@ -532,6 +544,22 @@ function ymNext(ym){
   }
   return `${ny}-${String(nm).padStart(2,'0')}`;
 }
+/**
+ * 判断指定年月是否被冻结（<= lockYm 即冻结，包含lockYm）
+ * @param {string} ym
+ * @returns {boolean}
+ */
+function isMonthLocked(ym){
+  if(!state.lockYm) return false;
+  return ym <= state.lockYm;
+}
+
+/**
+ * 判断当前选中月份是否冻结（界面当前ym）
+ */
+function currentMonthIsLocked(){
+  return isMonthLocked(state.ym);
+}
 const state = {
   projects: [],
   currentPid: 0,
@@ -555,7 +583,10 @@ const state = {
   filterShip: 0,
   filterModel: 0,
   snapsCache: {},
-  selectedEstimates: new Set()
+  selectedEstimates: new Set(),
+  // ======新增锁定相关（使用数组，兼容JSON持久化）======
+  lockYm: "", // 冻结截止年月，空代表无冻结；所有<=lockYm月份全部锁定（包含该月）
+  hideLockedEstimate: false // 暂估统计页面：是否隐藏冻结月份暂估数据，仅作用于暂估统计弹窗
 };
 let currentFixEstId = null;
     const LS_KEY_V2 = "fuel_book_html_v2";
@@ -569,8 +600,67 @@ let currentFixEstId = null;
     + "_11CFWBULY0UobZbZKtISOD_suu9DcTmAB"
     + "E1j9xXol60c9GNORvtRdOIJIuh"
     + "JEj2XAOI5XI4PDUd32aD63N";
+    
+     const SEP = "__";
+
+    function safeJsonStringify(obj) {
+      const seen = new WeakSet();
+      return JSON.stringify(obj, (key, value) => {
+        // 跳过undefined、function
+        if (typeof value === "function") return undefined;
+        if (value === null) return null;
+        // 检测循环引用
+        if (typeof value === "object" && value !== null) {
+          if (seen.has(value)) return "[CircularRef]";
+          seen.add(value);
+        }
+        return value;
+      });
+    }
+    /**
+    * 解析云端分片文件名
+    * @param {string} filename
+    * @returns {null|{type:string, projectName:string, ym?:string}}
+    */
+    function parseCloudFileName(filename) {
+      const parts = filename.split(SEP);
+      if(parts.length < 2) return null;
+      const projName = parts[0];
+      const suffix = parts[1];
+      if(suffix === "meta.json"){
+        return { type:"meta", projectName: projName };
+      }
+      if(suffix.startsWith("trxs")){
+        const ym = parts[2]?.replace(".json","");
+        return { type:"trxs", projectName: projName, ym };
+     }
+     return null;
+   }
+
+/**
+ * 生成meta文件名
+ */
+function getMetaFileName(projectName){
+  return `${encodeURIComponent(projectName)}${SEP}meta.json`;
+}
+/**
+ * 生成某月trxs分片文件名
+ */
+function getTrxsChunkFileName(projectName, ym){
+  return `${encodeURIComponent(projectName)}${SEP}trxs${SEP}${ym}.json`;
+}
+    // 简易数据预估：粗略计算对象字符长度，判断是否超大
+    function estimateDataSize(obj) {
+      try {
+        const str = safeJsonStringify(obj);
+        return new Blob([str]).size;
+      } catch {
+        return Infinity;
+      }
+    }
     // 云端规则：每个工程单独文件 {工程名称}.json
     // ========== 云端工具函数【全部重写】
+    
     /**
      * 获取仓库main分支下所有 .json 文件列表（工程文件清单）
      */
@@ -612,158 +702,210 @@ let currentFixEstId = null;
         return null;
       }
     }
-    /**
-     * 上传单个工程到云端独立文件：工程名称.json
-     * @param project 完整工程对象
-     */
+/**
+ * 分片模式：上传单个工程（拆分meta + 按月trxs分片）
+ * @param project 完整工程对象
+ */
 async function uploadSingleProjectToCloud(project) {
-  const fileName = `${project.name}.json`;
+  const projName = project.name;
 
-  // 手动重建纯净对象，杜绝循环引用
-  const cleanProject = {
-    id: project.id,
-    name: project.name,
-    data: {
-      months: Array.isArray(project.data.months) ? [...project.data.months] : [],
-      ships: Array.isArray(project.data.ships) ? project.data.ships.map(s => ({id:s.id, name:s.name})) : [],
-      models: Array.isArray(project.data.models) ? project.data.models.map(m => ({id:m.id, name:m.name})) : [],
-      transfers: {...(project.data.transfers || {})},
-      favorites: {
-        ships: Array.isArray(project.data.favorites?.ships) ? [...project.data.favorites.ships] : [],
-        models: Array.isArray(project.data.favorites?.models) ? [...project.data.favorites.models] : []
-      },
-      recent: {
-        ships: Array.isArray(project.data.recent?.ships) ? [...project.data.recent.ships] : [],
-        models: Array.isArray(project.data.recent?.models) ? [...project.data.recent.models] : []
-      },
-      showZeroBeginEnd: !!project.data.showZeroBeginEnd,
-      showZeroOccurrence: !!project.data.showZeroOccurrence,
-      watermarks: {...(project.data.watermarks || {})},
-      watermarkStyles: {
-        topLeft: {...(project.data.watermarkStyles?.topLeft || {h:36,dx:0,dy:0})},
-        maker: {...(project.data.watermarkStyles?.maker || {h:36,dx:0,dy:0})},
-        auditor: {...(project.data.watermarkStyles?.auditor || {h:36,dx:0,dy:0})}
-      },
-      lastImportErrors: { header:[], errors:[], headerRow:[], kind:"", ok:0, bad:0 }
-    }
-  };
-
-  // 逐条重建trxs，强制清理所有临时备份属性，只保留白名单字段
-  cleanProject.data.trxs = [];
-  if(Array.isArray(project.data.trxs)){
-    for(const t of project.data.trxs){
-      const newTrx = {
-        id: t.id,
-        ym: t.ym,
-        shipId: t.shipId,
-        modelId: t.modelId,
-        type: t.type,
-        qty: t.qty ?? 0,
-        unitPrice: t.unitPrice ?? 0,
-        amount: t.amount ?? 0,
-        stopQty: t.stopQty ?? 0,
-        isEstimate: !!t.isEstimate,
-        isManualConsumeAmt: !!t.isManualConsumeAmt,
-        sourceId: t.sourceId ?? null,
-        note: t.note ?? "",
-        supplier: t.supplier ?? "",
-        purchaseDate: t.purchaseDate ?? "",
-        diffConsumeAmt: t.diffConsumeAmt ?? 0,
-        diffStopAmt: t.diffStopAmt ?? 0,
-        ts: t.ts ?? 0
-      };
-      // 彻底删除所有可能造成循环/超大体积的临时备份
-      delete newTrx._backupPurchase;
-      delete newTrx._backupBegin;
-      cleanProject.data.trxs.push(newTrx);
-    }
-  }
-
-  const payload = {
+  // 1. 构建元数据（不含trxs，体积极小）
+  const metaPayload = {
     app: "fuel_book_html",
     version: 2,
     exportedAt: new Date().toISOString(),
-    project: cleanProject
+    projectMeta: {
+      id: project.id,
+      name: projName,
+      data: {
+        months: [...(project.data.months||[])],
+        ships: Array.isArray(project.data.ships) ? project.data.ships.map(s => ({id:s.id, name:s.name})) : [],
+        models: Array.isArray(project.data.models) ? project.data.models.map(m => ({id:m.id, name:m.name})) : [],
+        transfers: {...(project.data.transfers || {})},
+        favorites: JSON.parse(safeJsonStringify(project.data.favorites || { ships:[], models:[] })),
+        recent: JSON.parse(safeJsonStringify(project.data.recent || { ships:[], models:[] })),
+        showZeroBeginEnd: !!project.data.showZeroBeginEnd,
+        showZeroOccurrence: !!project.data.showZeroOccurrence,
+        watermarks: JSON.parse(safeJsonStringify(project.data.watermarks || {})),
+        watermarkStyles: JSON.parse(safeJsonStringify(project.data.watermarkStyles || {})),
+        lockYm: project.data.lockYm || "",
+        hideLockedEstimate: !!project.data.hideLockedEstimate
+      }
+    }
   };
 
-  let jsonStr;
-  try{
-    jsonStr = JSON.stringify(payload);
-  }catch(err){
-    console.error("序列化失败", err);
-    if(err.message.includes("call stack")){
-      alert(`❌ 数据栈溢出！
-建议操作：
-1. 先【导出数据→移交导出JSON】本地备份
-2. 删除多年无用历史月份、清理冗余明细
-3. 分批上传，不要一次性上传超大工程
-错误信息：${err.message}`);
-    }else{
-      alert(`❌ 序列化失败！${err.message}`);
-    }
-    return false;
-  }
-
-  const uint8 = new TextEncoder().encode(jsonStr);
-  const contentB64 = btoa(String.fromCharCode(...uint8));
-
-  let sha = null;
-  try {
-    const checkRes = await fetch(`${GITHUB_API_BASE}/contents/${encodeURIComponent(fileName)}`, {
-      headers: { Authorization: `token ${GH_TOKEN}` }
-    });
-    if (checkRes.ok) {
-      const fileInfo = await checkRes.json();
-      sha = fileInfo.sha;
-    }
-  } catch (err) {
-    // 文件不存在，忽略
-  }
-
-  const body = {
-    message: `云端更新工程【${project.name}】${new Date().toLocaleString()}`,
-    content: contentB64,
-    branch: GITHUB_REPO_BRANCH
-  };
-  if (sha) body.sha = sha;
-
-  const uploadRes = await fetch(`${GITHUB_API_BASE}/contents/${encodeURIComponent(fileName)}`, {
-    method: "PUT",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `token ${GH_TOKEN}`
-    },
-    body: JSON.stringify(body)
+  // 2. 按月拆分trxs分片
+  const allTrxs = Array.isArray(project.data.trxs) ? project.data.trxs : [];
+  const trxsByYm = {};
+  const lockYm = project.data.lockYm || "";
+  allTrxs.forEach(t=>{
+    if(lockYm && t.ym <= lockYm) return;
+    if(!trxsByYm[t.ym]) trxsByYm[t.ym] = [];
+    // 清洗单条交易，只保留白名单字段
+    const cleanTrx = {
+      id: t.id,
+      ym: t.ym,
+      shipId: t.shipId,
+      modelId: t.modelId,
+      type: t.type,
+      qty: t.qty ?? 0,
+      unitPrice: t.unitPrice ?? 0,
+      amount: t.amount ?? 0,
+      stopQty: t.stopQty ?? 0,
+      isEstimate: !!t.isEstimate,
+      isManualEntry: !!t.isManualEntry,
+      sourceId: t.sourceId ?? null,
+      note: t.note ?? "",
+      supplier: t.supplier ?? "",
+      createDate: t.createDate ?? "",
+      diffAmount: t.diffAmount ?? 0,
+      stopAmount: t.stopAmount ?? 0,
+      ts: t.ts ?? 0
+    };
+    delete cleanTrx._backupPurchase;
+    delete cleanTrx._backupBegin;
+    trxsByYm[t.ym].push(cleanTrx);
   });
 
-  if (!uploadRes.ok) {
-    const errInfo = await uploadRes.json().catch(() => ({}));
-    throw new Error(errInfo.message || "上传接口返回异常");
+  // ========== 上传辅助子函数 ==========
+  async function uploadFile(filename, payloadObj){
+    const jsonStr = safeJsonStringify(payloadObj);
+    const uint8 = new TextEncoder().encode(jsonStr);
+    const contentB64 = btoa(String.fromCharCode(...uint8));
+
+    let sha = null;
+    try {
+      const checkRes = await fetch(`${GITHUB_API_BASE}/contents/${encodeURIComponent(filename)}?ref=${GITHUB_REPO_BRANCH}`, {
+        headers: { Authorization: `token ${GH_TOKEN}` }
+      });
+      if(checkRes.ok){
+        const info = await checkRes.json();
+        sha = info.sha;
+      }
+    }catch(e){}
+
+    const body = {
+      message: `更新分片 ${filename} | ${new Date().toLocaleString()}`,
+      content: contentB64,
+      branch: GITHUB_REPO_BRANCH
+    };
+    if(sha) body.sha = sha;
+
+    const res = await fetch(`${GITHUB_API_BASE}/contents/${encodeURIComponent(filename)}`,{
+      method:"PUT",
+      headers:{
+        "Content-Type":"application/json",
+        Authorization: `token ${GH_TOKEN}`
+      },
+      body: safeJsonStringify(body)
+    });
+    if(!res.ok){
+      const err = await res.json().catch(()=>{});
+      throw new Error(`${filename} 上传失败: ${err?.message||"网络异常"}`);
+    }
+    return true;
+  }
+
+  // 3. 先上传meta元文件
+  const metaFile = getMetaFileName(projName);
+  await uploadFile(metaFile, metaPayload);
+
+  // 4. 串行逐个上传每月trxs分片
+  const ymList = Object.keys(trxsByYm).sort();
+  const chunkFail = [];
+  for(const ym of ymList){
+    const chunkFile = getTrxsChunkFileName(projName, ym);
+    const chunkPayload = {
+      app:"fuel_book_html",
+      version:2,
+      projectName: projName,
+      ym,
+      trxs: trxsByYm[ym]
+    };
+    try{
+      await uploadFile(chunkFile, chunkPayload);
+    }catch(e){
+      chunkFail.push(`${ym} : ${e.message}`);
+    }
+  }
+
+  if(chunkFail.length > 0){
+    throw new Error(`部分月份分片上传失败:\n${chunkFail.join("\n")}`);
   }
   return true;
 }
-    /**
-     * 页面启动自动加载：拉取云端全部工程，合并到本地
-     */
-    async function loadCloudData() {
-      try {
-        const fileList = await listAllCloudProjectFiles();
-        if (!fileList.length) {
-          console.log("云端暂无工程文件");
-          return null;
-        }
-        const importedProjects = [];
-        for (const fileItem of fileList) {
-          const data = await downloadSingleCloudFile(fileItem.path);
-          if (!data || !data.project) continue;
-          importedProjects.push(data.project);
-        }
-        return importedProjects; // 返回云端所有工程数组
-      } catch (e) {
-        console.log("云端批量加载异常：", e.message);
-        return null;
-      }
+/**
+ * 页面启动自动加载：拉取云端全部分片，组装完整工程数组
+ */
+async function loadCloudData() {
+  try {
+    const fileList = await listAllCloudProjectFiles();
+    if (!fileList.length) {
+      console.log("云端暂无分片文件");
+      return null;
     }
+    // 按工程名称分组
+    const projectBucket = {};
+    fileList.forEach(item=>{
+      const name = item.path;
+      const info = parseCloudFileName(name);
+      if(!info) return;
+      const pName = info.projectName;
+      if(!projectBucket[pName]) projectBucket[pName] = { metaFile:null, chunkFiles:[] };
+      if(info.type === "meta"){
+        projectBucket[pName].metaFile = item.path;
+      }else if(info.type === "trxs"){
+        projectBucket[pName].chunkFiles.push({ path:item.path, ym:info.ym });
+      }
+    });
+
+    const importedProjects = [];
+    // 逐个组装每个工程
+    for(const pName of Object.keys(projectBucket)){
+      const bucket = projectBucket[pName];
+      if(!bucket.metaFile) continue; // 缺少meta分片，工程不完整跳过
+
+      // 下载元数据
+      const metaRaw = await downloadSingleCloudFile(bucket.metaFile);
+      if(!metaRaw || !metaRaw.projectMeta) continue;
+      const meta = metaRaw.projectMeta;
+
+      // 初始化空工程结构
+      const project = {
+        id: meta.id,
+        name: meta.name,
+        data: {
+          months: meta.data.months || [],
+          ships: meta.data.ships || [],
+          models: meta.data.models || [],
+          transfers: meta.data.transfers || {},
+          favorites: meta.data.favorites || { ships:[], models:[] },
+          recent: meta.data.recent || { ships:[], models:[] },
+          showZeroBeginEnd: !!meta.data.showZeroBeginEnd,
+          showZeroOccurrence: !!meta.data.showZeroOccurrence,
+          watermarks: meta.data.watermarks || {},
+          watermarkStyles: meta.data.watermarkStyles || {},
+          lastImportErrors: { header:[], errors:[], headerRow:[], kind:"", ok:0, bad:0 },
+          lockYm: meta.data.lockYm || "",
+          hideLockedEstimate: !!meta.data.hideLockedEstimate,
+          trxs: [] // 后续填充分片明细
+        }
+      };
+
+      // 依次下载所有月份分片，合并trxs
+      for(const chunk of bucket.chunkFiles){
+        const chunkData = await downloadSingleCloudFile(chunk.path);
+        if(!chunkData || !Array.isArray(chunkData.trxs)) continue;
+        project.data.trxs.push(...chunkData.trxs);
+      }
+      importedProjects.push(project);
+    }
+    return importedProjects;
+  } catch (e) {
+    console.log("云端批量加载异常：", e.message);
+    return null;
+  }
+}
     
     /**
      * 【按钮2：云端保存完整版】上传本地所有工程
@@ -772,6 +914,7 @@ async function uploadSingleProjectToCloud(project) {
       const allProjects = [...state.projects];
       let successCount = 0;
       let failList = [];
+      // 顺序串行上传，禁止并发，防止同时大量请求+内存峰值
       for (const pj of allProjects) {
         try {
           await uploadSingleProjectToCloud(pj);
@@ -810,7 +953,9 @@ async function uploadSingleProjectToCloud(project) {
           maker: { h:36, dx:0, dy:0 },
           auditor: { h:36, dx:0, dy:0 }
         },
-        lastImportErrors: { header: [], errors: [], headerRow: [], kind: "", ok: 0, bad: 0 }
+        lastImportErrors: { header: [], errors: [], headerRow: [], kind: "", ok: 0, bad: 0 },
+        lockYm: "",
+        hideLockedEstimate: false
       };
     }
     function newProject(name){
@@ -895,7 +1040,9 @@ async function uploadSingleProjectToCloud(project) {
           showZeroBeginEnd: state.showZeroBeginEnd,
           watermarks: state.watermarks,
           watermarkStyles: state.watermarkStyles,
-          lastImportErrors: state.lastImportErrors
+          lastImportErrors: state.lastImportErrors,
+          lockYm: state.lockYm,
+          hideLockedEstimate: state.hideLockedEstimate
         };
       }
       const store = { projects: state.projects, currentPid: state.currentPid };
@@ -943,6 +1090,8 @@ async function uploadSingleProjectToCloud(project) {
       state.filterModel = 0;
       state.snapsCache = {};
       state.selectedEstimates = new Set();
+      state.lockYm = d.lockYm || "";
+      state.hideLockedEstimate = !!d.hideLockedEstimate;
     }
 
     function currentProject(){
@@ -987,7 +1136,24 @@ async function uploadSingleProjectToCloud(project) {
         applyProjectToState(pj);
         saveV2();
         renderAll();
+         
+     
       };
+     $("filterHideLockedEst").onchange = (e)=>{
+          state.hideLockedEstimate = e.target.value === "yes";
+          saveV2();
+          if(!$("estModal").classList.contains("hidden")){
+              renderEstimateStats();
+          }
+      };
+     $("btnSetLock").onclick = openSetLockModal;
+     $("btnClearLock").onclick = ()=>{
+              if(!state.lockYm){ alert("当前无冻结"); return; }
+              if(!confirm(`确认解除【${state.lockYm}】及之前全部月份冻结？`)) return;
+              state.lockYm = "";
+              saveV2();
+              renderLockStatus();
+          };
 $("btnProjectAdd").onclick = async ()=>{
   const name = prompt("输入新工程名称：", "");
   const n = (name||"").trim();
@@ -1270,7 +1436,40 @@ $("btnProjectAdd").onclick = async ()=>{
 	}
 	  return result;
 	}
-
+    function renderLockStatus(){
+        const disp = $("lockYmDisplay");
+        const selHide = $("filterHideLockedEst");
+        if(state.lockYm){
+            disp.textContent = state.lockYm + " 及之前已冻结";
+            disp.style.color="#c00";
+        }else{
+            disp.textContent = "无冻结";
+            disp.style.color="#080";
+        }
+        selHide.value = state.hideLockedEstimate ? "yes" : "no";
+    }
+    function openSetLockModal(){
+        const sorted = [...state.months].sort();
+        const hint = state.lockYm ? `当前冻结截止：${state.lockYm}` : "当前无冻结";
+        let inputYm = prompt(`${hint}\n请输入冻结截止年月(格式YYYY-MM)，该月及之前全部锁定，锁定后不能新增/删除/修改明细\n示例：2025-12`, state.lockYm);
+        if(inputYm === null) return;
+        inputYm = inputYm.trim();
+        const reg = /^\d{4}-\d{2}$/;
+       if(!reg.test(inputYm)){
+           alert("格式错误，必须 YYYY-MM");
+           return;
+        }
+        if(!state.months.includes(inputYm)){
+            if(!confirm(`【${inputYm}】不在现有月份列表中，仍确认冻结？`)) return;
+        }
+  // 规则：冻结后不允许向后调整（只能冻结更早月份，防止破坏）可选，不需要可以删除这段判断
+       if(state.lockYm && inputYm > state.lockYm){
+          if(!confirm(`警告：新冻结月份晚于原有冻结${state.lockYm}，将解锁部分数据，确认继续？`)) return;
+       }
+       state.lockYm = inputYm;
+       saveV2();
+       renderLockStatus();
+    }
     function renderFilters(){
       const fs=$("filterShip"); fs.innerHTML=`<option value="0">全部</option>` + state.ships.map(s=>`<option value="${s.id}">${s.name}</option>`).join("");
       const fm=$("filterModel"); fm.innerHTML=`<option value="0">全部</option>` + state.models.map(m=>`<option value="${m.id}">${m.name}</option>`).join("");
@@ -1292,11 +1491,16 @@ $("btnProjectAdd").onclick = async ()=>{
 		  save();
 		  renderSnapTable();
 	  };
-	}
+    renderLockStatus(); //<<====新增
+    }
     function reloadAll(){ renderMonths(); renderFilters(); renderTrxTable(); renderSnapTable(); }
     function renderAll(){ renderProjectSelect(); reloadAll(); }
 
     function deleteCurrentMonth(){
+      if(currentMonthIsLocked()){
+          alert(`【${state.ym}】已冻结，不能删除！`);
+          return;
+      }
       if(!state.ym){ alert("暂无可删除的月份"); return; }
       const ym = state.ym;
       if(!confirm(`确认删除月份 ${ym} 吗？该月份的所有明细将一并删除！`)) return;
@@ -1371,8 +1575,14 @@ $("btnProjectAdd").onclick = async ()=>{
       tb.querySelectorAll("button.del").forEach(btn=>{
         btn.onclick=(e)=>{
           const id=parseInt(e.target.getAttribute("data-id"));
+          const trx = state.trxs.find(t=>t.id===id);
+          if(isMonthLocked(trx.ym)){
+              alert(`【${trx.ym}】已冻结，禁止删除这条明细！`);
+              return;
+          }  
           if(!confirm("确认删除该行？")) return;
           state.trxs=state.trxs.filter(x=>x.id!==id);
+          
           state.snapsCache={}; save(); renderTrxTable(); renderSnapTable();
         };
       });
@@ -1570,6 +1780,12 @@ $("btnProjectAdd").onclick = async ()=>{
       tb.querySelectorAll(".chk-transfer").forEach(chk => {
         chk.onchange = (e) => {
           const key = e.target.getAttribute("data-key");
+          const ymPart = key.split("|")[0];
+          if(isMonthLocked(ymPart)){
+              alert(`【${ymPart}】已冻结，禁止修改调拨标记！`);
+              renderSnapTable();
+              return;
+          }
           if(e.target.checked) {
             // 勾选后弹出选项
             const input = prompt("请输入类型编号：\n1. 调入\n2. 调出", "1");
@@ -1631,6 +1847,10 @@ $("btnProjectAdd").onclick = async ()=>{
       }
     }
     function openEntryModal(type){
+       if(currentMonthIsLocked()){
+          alert(`【${state.ym}】已被冻结，禁止录入新明细！`);
+          return;
+      }
       currentEntryType=type;
       $("entryTitle").innerText = type==="BEGIN" ? "录入期初" : (type==="PURCHASE" ? "录入当期采购" : "录入当期消耗");
       fillSelectWithFavAndRecent("ships", $("entryShip"), state.ships);
@@ -1925,6 +2145,10 @@ $("btnProjectAdd").onclick = async ()=>{
     
     // 修改：使用统一的弹窗进行暂估改正，限制单选
     function doAdjustBatch(){
+      if(currentMonthIsLocked()){
+          alert(`【${state.ym}】已冻结，禁止执行暂估更正！`);
+          return;
+      }
       const ids = Array.from(state.selectedEstimates);
       if(!ids.length){ alert("请选择要改正的暂估行"); return; }
       
@@ -2616,7 +2840,11 @@ ${innerHtml}
 
     // ====== 暂估统计（保持逻辑，显示差额为正式-暂估的金额差） ======
     function allEstimateEntries(){
-      const list=state.trxs.filter(t=> (t.type==="PURCHASE"||t.type==="BEGIN") && (t.isEstimate || isCorrectedEstimate(t)));
+      let list=state.trxs.filter(t=> (t.type==="PURCHASE"||t.type==="BEGIN") && (t.isEstimate || isCorrectedEstimate(t)));
+      // 暂估统计：开启隐藏冻结，则过滤冻结月份数据（仅暂估统计生效）
+      if(state.hideLockedEstimate){
+          list = list.filter(t=> !isMonthLocked(t.ym));
+      }
       return list.sort((a,b)=> (a.ym.localeCompare(b.ym)) || (shipName(a.shipId)+modelName(a.modelId)).localeCompare(shipName(b.shipId)+modelName(b.modelId)) || (a.id-b.id));
     }
     function getFormalCorrection(est){
@@ -3023,6 +3251,10 @@ ${innerHtml}
         for(let i=1;i<rows.length;i++){
           const r = rows[i]; if(!r || r.length<need.length){ pushErr(i+1,"行列数不足", r||[]); continue; }
           const ym = normalizeYm(r[0]);
+          if(isMonthLocked(ym)){
+              pushErr(i+1,`月份【${ym}】已冻结，禁止导入明细`, r);
+              continue;
+          }
           const ship = (r[1]||"").trim(); const model = (r[2]||"").trim();
           const bq = parseNumber(r[3],0);
           const ba = parseNumber(r[4],0);
