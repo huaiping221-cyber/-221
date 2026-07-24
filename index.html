@@ -557,6 +557,7 @@ const state = {
   snapsCache: {},
   selectedEstimates: new Set()
 };
+let currentFixEstId = null;
     const LS_KEY_V2 = "fuel_book_html_v2";
     const LS_KEY_V1 = "fuel_book_html_v1"; // 兼容旧版迁移
     const BASE_YM = "2025-01";
@@ -1165,7 +1166,7 @@ $("btnProjectAdd").onclick = async ()=>{
       };
       
       $("btnFixConfirm").onclick = () => {
-        if (!currentFixEstId) return;
+        if (typeof currentFixEstId === "undefined" || !currentFixEstId) return;
         const qty = parseFloat($("fixQty").value || "0");
         const amt = parseFloat($("fixAmt").value || "0");
         
