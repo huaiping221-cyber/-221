@@ -619,7 +619,7 @@ let currentFixEstId = null;
 async function uploadSingleProjectToCloud(project) {
   const fileName = `${project.name}.json`;
 
-  // =====【关键】手动重建纯净对象，拒绝structuredClone！只保留必要字段 =====
+  // 手动重建纯净对象，杜绝循环引用
   const cleanProject = {
     id: project.id,
     name: project.name,
@@ -648,7 +648,7 @@ async function uploadSingleProjectToCloud(project) {
     }
   };
 
-  // 逐条重建 trxs，强制删除所有 _backup 临时属性！
+  // 逐条重建trxs，强制清理所有临时备份属性，只保留白名单字段
   cleanProject.data.trxs = [];
   if(Array.isArray(project.data.trxs)){
     for(const t of project.data.trxs){
@@ -672,7 +672,7 @@ async function uploadSingleProjectToCloud(project) {
         diffStopAmt: t.diffStopAmt ?? 0,
         ts: t.ts ?? 0
       };
-      // 强制移除会造成循环/超大体积的备份字段
+      // 彻底删除所有可能造成循环/超大体积的临时备份
       delete newTrx._backupPurchase;
       delete newTrx._backupBegin;
       cleanProject.data.trxs.push(newTrx);
@@ -688,24 +688,25 @@ async function uploadSingleProjectToCloud(project) {
 
   let jsonStr;
   try{
-    // 原生无任何replacer序列化！！杜绝递归遍历爆栈
     jsonStr = JSON.stringify(payload);
   }catch(err){
     console.error("序列化失败", err);
-    alert(`❌ 数据体量过大序列化失败！
-操作建议：
-1. 先点【导出数据→移交导出JSON】本地备份
+    if(err.message.includes("call stack")){
+      alert(`❌ 数据栈溢出！
+建议操作：
+1. 先【导出数据→移交导出JSON】本地备份
 2. 删除多年无用历史月份、清理冗余明细
-3. 分批上传
+3. 分批上传，不要一次性上传超大工程
 错误信息：${err.message}`);
+    }else{
+      alert(`❌ 序列化失败！${err.message}`);
+    }
     return false;
   }
 
-  // Base64编码
   const uint8 = new TextEncoder().encode(jsonStr);
   const contentB64 = btoa(String.fromCharCode(...uint8));
 
-  // 获取文件sha
   let sha = null;
   try {
     const checkRes = await fetch(`${GITHUB_API_BASE}/contents/${encodeURIComponent(fileName)}`, {
@@ -716,7 +717,7 @@ async function uploadSingleProjectToCloud(project) {
       sha = fileInfo.sha;
     }
   } catch (err) {
-    // 文件不存在
+    // 文件不存在，忽略
   }
 
   const body = {
