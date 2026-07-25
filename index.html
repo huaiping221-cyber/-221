@@ -2299,246 +2299,246 @@ ${innerHtml}
     
     // 生成 Excel XML，增加黄色高亮样式支持
     function downloadExcelXmlFromWorksheetsXml(worksheetsXmlArr, filename){
-      const xml = `<?xml version="1.0"?>
-<Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet"
-          xmlns:o="urn:schemas-microsoft-com:office:office"
-          xmlns:x="urn:schemas-microsoft-com:office:excel"
-          xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet">
-  <Styles>
-    <Style ss:ID="nb"><Alignment ss:Horizontal="Center" ss:Vertical="Center"/></Style>
-    <Style ss:ID="nbLeft"><Alignment ss:Horizontal="Left" ss:Vertical="Center"/></Style>
-    <Style ss:ID="Default" ss:Name="Normal">
-      <Alignment ss:Vertical="Center"/>
-      <Font ss:FontName="Segoe UI" ss:Size="10"/>
-    </Style>
-    <Style ss:ID="h1">
-      <Font ss:Bold="1" ss:Size="14"/>
-      <Alignment ss:Horizontal="Center" ss:Vertical="Center"/>
-    </Style>
-    <Style ss:ID="th">
-      <Font ss:Bold="1"/>
-      <Alignment ss:Horizontal="Center" ss:Vertical="Center"/>
-      <Borders>
-        <Border ss:Position="Left" ss:LineStyle="Continuous" ss:Weight="1"/>
-        <Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1"/>
-        <Border ss:Position="Top" ss:LineStyle="Continuous" ss:Weight="1"/>
-        <Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1"/>
-      </Borders>
-    </Style>
-    <Style ss:ID="td">
-      <Alignment ss:Horizontal="Center" ss:Vertical="Center"/>
-      <Borders>
-        <Border ss:Position="Left" ss:LineStyle="Continuous" ss:Weight="1"/>
-        <Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1"/>
-        <Border ss:Position="Top" ss:LineStyle="Continuous" ss:Weight="1"/>
-        <Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1"/>
-      </Borders>
-    </Style>
-    <Style ss:ID="tdLeft">
-      <Alignment ss:Horizontal="Left" ss:Vertical="Center"/>
-      <Borders>
-        <Border ss:Position="Left" ss:LineStyle="Continuous" ss:Weight="1"/>
-        <Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1"/>
-        <Border ss:Position="Top" ss:LineStyle="Continuous" ss:Weight="1"/>
-        <Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1"/>
-      </Borders>
-    </Style>
-    <!-- 新增黄色高亮样式 -->
-    <Style ss:ID="tdYellow">
-      <Alignment ss:Horizontal="Center" ss:Vertical="Center"/>
-      <Borders>
-        <Border ss:Position="Left" ss:LineStyle="Continuous" ss:Weight="1"/>
-        <Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1"/>
-        <Border ss:Position="Top" ss:LineStyle="Continuous" ss:Weight="1"/>
-        <Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1"/>
-      </Borders>
-      <Interior ss:Color="#FFFF00" ss:Pattern="Solid"/>
-    </Style>
-    <Style ss:ID="tdLeftYellow">
-      <Alignment ss:Horizontal="Left" ss:Vertical="Center"/>
-      <Borders>
-        <Border ss:Position="Left" ss:LineStyle="Continuous" ss:Weight="1"/>
-        <Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1"/>
-        <Border ss:Position="Top" ss:LineStyle="Continuous" ss:Weight="1"/>
-        <Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1"/>
-      </Borders>
-      <Interior ss:Color="#FFFF00" ss:Pattern="Solid"/>
-    </Style>
-    <Style ss:ID="tdGreen">
-        <Alignment ss:Horizontal="Center" ss:Vertical="Center"/>
-        <Borders>
-            <Border ss:Position="Left" ss:LineStyle="Continuous" ss:Weight="1"/>
-            <Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1"/>
-            <Border ss:Position="Top" ss:LineStyle="Continuous" ss:Weight="1"/>
-            <Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1"/>
-        </Borders>
-        <Interior ss:Color="#C8F9C8" ss:Pattern="Solid"/>
-    </Style>
-    <Style ss:ID="tdLeftGreen">
-        <Alignment ss:Horizontal="Left" ss:Vertical="Center"/>
-        <Borders>
-            <Border ss:Position="Left" ss:LineStyle="Continuous" ss:Weight="1"/>
-            <Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1"/>
-            <Border ss:Position="Top" ss:LineStyle="Continuous" ss:Weight="1"/>
-            <Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1"/>
-        </Borders>
-        <Interior ss:Color="#C8F9C8" ss:Pattern="Solid"/>
-    </Style>
-  </Styles>
-  ${ws}
-</Workbook>`.trim();
+	  const worksheetsXml = worksheetsXmlArr.join("\n");
+	  const xml = `<?xml version="1.0"?>
+	<Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet"
+	          xmlns:o="urn:schemas-microsoft-com:office:office"
+	          xmlns:x="urn:schemas-microsoft-com:office:excel"
+	          xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet">
+	  <Styles>
+	    <Style ss:ID="nb"><Alignment ss:Horizontal="Center" ss:Vertical="Center"/></Style>
+	    <Style ss:ID="nbLeft"><Alignment ss:Horizontal="Left" ss:Vertical="Center"/></Style>
+	    <Style ss:ID="Default" ss:Name="Normal">
+	      <Alignment ss:Vertical="Center"/>
+	      <Font ss:FontName="Segoe UI" ss:Size="10"/>
+	    </Style>
+	    <Style ss:ID="h1">
+	      <Font ss:Bold="1" ss:Size="14"/>
+	      <Alignment ss:Horizontal="Center" ss:Vertical="Center"/>
+	    </Style>
+	    <Style ss:ID="th">
+	      <Font ss:Bold="1"/>
+	      <Alignment ss:Horizontal="Center" ss:Vertical="Center"/>
+	      <Borders>
+	        <Border ss:Position="Left" ss:LineStyle="Continuous" ss:Weight="1"/>
+	        <Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1"/>
+	        <Border ss:Position="Top" ss:LineStyle="Continuous" ss:Weight="1"/>
+	        <Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1"/>
+	      </Borders>
+	    </Style>
+	    <Style ss:ID="td">
+	      <Alignment ss:Horizontal="Center" ss:Vertical="Center"/>
+	      <Borders>
+	        <Border ss:Position="Left" ss:LineStyle="Continuous" ss:Weight="1"/>
+	        <Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1"/>
+	        <Border ss:Position="Top" ss:LineStyle="Continuous" ss:Weight="1"/>
+	        <Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1"/>
+	      </Borders>
+	    </Style>
+	    <Style ss:ID="tdLeft">
+	      <Alignment ss:Horizontal="Left" ss:Vertical="Center"/>
+	      <Borders>
+	        <Border ss:Position="Left" ss:LineStyle="Continuous" ss:Weight="1"/>
+	        <Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1"/>
+	        <Border ss:Position="Top" ss:LineStyle="Continuous" ss:Weight="1"/>
+	        <Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1"/>
+	      </Borders>
+	    </Style>
+	    <!-- 新增黄色高亮样式 -->
+	    <Style ss:ID="tdYellow">
+	      <Alignment ss:Horizontal="Center" ss:Vertical="Center"/>
+	      <Borders>
+	        <Border ss:Position="Left" ss:LineStyle="Continuous" ss:Weight="1"/>
+	        <Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1"/>
+	        <Border ss:Position="Top" ss:LineStyle="Continuous" ss:Weight="1"/>
+	        <Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1"/>
+	      </Borders>
+	      <Interior ss:Color="#FFFF00" ss:Pattern="Solid"/>
+	    </Style>
+	    <Style ss:ID="tdLeftYellow">
+	      <Alignment ss:Horizontal="Left" ss:Vertical="Center"/>
+	      <Borders>
+	        <Border ss:Position="Left" ss:LineStyle="Continuous" ss:Weight="1"/>
+	        <Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1"/>
+	        <Border ss:Position="Top" ss:LineStyle="Continuous" ss:Weight="1"/>
+	        <Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1"/>
+	      </Borders>
+	      <Interior ss:Color="#FFFF00" ss:Pattern="Solid"/>
+	    </Style>
+	    <Style ss:ID="tdGreen">
+	        <Alignment ss:Horizontal="Center" ss:Vertical="Center"/>
+	        <Borders>
+	            <Border ss:Position="Left" ss:LineStyle="Continuous" ss:Weight="1"/>
+	            <Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1"/>
+	            <Border ss:Position="Top" ss:LineStyle="Continuous" ss:Weight="1"/>
+	            <Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1"/>
+	        </Borders>
+	        <Interior ss:Color="#C8F9C8" ss:Pattern="Solid"/>
+	    </Style>
+	    <Style ss:ID="tdLeftGreen">
+	        <Alignment ss:Horizontal="Left" ss:Vertical="Center"/>
+	        <Borders>
+	            <Border ss:Position="Left" ss:LineStyle="Continuous" ss:Weight="1"/>
+	            <Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1"/>
+	            <Border ss:Position="Top" ss:LineStyle="Continuous" ss:Weight="1"/>
+	            <Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1"/>
+	        </Borders>
+	        <Interior ss:Color="#C8F9C8" ss:Pattern="Solid"/>
+	    </Style>
+	  </Styles>
+	  ${worksheetsXml}
+	</Workbook>`.trim();
 
-      const blob = new Blob([xml], { type: "application/vnd.ms-excel;charset=utf-8" });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url; a.download = filename || "export.xls";
-      document.body.appendChild(a); a.click(); a.remove();
-      URL.revokeObjectURL(url);
-    }
+	  const blob = new Blob([xml], { type: "application/vnd.ms-excel;charset=utf-8" });
+	  const url = URL.createObjectURL(blob);
+	  const a = document.createElement("a");
+	  a.href = url; a.download = filename || "export.xls";
+	  document.body.appendChild(a); a.click(); a.remove();
+	  URL.revokeObjectURL(url);
+	}
 
     // 模板版统计页（XML工作表，用于“导出全部”），已增加高亮逻辑
     // 修改：如果该月有高亮行，将TabColor设为黄色
     function buildTemplateWorksheetXml(ym){
-      const sheetName = ym.replace("-", ".") + "消耗";
-      const title = "燃料消耗明细表";
-      const subLeft = "  工程名称:" + currentProjectName();
+	  const sheetName = ym.replace("-", ".") + "消耗";
+	  const title = "燃料消耗明细表";
+	  const subLeft = "  工程名称:" + currentProjectName();
 
-      let snaps = getSnaps(ym)
-        .filter(s =>
-          (!state.filterShip || s.shipId === state.filterShip) &&
-          (!state.filterModel || s.modelId === state.filterModel)
-        )
-        .sort((a,b)=> (shipName(a.shipId)+modelName(a.modelId))
-          .localeCompare(shipName(b.shipId)+modelName(b.modelId)));
+	  let snaps = getSnaps(ym)
+	    .filter(s =>
+	      (!state.filterShip || s.shipId === state.filterShip) &&
+	      (!state.filterModel || s.modelId === state.filterModel)
+	    )
+	    .sort((a,b)=> (shipName(a.shipId)+modelName(a.modelId))
+	      .localeCompare(shipName(b.shipId)+modelName(b.modelId)));
 
-      snaps = filterSnapsByZeroOption(snaps);
+	  snaps = filterSnapsByZeroOption(snaps);
 
-      const dataRows = [];
-      let idx = 1;
-      let totals = { bq:0, ba:0, pq:0, pa:0, cq:0, cstopq:0, wpnum:0, wpden:0, ca:0, cstopa:0, csum:0, eq:0, ea:0 };
+	  const dataRows = [];
+	  let idx = 1;
+	  let totals = { bq:0, ba:0, pq:0, pa:0, cq:0, cstopq:0, wpnum:0, wpden:0, ca:0, cstopa:0, csum:0, eq:0, ea:0 };
 
-      // 标记该Sheet是否包含高亮行
-      let sheetHasHighlight = false;
+	  // 标记该Sheet是否包含高亮行
+	  let sheetHasHighlight = false;
 
-      snaps.forEach(s=>{
-        const wp = s.weightedPrice||0;
-        const csum = s.totalConsume || round2((s.consumeAmt||0) + (s.stopAmt||0));
-        const pu = (s.purchasedQty > 0) ? round6((s.purchasedAmt||0) / (s.purchasedQty||0)) : 0;
-        
-        // 检查调拨状态
-        const tKey = `${ym}|${s.shipId}|${s.modelId}`;
-        const transferStatus = state.transfers[tKey];
-        if (transferStatus) sheetHasHighlight = true;
+	  snaps.forEach(s=>{
+	    const wp = s.weightedPrice||0;
+	    const csum = s.totalConsume || round2((s.consumeAmt||0) + (s.stopAmt||0));
+	    const pu = (s.purchasedQty > 0) ? round6((s.purchasedAmt||0) / (s.purchasedQty||0)) : 0;
+	    
+	    // 检查调拨状态
+	    const tKey = `${ym}|${s.shipId}|${s.modelId}`;
+	    const transferStatus = state.transfers[tKey];
+	    if (transferStatus) sheetHasHighlight = true;
 
-        dataRows.push({
-          data: [
-            idx++,
-            shipName(s.shipId),
-            modelName(s.modelId),
-            round6(s.beginQty), round2(s.beginAmt),
-            round6(s.purchasedQty), round6(pu), round2(s.purchasedAmt),
-            round6(s.consumeQty), round6(s.stopQty||0), round6(wp),
-            round2(s.consumeAmt), round2(s.stopAmt||0), round2(csum),
-            round6(s.endQty), round6(wp), round2(s.endAmt)
-          ],
-          highlight: !!transferStatus
-        });
+	    dataRows.push({
+	      data: [
+	        idx++,
+	        shipName(s.shipId),
+	        modelName(s.modelId),
+	        round6(s.beginQty), round2(s.beginAmt),
+	        round6(s.purchasedQty), round6(pu), round2(s.purchasedAmt),
+	        round6(s.consumeQty), round6(s.stopQty||0), round6(wp),
+	        round2(s.consumeAmt), round2(s.stopQty||0), round2(csum),
+	        round6(s.endQty), round6(wp), round2(s.endAmt)
+	      ],
+	      highlight: !!transferStatus,
+	      transferStatus: transferStatus // 存储调拨状态供后续渲染使用
+	    });
 
-        totals.bq+=s.beginQty||0; totals.ba+=s.beginAmt||0;
-        totals.pq+=s.purchasedQty||0; totals.pa+=s.purchasedAmt||0;
-        totals.cq+=s.consumeQty||0; totals.cstopq+=s.stopQty||0;
-        totals.wpnum+=s.consumeAmt||0; totals.wpden+=s.consumeQty||0;
-        totals.ca+=s.consumeAmt||0; totals.cstopa+=s.stopAmt||0; totals.csum+=csum;
-        totals.eq+=s.endQty||0; totals.ea+=s.endAmt||0;
-      });
-      const wpa = totals.wpden ? totals.wpnum/totals.wpden : 0;
-      const pua = totals.pq ? totals.pa/totals.pq : 0;
+	    totals.bq+=s.beginQty||0; totals.ba+=s.beginAmt||0;
+	    totals.pq+=s.purchasedQty||0; totals.pa+=s.purchasedAmt||0;
+	    totals.cq+=s.consumeQty||0; totals.cstopq+=s.stopQty||0;
+	    totals.wpnum+=s.consumeAmt||0; totals.wpden+=s.consumeQty||0;
+	    totals.ca+=s.consumeAmt||0; totals.cstopa+=s.stopAmt||0; totals.csum+=csum;
+	    totals.eq+=s.endQty||0; totals.ea+=s.endAmt||0;
+	  });
+	  const wpa = totals.wpden ? totals.wpnum/totals.wpden : 0;
+	  const pua = totals.pq ? totals.pa/totals.pq : 0;
 
-      const cell = (v, style, mergeAcross, mergeDown) => {
-        const sa = style ? ` ss:StyleID="${style}"` : "";
-        const ma = (mergeAcross && mergeAcross>0) ? ` ss:MergeAcross="${mergeAcross}"` : "";
-        const md = (mergeDown && mergeDown>0) ? ` ss:MergeDown="${mergeDown}"` : "";
-        if (v === null || v === undefined || v === "") {
-          return `<Cell${sa}${ma}${md}><Data ss:Type="String"></Data></Cell>`;
-        }
-        const num = Number(v);
-        if (!isNaN(num) && /^\s*-?\d+(\.\d+)?\s*$/.test(String(v))) {
-          return `<Cell${sa}${ma}${md}><Data ss:Type="Number">${num}</Data></Cell>`;
-        }
-        return `<Cell${sa}${ma}${md}><Data ss:Type="String">${xmlEscape(String(v))}</Data></Cell>`;
-      };
-      const row = (cells) => `<Row>${cells.join("")}</Row>`;
+	  const cell = (v, style, mergeAcross, mergeDown) => {
+	    const sa = style ? ` ss:StyleID="${style}"` : "";
+	    const ma = (mergeAcross && mergeAcross>0) ? ` ss:MergeAcross="${mergeAcross}"` : "";
+	    const md = (mergeDown && mergeDown>0) ? ` ss:MergeDown="${mergeDown}"` : "";
+	    if (v === null || v === undefined || v === "") {
+	      return `<Cell${sa}${ma}${md}><Data ss:Type="String"></Data></Cell>`;
+	    }
+	    const num = Number(v);
+	    if (!isNaN(num) && /^\s*-?\d+(\.\d+)?\s*$/.test(String(v))) {
+	      return `<Cell${sa}${ma}${md}><Data ss:Type="Number">${num}</Data></Cell>`;
+	    }
+	    return `<Cell${sa}${ma}${md}><Data ss:Type="String">${xmlEscape(String(v))}</Data></Cell>`;
+	  };
+	  const row = (cells) => `<Row>${cells.join("")}</Row>`;
 
-      const headerRow1 = row([ cell(title, "h1", 17, 0) ]);
-      const headerRow2 = row([
-        cell("", "nb"),
-        cell(subLeft, "nbLeft"),
-        cell("", "nb"),cell("", "nb"),cell("", "nb"),cell("", "nb"),cell("", "nb"),
-        cell(fmtCnYm(ym), "nb", 3),
-        cell("", "nb"),cell("", "nb"),cell("", "nb"),cell("", "nb"),cell("", "nb"),cell("", "nb"),cell("", "nb"),cell("", "nb")
-      ]);
-      const headerRow3 = row([
-        cell("序号","th",0,1),
-        cell("船舶名称","th",0,1),
-        cell("规格型号","th",0,1),
-        cell("期初结存","th",1,0),
-        cell("本期增加","th",2,0),
-        cell("本期减少","th",5,0),
-        cell("期末结存","th",2,0)
-      ]);
-      const headerRow4 = row([
-        cell("","th"), cell("","th"), cell("","th"),
-        cell("数量","th"), cell("金额","th"),
-        cell("购入数量","th"), cell("单价","th"), cell("金额","th"),
-        cell("消耗数量","th"), cell("停工数量","th"), cell("加权单价","th"),
-        cell("消耗金额","th"), cell("停工金额","th"), cell("合计消耗","th"),
-        cell("数量","th"), cell("单价","th"), cell("金额","th")
-      ]);
+	  const headerRow1 = row([ cell(title, "h1", 17, 0) ]);
+	  const headerRow2 = row([
+	    cell("", "nb"),
+	    cell(subLeft, "nbLeft"),
+	    cell("", "nb"),cell("", "nb"),cell("", "nb"),cell("", "nb"),cell("", "nb"),
+	    cell(fmtCnYm(ym), "nb", 3),
+	    cell("", "nb"),cell("", "nb"),cell("", "nb"),cell("", "nb"),cell("", "nb"),cell("", "nb"),cell("", "nb"),cell("", "nb")
+	  ]);
+	  const headerRow3 = row([
+	    cell("序号","th",0,1),
+	    cell("船舶名称","th",0,1),
+	    cell("规格型号","th",0,1),
+	    cell("期初结存","th",1,0),
+	    cell("本期增加","th",2,0),
+	    cell("本期减少","th",5,0),
+	    cell("期末结存","th",2,0)
+	  ]);
+	  const headerRow4 = row([
+	    cell("","th"), cell("","th"), cell("","th"),
+	    cell("数量","th"), cell("金额","th"),
+	    cell("购入数量","th"), cell("单价","th"), cell("金额","th"),
+	    cell("消耗数量","th"), cell("停工数量","th"), cell("加权单价","th"),
+	    cell("消耗金额","th"), cell("停工金额","th"), cell("合计消耗","th"),
+	    cell("数量","th"), cell("单价","th"), cell("金额","th")
+	  ]);
 
-      const dataRowsXml = dataRows.map(obj=>{
-        const r = obj.data;
-        const hl = obj.highlight;
-        // 如果高亮，使用 tdYellow / tdLeftYellow
-        let styleStd = "td";
-        let styleLeft = "tdLeft";
-        if (transferStatus === "IN") {
-            styleStd = "tdYellow";
-            styleLeft = "tdLeftYellow";
-        } else if (transferStatus === "OUT") {
-            styleStd = "tdGreen";
-            styleLeft = "tdLeftGreen";
-        }
+	  const dataRowsXml = dataRows.map(obj=>{
+	    const r = obj.data;
+	    // 从当前行对象读取调拨状态，修复变量未定义BUG
+	    const ts = obj.transferStatus;
+	    let styleStd = "td";
+	    let styleLeft = "tdLeft";
+	    if (ts === "IN") {
+	        styleStd = "tdYellow";
+	        styleLeft = "tdLeftYellow";
+	    } else if (ts === "OUT") {
+	        styleStd = "tdGreen";
+	        styleLeft = "tdLeftGreen";
+	    }
 
-        
-        const vals = [ r[0], r[1], r[2], r[3], r[4], r[5], r[6], r[7], r[8], r[9], r[10], r[11], r[12], r[13], r[14], r[15], r[16] ];
-        return row(vals.map((v, cIdx) => (cIdx===1||cIdx===2) ? cell(v,styleLeft) : cell(v,styleStd)));
-      }).join("");
+	    const vals = [ r[0], r[1], r[2], r[3], r[4], r[5], r[6], r[7], r[8], r[9], r[10], r[11], r[12], r[13], r[14], r[15], r[16] ];
+	    return row(vals.map((v, cIdx) => (cIdx===1||cIdx===2) ? cell(v,styleLeft) : cell(v,styleStd)));
+	  }).join("");
 
-      const totalsRow = row([
-        cell("合计","tdLeft"), cell("","tdLeft"), cell("","tdLeft"),
-        cell(round6(totals.bq),"td"), cell(round2(totals.ba),"td"),
-        cell(round6(totals.pq),"td"), cell(round6(pua),"td"), cell(round2(totals.pa),"td"),
-        cell(round6(totals.cq),"td"), cell(round6(totals.cstopq),"td"), cell(round6(wpa),"td"),
-        cell(round2(totals.ca),"td"), cell(round2(totals.cstopa),"td"), cell(round2(totals.csum),"td"),
-        cell(round6(totals.eq),"td"), cell(round6(wpa),"td"), cell(round2(totals.ea),"td")
-      ]);
+	  const totalsRow = row([
+	    cell("合计","tdLeft"), cell("","tdLeft"), cell("","tdLeft"),
+	    cell(round6(totals.bq),"td"), cell(round2(totals.ba),"td"),
+	    cell(round6(totals.pq),"td"), cell(round6(pua),"td"), cell(round2(totals.pa),"td"),
+	    cell(round6(totals.cq),"td"), cell(round6(totals.cstopq),"td"), cell(round6(wpa),"td"),
+	    cell(round2(totals.ca),"td"), cell(round2(totals.cstopa),"td"), cell(round2(totals.csum),"td"),
+	    cell(round6(totals.eq),"td"), cell(round6(wpa),"td"), cell(round2(totals.ea),"td")
+	  ]);
 
-      // 如果有高亮行，插入 TabColorIndex 选项 (Index 6 为黄色)
-      const optionsXml = sheetHasHighlight 
-        ? `<x:WorksheetOptions><x:TabColorIndex>6</x:TabColorIndex></x:WorksheetOptions>` 
-        : "";
+	  // 如果有高亮行，插入 TabColorIndex 选项 (Index 6 为黄色)
+	  const optionsXml = sheetHasHighlight 
+	    ? `<x:WorksheetOptions><x:TabColorIndex>6</x:TabColorIndex></x:WorksheetOptions>` 
+	    : "";
 
-      const wsXml = `<Worksheet ss:Name="${xmlEscape(sheetName)}">
-        <Table>
-          ${headerRow1}${headerRow2}${headerRow3}${headerRow4}
-          ${dataRowsXml}
-          ${totalsRow}
-        </Table>
-        ${optionsXml}
-      </Worksheet>`;
-      return wsXml;
-    }
-
+	  const wsXml = `<Worksheet ss:Name="${xmlEscape(sheetName)}">
+	    <Table>
+	      ${headerRow1}${headerRow2}${headerRow3}${headerRow4}
+	      ${dataRowsXml}
+	      ${totalsRow}
+	    </Table>
+	    ${optionsXml}
+	  </Worksheet>`;
+	  return wsXml;
+	}
     // 补充丢失的函数：导出所有月份
     function exportAllSummariesCSV() {
       if(!state.months.length){ alert("暂无月份数据"); return; }
