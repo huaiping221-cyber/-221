@@ -739,34 +739,35 @@ async function uploadSingleProjectToCloud(project) {
   const trxsByYm = {};
   const lockYm = project.data.lockYm || "";
   allTrxs.forEach(t=>{
-    if(lockYm && t.ym <= lockYm) return;
-    if(!trxsByYm[t.ym]) trxsByYm[t.ym] = [];
-    // 清洗单条交易，只保留白名单字段
-    const cleanTrx = {
-      id: t.id,
-      ym: t.ym,
-      shipId: t.shipId,
-      modelId: t.modelId,
-      type: t.type,
-      qty: t.qty ?? 0,
-      unitPrice: t.unitPrice ?? 0,
-      amount: t.amount ?? 0,
-      stopQty: t.stopQty ?? 0,
-      isEstimate: !!t.isEstimate,
-      isManualEntry: !!t.isManualEntry,
-      sourceId: t.sourceId ?? null,
-      note: t.note ?? "",
-      supplier: t.supplier ?? "",
-      purchaseDate: t.purchaseDate ?? "",
-      createDate: t.createDate ?? "",
-      diffAmount: t.diffAmount ?? 0,
-      stopAmount: t.stopAmount ?? 0,
-      ts: t.ts ?? 0
-    };
-    delete cleanTrx._backupPurchase;
-    delete cleanTrx._backupBegin;
-    trxsByYm[t.ym].push(cleanTrx);
-  });
+	    if(lockYm && t.ym <= lockYm) return;
+	    if(!trxsByYm[t.ym]) trxsByYm[t.ym] = [];
+	    // 清洗单条交易，只保留白名单字段
+	    const cleanTrx = {
+	      id: t.id,
+	      ym: t.ym,
+	      shipId: t.shipId,
+	      modelId: t.modelId,
+	      type: t.type,
+	      qty: t.qty ?? 0,
+	      unitPrice: t.unitPrice ?? 0,
+	      amount: t.amount ?? 0,
+	      stopQty: t.stopQty ?? 0,
+	      isEstimate: !!t.isEstimate,
+	      isManualEntry: !!t.isManualEntry,
+	      isManualConsumeAmt: !!t.isManualConsumeAmt,
+	      sourceId: t.sourceId ?? null,
+	      note: t.note ?? "",
+	      supplier: t.supplier ?? "",
+	      purchaseDate: t.purchaseDate ?? "",
+	      createDate: t.createDate ?? "",
+	      diffAmount: t.diffAmount ?? 0,
+	      stopAmount: t.stopAmount ?? 0,
+	      ts: t.ts ?? 0
+	    };
+	    delete cleanTrx._backupPurchase;
+	    delete cleanTrx._backupBegin;
+	    trxsByYm[t.ym].push(cleanTrx);
+	});
 
   // ========== 上传辅助子函数 ==========
   async function uploadFile(filename, payloadObj){
