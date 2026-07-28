@@ -757,7 +757,7 @@ async function uploadSingleProjectToCloud(project) {
       sourceId: t.sourceId ?? null,
       note: t.note ?? "",
       supplier: t.supplier ?? "",
-	  purchaseDate: t.purchaseDate ?? "",
+      purchaseDate: t.purchaseDate ?? "",
       createDate: t.createDate ?? "",
       diffAmount: t.diffAmount ?? 0,
       stopAmount: t.stopAmount ?? 0,
@@ -1664,7 +1664,7 @@ $("btnProjectAdd").onclick = async ()=>{
           const purchasedAmt = purchasedList.reduce((s,t)=>s+(t.amount||0),0);
 
           const denom = beginQty + purchasedQty;
-          const weighted = denom>0 ? (beginAmt + purchasedAmt)/denom : 0;
+          let weighted = denom>0 ? (beginAmt + purchasedAmt)/denom : 0;
 
           const consumeQty = list.filter(t=>t.type==="CONSUME").reduce((s,t)=>s+(t.qty||0),0);
           const stopQty = list.filter(t=>t.type==="CONSUME").reduce((s,t)=>s+(t.stopQty||0),0);
@@ -1677,6 +1677,10 @@ $("btnProjectAdd").onclick = async ()=>{
           if(manualConsumeRows.length > 0){
              consumeAmt = round2(manualConsumeRows.reduce((s,t)=>s+(t.amount||0), 0));
              stopAmt = stopAmtAuto;
+             // 新增：存在手动录入消耗金额，当月加权单价 = 手动消耗金额 / 消耗数量（消耗数量>0才生效）
+             if(consumeQty > 0) {
+               weighted = round6(consumeAmt / consumeQty);
+             }
           }else{
               consumeAmt = consumeAmtAuto;
               stopAmt = stopAmtAuto;
