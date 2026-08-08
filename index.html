@@ -2247,6 +2247,7 @@ $("btnProjectAdd").onclick = async ()=>{
   .center { text-align:center; }
   .left { text-align:left; }
   .nb td, .nb th { border:none !important; }
+  img { display: inline-block !important; vertical-align: middle; border: none; }
 </style>
 <title>${sName}</title>
 </head>
@@ -2555,33 +2556,38 @@ ${innerHtml}
 
     // ====== 水印样式工具 ======
     function imgStyle(key){
-      const s = state.watermarkStyles[key] || { h:36, dx:0, dy:0 };
-      const h = Math.max(1, Number(s.h)||36);
-      const dx = Number(s.dx)||0;
-      const dy = Number(s.dy)||0;
-      return `height:${h}px; margin-left:${dx}px; margin-top:${dy}px; vertical-align:middle;`;
+	  const s = state.watermarkStyles[key] || { h:36, dx:0, dy:0 };
+	  const h = Math.max(1, Number(s.h) || 36);
+	  const dx = Number(s.dx) || 0;
+	  const dy = Number(s.dy) || 0;
+	  // 使用padding实现偏移，兼容Excel HTML渲染，同时保留高度设置
+	  return `height="${h}" style="display:inline-block;height:${h}px;padding-left:${dx}px;padding-top:${dy}px;vertical-align:middle;border:none;max-height:none;background:transparent;"`;
     }
-
     // 补充丢失的函数：水印处理相关
     function refreshWmPreview(){
-      function upd(id, src, styleKey){
-        const img = $(id);
-        if(!src){
-          img.style.display="none"; img.src="";
-        }else{
-          img.style.display="inline-block"; img.src=src;
-          const s = state.watermarkStyles[styleKey];
-          // 预览时简单缩放，不完全应用dx/dy以免跑出容器
-          img.style.height = (s.h||36)+"px";
-          img.style.marginLeft = "0px";
-          img.style.marginTop = "0px";
-        }
-      }
-      upd("wmPrev1", state.watermarks.topLeft, "topLeft");
-      upd("wmPrev2", state.watermarks.maker, "maker");
-      upd("wmPrev3", state.watermarks.auditor, "auditor");
+	  function upd(id, src, styleKey){
+	    const img = $(id);
+	    if(!src){
+	      img.style.display = "none";
+	      img.src = "";
+	    }else{
+	      const s = state.watermarkStyles[styleKey] || { h:36, dx:0, dy:0 };
+	      img.style.display = "inline-block";
+	      img.src = src;
+	      // 统一使用padding实现偏移，与导出Excel的样式保持一致
+	      img.style.height = `${s.h}px`;
+	      img.style.maxHeight = "none";
+	      img.style.paddingLeft = `${s.dx}px`;
+	      img.style.paddingTop = `${s.dy}px`;
+	      img.style.border = "none";
+	      img.style.background = "transparent";
+	      img.style.verticalAlign = "middle";
+	    }
+	  }
+	  upd("wmPrev1", state.watermarks.topLeft, "topLeft");
+	  upd("wmPrev2", state.watermarks.maker, "maker");
+	  upd("wmPrev3", state.watermarks.auditor, "auditor");
     }
-
     function fillWmInputs(){
       function f(key, pfx){
         const s = state.watermarkStyles[key];
@@ -2599,7 +2605,7 @@ ${innerHtml}
         [pfx+"H", pfx+"DX", pfx+"DY"].forEach(id=>{
           const el = $(id);
           // 移除旧监听器防止重复（简便起见直接覆盖onchange）
-          el.onchange = ()=>{
+          el.oninput = ()=>{
             const h = parseInt($(pfx+"H").value)||36;
             const dx = parseInt($(pfx+"DX").value)||0;
             const dy = parseInt($(pfx+"DY").value)||0;
@@ -2693,9 +2699,9 @@ ${innerHtml}
       const s2 = imgStyle("maker");
       const s3 = imgStyle("auditor");
 
-      const wm1 = state.watermarks.topLeft ? `<img src="${state.watermarks.topLeft}" style="${s1}">` : "";
-      const wm2 = state.watermarks.maker ? `<img src="${state.watermarks.maker}" style="${s2}">` : "";
-      const wm3 = state.watermarks.auditor ? `<img src="${state.watermarks.auditor}" style="${s3}">` : "";
+      const wm1 = state.watermarks.topLeft ? `<img src="${state.watermarks.topLeft}" ${imgStyle("topLeft")}>` : "";
+      const wm2 = state.watermarks.maker ? `<img src="${state.watermarks.maker}" ${imgStyle("maker")}>` : "";
+      const wm3 = state.watermarks.auditor ? `<img src="${state.watermarks.auditor}" ${imgStyle("auditor")}>` : "";
 
       const title ="燃料消耗明细表";
 
@@ -2709,7 +2715,7 @@ ${innerHtml}
           </td>
         </tr>
         <tr class="nb">
-          <td style="border:none;">${wm1}</td>
+          <td style="border:none;position:relative;">${wm1}</td>
           <td colspan="5" class="left" style="border:none;">工程名称: ${htmlEscape(currentProjectName())}</td>
           <td colspan="6" class="center" style="border:none;">${htmlEscape(fmtCnYm(ym))}</td>
           <td colspan="4" style="border:none;"></td>
